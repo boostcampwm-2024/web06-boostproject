@@ -19,13 +19,8 @@ module.exports = {
 		'prettier/prettier': ['error', { endOfLine: 'auto' }],
 		'no-shadow': 0,
 		'import/no-unresolved': 0,
+		'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+		'import/extensions': 0,
+		'import/prefer-default-export': 0,
 	},
-	overrides: [
-		{
-			files: ['vite.config.ts'],
-			rules: {
-				'import/no-extraneous-dependencies': 'off',
-			},
-		},
-	],
 };

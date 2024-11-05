@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	body {
+		font-family:
+			'Pretendard Variable',
+			Pretendard,
+			-apple-system,
+			BlinkMacSystemFont,
+			system-ui,
+			Roboto,
+			'Helvetica Neue',
+			'Segoe UI',
+			'Apple SD Gothic Neo',
+			'Noto Sans KR',
+			'Malgun Gothic',
+			'Apple Color Emoji',
+			'Segoe UI Emoji',
+			'Segoe UI Symbol',
+			sans-serif;
+
+		/* colors */
+		/* LINE Green */
+		--green: #02c655;
+
+		/* Line Gray */
+		--white: #ffffff;
+		--gray-100: #fcfcfc;
+		--gray-200: #efefef;
+		--gray-300: #dfdfdf;
+		--gray-400: #b7b7b7;
+		--gray-500: #949494;
+		--gray-600: #777777;
+		--gray-700: #555555;
+		--gray-800: #2a2a2a;
+		--gray-900: #111111;
+		--black: #000000;
+
+		/* LINE Blue */
+		--blue-400: #96b2ff;
+		--blue-500: #638dff;
+		--blue-600: #4d73ff;
+		--blue-700: #2f59cc;
+
+		/* LINE Navy */
+		--navy-400: #c8cfdc;
+		--navy-500: #98a0b3;
+		--navy-600: #707991;
+		--navy-700: #464f69;
+		--navy-800: #262f4a;
+		--navy-900: #202a43;
+
+		/* LINE Red */
+		--red-400: #ff334b;
+	}
+}

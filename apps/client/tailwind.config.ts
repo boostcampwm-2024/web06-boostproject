@@ -9,39 +9,64 @@ export default {
 		},
 		extend: {
 			colors: {
-				green: 'var(--green)',
+				green: {
+					400: 'hsl(var(--green-400))',
+					500: 'hsl(var(--green-500))',
+					600: 'hsl(var(--green-600))',
+					700: 'hsl(var(--green-700))',
+				},
 
 				white: 'var(--white)',
 				gray: {
-					100: 'var(--gray-100)',
-					200: 'var(--gray-200)',
-					300: 'var(--gray-300)',
-					400: 'var(--gray-400)',
-					500: 'var(--gray-500)',
-					600: 'var(--gray-600)',
-					700: 'var(--gray-700)',
-					800: 'var(--gray-800)',
-					900: 'var(--gray-900)',
+					100: 'hsl(var(--gray-100))',
+					200: 'hsl(var(--gray-200))',
+					300: 'hsl(var(--gray-300))',
+					400: 'hsl(var(--gray-400))',
+					500: 'hsl(var(--gray-500))',
+					600: 'hsl(var(--gray-600))',
+					700: 'hsl(var(--gray-700))',
+					800: 'hsl(var(--gray-800))',
+					900: 'hsl(var(--gray-900))',
 				},
-				black: 'var(--black)',
+				black: 'hsl(var(--black))',
 
 				blue: {
-					400: 'var(--blue-400)',
-					500: 'var(--blue-500)',
-					600: 'var(--blue-600)',
-					700: 'var(--blue-700)',
+					400: 'hsl(var(--blue-400))',
+					500: 'hsl(var(--blue-500))',
+					600: 'hsl(var(--blue-600))',
+					700: 'hsl(var(--blue-700))',
 				},
 
 				navy: {
-					400: 'var(--navy-400)',
-					500: 'var(--navy-500)',
-					600: 'var(--navy-600)',
-					700: 'var(--navy-700)',
-					800: 'var(--navy-800)',
-					900: 'var(--navy-900)',
+					400: 'hsl(var(--navy-400))',
+					500: 'hsl(var(--navy-500))',
+					600: 'hsl(var(--navy-600))',
+					700: 'hsl(var(--navy-700))',
+					800: 'hsl(var(--navy-800))',
+					900: 'hsl(var(--navy-900))',
 				},
 				red: {
-					400: 'var(--red-400)',
+					400: 'hsl(var(--red-400))',
+				},
+
+				primary: {
+					DEFAULT: 'hsl(var(--green-500))',
+					foreground: 'hsl(var(--white))',
+				},
+
+				secondary: {
+					DEFAULT: 'hsl(var(--blue-500))',
+					foreground: 'hsl(var(--white))',
+				},
+
+				destructive: {
+					DEFAULT: 'hsl(var(--red-400))',
+					foreground: 'hsl(var(--white))',
+				},
+
+				accent: {
+					DEFAULT: 'hsl(var(--navy-400))',
+					foreground: 'hsl(var(--white))',
 				},
 			},
 		},

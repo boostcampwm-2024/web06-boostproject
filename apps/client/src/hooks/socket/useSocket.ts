@@ -1,34 +1,55 @@
-import { useCallback } from 'react';
-import { useSocketConnection } from '@/hooks/socket/useSocketConnection';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { io, Socket } from 'socket.io-client';
+
+const SOCKET_SERVER_URL = 'http://localhost:3001';
+const SOCKET_OPTIONS = { reconnection: true, reconnectionAttempts: 5, reconnectionDelay: 2000 };
+
+export type EventHandler<T = unknown> = (data: T) => void;
+export type EmitData<T = unknown> = T;
 
 export const useSocket = () => {
-	const { socket, isConnected } = useSocketConnection();
+	const socketRef = useRef<Socket | null>(null);
+	const [isConnected, setIsConnected] = useState<boolean>(false);
+
+	useEffect(() => {
+		const socket = io(SOCKET_SERVER_URL, SOCKET_OPTIONS);
+		socketRef.current = socket;
+
+		socket.on('connect', () => {
+			setIsConnected(true);
+		});
+		socket.on('disconnect', () => setIsConnected(false));
+		socket.on('error', () => {
+			socket.disconnect();
+			setIsConnected(false);
+		});
+
+		return () => {
+			socket.disconnect();
+			socketRef.current = null;
+			setIsConnected(false);
+		};
+	}, []);
 
 	const addListener = useCallback(
-		(event: string, eventHandler: (...args: unknown[]) => void) => {
-			if (socket) {
-				socket.on(event, eventHandler);
-			}
+		<T>(event: string, handler: EventHandler<T>) => {
+			socketRef.current?.on(event, handler);
 		},
-		[socket]
+		[socketRef.current]
 	);
 
 	const removeListener = useCallback(
-		(event: string, eventHandler: (...args: unknown[]) => void) => {
-			if (socket) {
-				socket.off(event, eventHandler);
-			}
+		<T>(event: string, handler: EventHandler<T>) => {
+			socketRef.current?.off(event, handler);
 		},
-		[socket]
+		[socketRef.current]
 	);
 
 	const sendMessage = useCallback(
-		(event: string, data: unknown) => {
-			if (socket) {
-				socket.emit(event, data);
-			}
+		<T>(event: string, data: EmitData<T>) => {
+			socketRef.current?.emit(event, data);
 		},
-		[socket]
+		[socketRef.current]
 	);
 
 	return { isConnected, addListener, removeListener, sendMessage };

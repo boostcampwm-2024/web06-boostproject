@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TypeormConfig } from '../config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { TypeormConfig } from '../config/typeorm.config';
 import { TaskModule } from './task/task.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';

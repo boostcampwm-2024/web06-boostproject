@@ -48,6 +48,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/harmony
+            git fetch
+            git pull
             chmod +x scripts/deploy.sh
             ./scripts/deploy.sh
-            

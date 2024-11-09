@@ -44,7 +44,7 @@ const initialColumns = [
 ];
 
 function App() {
-	const [columns, setColumns] = useState(initialColumns); // eslint-disable-line @typescript-eslint/no-unused-vars
+	const [columns] = useState(initialColumns);
 
 	return (
 		<div className="flex h-screen flex-col">

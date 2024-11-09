@@ -48,6 +48,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/harmony
-            chmod +x deploy.sh
-            ./deploy.sh
+            chmod +x scripts/deploy.sh
+            ./scripts/deploy.sh
             

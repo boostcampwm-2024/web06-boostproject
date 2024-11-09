@@ -48,8 +48,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/harmony
-            git pull
-            pnpm install
-            pnpm build
-            pm2 start apps/server/dist/main.js harmony-api
+            chmod +x deploy.sh
+            ./deploy.sh
             

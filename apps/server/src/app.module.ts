@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TypeormConfig } from '../config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { TaskModule } from './task/task.module';
+import { TypeormConfig } from '../config/typeorm.config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 
@@ -18,7 +17,6 @@ import { AppController } from './app.controller';
 				return new DataSource(options).initialize();
 			},
 		}),
-		TaskModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

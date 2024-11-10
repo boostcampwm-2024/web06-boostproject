@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../domain/task.entity';
@@ -17,6 +17,10 @@ export class TaskService {
 
 	async create(createTaskRequest: CreateTaskRequest) {
 		const section = await this.sectionRepository.findOneBy({ id: createTaskRequest.sectionId });
+		if (!section) {
+			throw new NotFoundException('Section not found');
+		}
+
 		const task = await this.taskRepository.save({
 			position: createTaskRequest.position,
 			section,

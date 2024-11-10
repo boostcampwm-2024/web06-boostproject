@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeormConfig } from '../config/typeorm.config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { HttpLoggingInterceptor } from './common/httpLog.Interceptor';
 
 @Module({
 	imports: [
@@ -19,6 +21,12 @@ import { AppController } from './app.controller';
 		}),
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [
+		AppService,
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: HttpLoggingInterceptor,
+		},
+	],
 })
 export class AppModule {}

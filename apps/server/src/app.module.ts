@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeormConfig } from '../config/typeorm.config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { HttpLoggingInterceptor } from './common/httpLog.Interceptor';
+import { AllExceptionsFilter } from './common/allException.filter';
 
 @Module({
 	imports: [
@@ -26,6 +27,10 @@ import { HttpLoggingInterceptor } from './common/httpLog.Interceptor';
 		{
 			provide: APP_INTERCEPTOR,
 			useClass: HttpLoggingInterceptor,
+		},
+		{
+			provide: APP_FILTER,
+			useClass: AllExceptionsFilter,
 		},
 	],
 })

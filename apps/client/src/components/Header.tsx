@@ -1,16 +1,29 @@
+import { useEffect, useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Harmony } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
-	isTop?: boolean;
 	className?: string;
 }
 
-function Header({ isTop = true, className }: HeaderProps) {
+function Header({ className }: HeaderProps) {
 	const router = useRouterState();
 	const { pathname } = router.location;
+	const [isTop, setIsTop] = useState(true);
+
+	useEffect(() => {
+		const handleScroll = () => {
+			const currentScrollY = window.scrollY;
+			setIsTop(currentScrollY <= 10);
+		};
+
+		handleScroll();
+		window.addEventListener('scroll', handleScroll, { passive: true });
+
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
 
 	const isLoginPage = pathname === '/login';
 	const isSignupPage = pathname === '/signup';

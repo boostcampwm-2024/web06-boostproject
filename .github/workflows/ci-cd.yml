@@ -50,15 +50,8 @@ jobs:
             cd /var/www/harmony
             git fetch
             git pull
-            chmod +w apps/server
-            echo "DATABASE_HOST=${{ secrets.SERVER_ENV_DATABASE_HOST }}" >> apps/server/.env
-            echo "DATABASE_PORT=${{ secrets.SERVER_ENV_DATABASE_PORT }}" >> apps/server/.env
-            echo "DATABASE_NAME=${{ secrets.SERVER_ENV_DATABASE_NAME }}" >> apps/server/.env
-            echo "DATABASE_PASSWORD=${{ secrets.SERVER_ENV_DATABASE_PASSWORD }}" >> apps/server/.env
-            echo "DATABASE_USER=${{ secrets.SERVER_ENV_DATABASE_USER }}" >> apps/server/.env
-            echo "JWT_ACCESS_TOKEN_SECRET=${{ secrets.SERVER_ENV_JWT_ACCESS_TOKEN_SECRET }}" >> apps/server/.env
-            echo "JWT_ACCESS_TOKEN_TIME=${{ secrets.SERVER_ENV_JWT_ACCESS_TOKEN_TIME }}" >> apps/server/.env
-            echo "JWT_REFRESH_TOKEN_SECRET=${{ secrets.SERVER_ENV_JWT_REFRESH_TOKEN_SECRET }}" >> apps/server/.env
-            echo "JWT_REFRESH_TOKEN_TIME=${{ secrets.SERVER_ENV_JWT_REFRESH_TOKEN_TIME }}" >> apps/server/.env
+            chmod +wx apps/server
+            rm apps/server/.env
+            echo "${{ secrets.SERVER_ENV }}" >> apps/server/.env
             chmod +x scripts/deploy.sh
             ./scripts/deploy.sh

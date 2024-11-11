@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { ValidationRule, FormState, useFormReturnType } from './useForm.types';
 
 export function useForm<T extends { [key: string]: string }>(
@@ -47,25 +47,6 @@ export function useForm<T extends { [key: string]: string }>(
 		[validationRules]
 	);
 
-	const validateForm = useCallback(() => {
-		let isFormValid = true;
-		const newErrors: { [K in keyof T]?: string } = {};
-
-		Object.keys(formState.values).forEach((key) => {
-			const error = validateField(key as keyof T, formState.values[key as keyof T]);
-			if (error) {
-				newErrors[key as keyof T] = error;
-				isFormValid = false;
-			}
-		});
-
-		setFormState((prev) => ({
-			...prev,
-			errors: newErrors,
-			formIsValid: isFormValid,
-		}));
-	}, [formState.values, validateField]);
-
 	const handleChange = useCallback(
 		(name: keyof T, value: string) => {
 			setFormState((prev) => {
@@ -101,10 +82,6 @@ export function useForm<T extends { [key: string]: string }>(
 			formIsDirty: false,
 		});
 	}, [initialValues]);
-
-	useEffect(() => {
-		validateForm();
-	}, [validateForm]);
 
 	return {
 		values: formState.values,

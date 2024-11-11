@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Github, Harmony } from '@/components/logo';
+import { Github } from '@/components/logo';
+import Header from '@/components/Header.tsx';
 
 function Home() {
-	const [isScrolled, setIsScrolled] = useState(false);
+	const [isTop, setIsTop] = useState(true);
 
 	const handleScroll = () => {
-		setIsScrolled(window.scrollY > 0);
+		setIsTop(window.scrollY === 0);
 	};
 
 	useEffect(() => {
@@ -20,23 +21,7 @@ function Home() {
 
 	return (
 		<div className="flex min-h-screen flex-col">
-			<header
-				className={`p-auto fixed top-0 flex h-16 w-full items-center justify-between bg-white px-6 text-black dark:bg-black dark:text-white ${
-					isScrolled ? 'border-b-1 shadow-sm' : 'headerClasses.normal'
-				}`}
-			>
-				<div className="flex items-center space-x-4">
-					<Harmony size={32} />
-				</div>
-				<div className="flex items-center space-x-2">
-					<Button variant="ghost" asChild>
-						<Link to="/login">로그인</Link>
-					</Button>
-					<Button variant="outline" asChild>
-						<Link to="/signup">회원가입</Link>
-					</Button>
-				</div>
-			</header>
+			<Header isTop={isTop} />
 
 			<main className="mt-16 flex-grow bg-white text-black dark:bg-black dark:text-white">
 				<section className="container mx-auto max-w-6xl from-pink-500 via-red-500 to-yellow-500 px-6 py-20 text-center">

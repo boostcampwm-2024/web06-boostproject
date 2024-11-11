@@ -7,6 +7,7 @@ import { CreateTaskResponse } from '../dto/create-task-response.dto';
 import { Section } from '../domain/section.entity';
 import { UpdateTaskRequest } from '../dto/update-task-request.dto';
 import { UpdateTaskResponse } from '../dto/update-task-response.dto';
+import { LexoRank } from 'lexorank';
 
 @Injectable()
 export class TaskService {
@@ -18,14 +19,12 @@ export class TaskService {
 	) {}
 
 	async create(createTaskRequest: CreateTaskRequest) {
-		const section = await this.sectionRepository.findOneBy({ id: createTaskRequest.sectionId });
-		if (!section) {
-			throw new NotFoundException('Section not found');
-		}
+		const position: string = createTaskRequest.lastTaskPosition
+			? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
+			: LexoRank.min().toString();
 
 		const task = await this.taskRepository.save({
-			position: createTaskRequest.position,
-			section,
+			position,
 		});
 		return new CreateTaskResponse(task);
 	}

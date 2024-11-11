@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Project } from '../entity/project.entity';
 import { Contributor } from '../entity/contributor.entity';
 import { ContributorStatus } from '../enum/contributor-status.enum';
@@ -13,6 +13,7 @@ import { ProjectContributorsResponse } from '../dto/project-contributors-respons
 @Injectable()
 export class ProjectService {
 	constructor(
+		private dataSource: DataSource,
 		@InjectRepository(Project) private projectRepository: Repository<Project>,
 		@InjectRepository(Contributor) private contributorRepository: Repository<Contributor>,
 		@InjectRepository(Account) private accountRepository: Repository<Account>
@@ -54,14 +55,27 @@ export class ProjectService {
 	}
 
 	async create(userId: number, title: string) {
-		const project = await this.projectRepository.save({ title });
-		await this.contributorRepository.save({
-			userId,
-			projectId: project.id,
-			status: ContributorStatus.ACCEPTED,
-			role: ProjectRole.ADMIN,
-		});
-		return new CreateProjectResponse(project);
+		const queryRunner = this.dataSource.createQueryRunner();
+
+		await queryRunner.connect();
+		await queryRunner.startTransaction();
+
+		try {
+			const project = await queryRunner.manager.save(Project, { title });
+			await queryRunner.manager.save(Contributor, {
+				userId,
+				projectId: project.id,
+				status: ContributorStatus.ACCEPTED,
+				role: ProjectRole.ADMIN,
+			});
+			await queryRunner.commitTransaction();
+			return new CreateProjectResponse(project);
+		} catch (error) {
+			await queryRunner.rollbackTransaction();
+			throw error;
+		} finally {
+			await queryRunner.release();
+		}
 	}
 
 	async invite(userId: number, projectId: number, username: string) {

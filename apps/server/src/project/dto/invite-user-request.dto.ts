@@ -1,8 +1,8 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsPositive, Length } from 'class-validator';
 
 export class InviteUserRequest {
 	@IsNotEmpty()
-	@IsEmail()
+	@Length(8, 15)
 	username: string;
 
 	@IsNotEmpty()

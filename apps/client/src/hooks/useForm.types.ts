@@ -15,3 +15,15 @@ export type ValidationRule = {
 	pattern?: { value: RegExp; message?: string };
 	validate?: { value: (value: string) => boolean; message?: string };
 };
+
+export type useFormReturnType<T> = {
+	values: T;
+	errors: { [K in keyof T]?: string };
+	touched: { [K in keyof T]?: boolean };
+	isValid: { [K in keyof T]?: boolean };
+	isDirty: { [K in keyof T]?: boolean };
+	formIsValid: boolean;
+	formIsDirty: boolean;
+	handleChange: (key: keyof T, value: string) => void;
+	reset: () => void;
+};

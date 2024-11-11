@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { ValidationRule, FormState } from './useForm.types';
+import type { ValidationRule, FormState, useFormReturnType } from './useForm.types';
 
 export function useForm<T extends { [key: string]: string }>(
 	initialValues: T,
 	validationRules: { [K in keyof T]?: ValidationRule } = {}
-) {
+): useFormReturnType<T> {
 	const [formState, setFormState] = useState<FormState<T>>({
 		values: initialValues,
 		errors: {},

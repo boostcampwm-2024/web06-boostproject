@@ -56,7 +56,13 @@ export class TaskService {
 			throw new NotFoundException('Task not found');
 		}
 
-		const beforePostion = LexoRank.parse(moveTaskRequest.beforePostion);
+		const section = await this.sectionRepository.findOneBy({ id: moveTaskRequest.sectionId });
+		if (!section) {
+			throw new NotFoundException('Section not found');
+		}
+		task.section = section;
+
+		const beforePostion = LexoRank.parse(moveTaskRequest.beforePosition);
 		const afterPosition = LexoRank.parse(moveTaskRequest.afterPosition);
 		task.position = beforePostion.between(afterPosition).toString();
 

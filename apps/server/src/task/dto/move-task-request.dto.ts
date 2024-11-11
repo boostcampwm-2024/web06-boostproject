@@ -1,7 +1,7 @@
 export class MoveTaskRequest {
 	sectionId: number;
 
-	beforePostion: string;
+	beforePosition: string;
 
 	afterPosition: string;
 }

@@ -16,7 +16,7 @@ export class AuthService {
 	async signUp(username: string, password: string) {
 		const account = await this.accountService.findByUsername(username);
 		if (account) {
-			throw new BadRequestException('Already used email');
+			throw new BadRequestException('Already used username');
 		}
 		const hash = await bcrypt.hash(password, 10);
 		const user = await this.accountService.create(username, hash);

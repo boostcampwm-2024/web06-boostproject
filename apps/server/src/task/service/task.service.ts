@@ -10,6 +10,8 @@ import { UpdateTaskRequest } from '../dto/update-task-request.dto';
 import { UpdateTaskResponse } from '../dto/update-task-response.dto';
 import { MoveTaskRequest } from '../dto/move-task-request.dto';
 import { MoveTaskResponse } from '../dto/move-task-response.dto';
+import { DeleteTaskResponse } from '../dto/delete-task-response.dto';
+import { TaskResponse } from '../dto/task-response.dto';
 
 @Injectable()
 export class TaskService {
@@ -32,18 +34,12 @@ export class TaskService {
 	}
 
 	async update(id: number, updateTaskRequest: UpdateTaskRequest) {
-		const task = await this.taskRepository.findOneBy({ id });
-		if (!task) {
-			throw new NotFoundException('Task not found');
-		}
+		const task = await this.findTaskOrThrow(id);
 
 		task.title = updateTaskRequest.title ?? task.title;
 		task.description = updateTaskRequest.description ?? task.description;
 
-		const section = await this.sectionRepository.findOneBy({ id: updateTaskRequest.sectionId });
-		if (!section) {
-			throw new NotFoundException('Section not found');
-		}
+		const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
 		task.section = section;
 
 		await this.taskRepository.save(task);
@@ -51,15 +47,9 @@ export class TaskService {
 	}
 
 	async move(id: number, moveTaskRequest: MoveTaskRequest) {
-		const task = await this.taskRepository.findOneBy({ id });
-		if (!task) {
-			throw new NotFoundException('Task not found');
-		}
+		const task = await this.findTaskOrThrow(id);
 
-		const section = await this.sectionRepository.findOneBy({ id: moveTaskRequest.sectionId });
-		if (!section) {
-			throw new NotFoundException('Section not found');
-		}
+		const section = await this.findSectionOrThrow(moveTaskRequest.sectionId);
 		task.section = section;
 
 		const beforePostion = LexoRank.parse(moveTaskRequest.beforePosition);
@@ -68,5 +58,21 @@ export class TaskService {
 
 		await this.taskRepository.save(task);
 		return new MoveTaskResponse(task);
+	}
+
+	private async findTaskOrThrow(id: number) {
+		const task = await this.taskRepository.findOneBy({ id });
+		if (!task) {
+			throw new NotFoundException('Task not found');
+		}
+		return task;
+	}
+
+	private async findSectionOrThrow(id: number) {
+		const section = await this.sectionRepository.findOneBy({ id });
+		if (!section) {
+			throw new NotFoundException('Section not found');
+		}
+		return section;
 	}
 }

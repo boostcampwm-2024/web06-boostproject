@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../domain/task.entity';
 import { CreateTaskRequest } from '../dto/create-task-request.dto';
 import { CreateTaskResponse } from '../dto/create-task-response.dto';
 import { Section } from '../domain/section.entity';
+import { UpdateTaskRequest } from '../dto/update-task-request.dto';
+import { UpdateTaskResponse } from '../dto/update-task-response.dto';
 
 @Injectable()
 export class TaskService {
@@ -17,10 +19,33 @@ export class TaskService {
 
 	async create(createTaskRequest: CreateTaskRequest) {
 		const section = await this.sectionRepository.findOneBy({ id: createTaskRequest.sectionId });
+		if (!section) {
+			throw new NotFoundException('Section not found');
+		}
+
 		const task = await this.taskRepository.save({
 			position: createTaskRequest.position,
 			section,
 		});
 		return new CreateTaskResponse(task);
+	}
+
+	async update(id: number, updateTaskRequest: UpdateTaskRequest) {
+		const task = await this.taskRepository.findOneBy({ id });
+		if (!task) {
+			throw new NotFoundException('Task not found');
+		}
+
+		task.title = updateTaskRequest.title ?? task.title;
+		task.description = updateTaskRequest.description ?? task.description;
+
+		const section = await this.sectionRepository.findOneBy({ id: updateTaskRequest.sectionId });
+		if (!section) {
+			throw new NotFoundException('Section not found');
+		}
+		task.section = section;
+
+		await this.taskRepository.save(task);
+		return new UpdateTaskResponse(task);
 	}
 }

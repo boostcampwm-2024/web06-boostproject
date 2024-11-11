@@ -13,7 +13,12 @@
 import { Route as rootRoute } from './routes/__root';
 import { Route as SignupImport } from './routes/signup';
 import { Route as LoginImport } from './routes/login';
+import { Route as JoinImport } from './routes/join';
+import { Route as AuthImport } from './routes/_auth';
 import { Route as IndexImport } from './routes/index';
+import { Route as AuthAccountImport } from './routes/_auth.account';
+import { Route as AuthAccountIndexImport } from './routes/_auth.account.index';
+import { Route as AuthAccountSettingsImport } from './routes/_auth.account.settings';
 
 // Create/Update Routes
 
@@ -29,10 +34,39 @@ const LoginRoute = LoginImport.update({
 	getParentRoute: () => rootRoute,
 } as any);
 
+const JoinRoute = JoinImport.update({
+	id: '/join',
+	path: '/join',
+	getParentRoute: () => rootRoute,
+} as any);
+
+const AuthRoute = AuthImport.update({
+	id: '/_auth',
+	getParentRoute: () => rootRoute,
+} as any);
+
 const IndexRoute = IndexImport.update({
 	id: '/',
 	path: '/',
 	getParentRoute: () => rootRoute,
+} as any);
+
+const AuthAccountRoute = AuthAccountImport.update({
+	id: '/account',
+	path: '/account',
+	getParentRoute: () => AuthRoute,
+} as any);
+
+const AuthAccountIndexRoute = AuthAccountIndexImport.update({
+	id: '/',
+	path: '/',
+	getParentRoute: () => AuthAccountRoute,
+} as any);
+
+const AuthAccountSettingsRoute = AuthAccountSettingsImport.update({
+	id: '/settings',
+	path: '/settings',
+	getParentRoute: () => AuthAccountRoute,
 } as any);
 
 // Populate the FileRoutesByPath interface
@@ -46,6 +80,20 @@ declare module '@tanstack/react-router' {
 			preLoaderRoute: typeof IndexImport;
 			parentRoute: typeof rootRoute;
 		};
+		'/_auth': {
+			id: '/_auth';
+			path: '';
+			fullPath: '';
+			preLoaderRoute: typeof AuthImport;
+			parentRoute: typeof rootRoute;
+		};
+		'/join': {
+			id: '/join';
+			path: '/join';
+			fullPath: '/join';
+			preLoaderRoute: typeof JoinImport;
+			parentRoute: typeof rootRoute;
+		};
 		'/login': {
 			id: '/login';
 			path: '/login';
@@ -53,54 +101,113 @@ declare module '@tanstack/react-router' {
 			preLoaderRoute: typeof LoginImport;
 			parentRoute: typeof rootRoute;
 		};
-		'/signup': {
-			id: '/signup';
-			path: '/signup';
-			fullPath: '/signup';
-			preLoaderRoute: typeof SignupImport;
-			parentRoute: typeof rootRoute;
+		'/_auth/account': {
+			id: '/_auth/account';
+			path: '/account';
+			fullPath: '/account';
+			preLoaderRoute: typeof AuthAccountImport;
+			parentRoute: typeof AuthImport;
+		};
+		'/_auth/account/settings': {
+			id: '/_auth/account/settings';
+			path: '/settings';
+			fullPath: '/account/settings';
+			preLoaderRoute: typeof AuthAccountSettingsImport;
+			parentRoute: typeof AuthAccountImport;
+		};
+		'/_auth/account/': {
+			id: '/_auth/account/';
+			path: '/';
+			fullPath: '/account/';
+			preLoaderRoute: typeof AuthAccountIndexImport;
+			parentRoute: typeof AuthAccountImport;
 		};
 	}
 }
 
 // Create and export the route tree
 
+interface AuthAccountRouteChildren {
+	AuthAccountSettingsRoute: typeof AuthAccountSettingsRoute;
+	AuthAccountIndexRoute: typeof AuthAccountIndexRoute;
+}
+
+const AuthAccountRouteChildren: AuthAccountRouteChildren = {
+	AuthAccountSettingsRoute: AuthAccountSettingsRoute,
+	AuthAccountIndexRoute: AuthAccountIndexRoute,
+};
+
+const AuthAccountRouteWithChildren = AuthAccountRoute._addFileChildren(AuthAccountRouteChildren);
+
+interface AuthRouteChildren {
+	AuthAccountRoute: typeof AuthAccountRouteWithChildren;
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+	AuthAccountRoute: AuthAccountRouteWithChildren,
+};
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren);
+
 export interface FileRoutesByFullPath {
 	'/': typeof IndexRoute;
+	'': typeof AuthRouteWithChildren;
+	'/join': typeof JoinRoute;
 	'/login': typeof LoginRoute;
-	'/signup': typeof SignupRoute;
+	'/account': typeof AuthAccountRouteWithChildren;
+	'/account/settings': typeof AuthAccountSettingsRoute;
+	'/account/': typeof AuthAccountIndexRoute;
 }
 
 export interface FileRoutesByTo {
 	'/': typeof IndexRoute;
+	'': typeof AuthRouteWithChildren;
+	'/join': typeof JoinRoute;
 	'/login': typeof LoginRoute;
-	'/signup': typeof SignupRoute;
+	'/account/settings': typeof AuthAccountSettingsRoute;
+	'/account': typeof AuthAccountIndexRoute;
 }
 
 export interface FileRoutesById {
 	__root__: typeof rootRoute;
 	'/': typeof IndexRoute;
+	'/_auth': typeof AuthRouteWithChildren;
+	'/join': typeof JoinRoute;
 	'/login': typeof LoginRoute;
-	'/signup': typeof SignupRoute;
+	'/_auth/account': typeof AuthAccountRouteWithChildren;
+	'/_auth/account/settings': typeof AuthAccountSettingsRoute;
+	'/_auth/account/': typeof AuthAccountIndexRoute;
 }
 
 export interface FileRouteTypes {
 	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths: '/' | '/login' | '/signup';
+	fullPaths: '/' | '' | '/join' | '/login' | '/account' | '/account/settings' | '/account/';
 	fileRoutesByTo: FileRoutesByTo;
-	to: '/' | '/login' | '/signup';
-	id: '__root__' | '/' | '/login' | '/signup';
+	to: '/' | '' | '/join' | '/login' | '/account/settings' | '/account';
+	id:
+		| '__root__'
+		| '/'
+		| '/_auth'
+		| '/join'
+		| '/login'
+		| '/_auth/account'
+		| '/_auth/account/settings'
+		| '/_auth/account/';
 	fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
 	IndexRoute: typeof IndexRoute;
+	AuthRoute: typeof AuthRouteWithChildren;
+	JoinRoute: typeof JoinRoute;
 	LoginRoute: typeof LoginRoute;
 	SignupRoute: typeof SignupRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
 	IndexRoute: IndexRoute,
+	AuthRoute: AuthRouteWithChildren,
+	JoinRoute: JoinRoute,
 	LoginRoute: LoginRoute,
 	SignupRoute: SignupRoute,
 };
@@ -116,18 +223,41 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/login",
-        "/signup"
+        "/_auth",
+        "/join",
+        "/login"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/_auth": {
+      "filePath": "_auth.tsx",
+      "children": [
+        "/_auth/account"
+      ]
+    },
+    "/join": {
+      "filePath": "join.tsx"
+    },
     "/login": {
       "filePath": "login.tsx"
     },
-    "/signup": {
-      "filePath": "signup.tsx"
+    "/_auth/account": {
+      "filePath": "_auth.account.tsx",
+      "parent": "/_auth",
+      "children": [
+        "/_auth/account/settings",
+        "/_auth/account/"
+      ]
+    },
+    "/_auth/account/settings": {
+      "filePath": "_auth.account.settings.tsx",
+      "parent": "/_auth/account"
+    },
+    "/_auth/account/": {
+      "filePath": "_auth.account.index.tsx",
+      "parent": "/_auth/account"
     }
   }
 }

@@ -1,27 +1,12 @@
-import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Github } from '@/components/logo';
 import Header from '@/components/Header.tsx';
 
 function Home() {
-	const [isTop, setIsTop] = useState(true);
-
-	const handleScroll = () => {
-		setIsTop(window.scrollY === 0);
-	};
-
-	useEffect(() => {
-		window.addEventListener('scroll', handleScroll);
-
-		return () => {
-			window.removeEventListener('scroll', handleScroll);
-		};
-	});
-
 	return (
 		<div className="flex min-h-screen flex-col">
-			<Header isTop={isTop} />
+			<Header />
 
 			<main className="mt-16 flex-grow bg-white text-black dark:bg-black dark:text-white">
 				<section className="container mx-auto max-w-6xl from-pink-500 via-red-500 to-yellow-500 px-6 py-20 text-center">

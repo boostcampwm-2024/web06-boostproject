@@ -1,6 +1,6 @@
 import { Task } from '../domain/task.entity';
 
-export class UpdateTaskResponse {
+export class MoveTaskResponse {
 	constructor(task: Task) {
 		this.id = task.id;
 		this.title = task.title;

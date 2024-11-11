@@ -4,6 +4,8 @@ import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { Task } from '@/task/domain/task.entity';
 import { Section } from '@/task/domain/section.entity';
 import { Account } from '@/account/entity/account.entity';
+import { Project } from '@/project/entity/project.entity';
+import { Contributor } from '@/project/entity/contributor.entity';
 
 @Injectable()
 export class TypeormConfig implements TypeOrmOptionsFactory {
@@ -17,7 +19,7 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
 			username: this.configService.get<string>('DATABASE_USER'),
 			password: this.configService.get<string>('DATABASE_PASSWORD'),
 			database: this.configService.get<string>('DATABASE_NAME'),
-			entities: [Task, Section, Account],
+			entities: [Task, Section, Account, Project, Contributor],
 			synchronize: true,
 			ssl: {
 				rejectUnauthorized: false,

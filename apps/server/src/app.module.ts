@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { HttpLoggingInterceptor } from './common/httpLog.Interceptor';
 import { AllExceptionsFilter } from './common/allException.filter';
 import { AccountModule } from './account/account.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { AccountModule } from './account/account.module';
 		}),
 		TaskModule,
 		AccountModule,
+		ProjectModule,
 	],
 	controllers: [AppController],
 	providers: [

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../service/project.service';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 import { CreateProjectRequest } from '../dto/create-project-request.dto';
@@ -14,6 +14,11 @@ export class ProjectController {
 	@Get()
 	getProjects(@AuthUser() user: Account) {
 		return this.projectService.getUserProjects(user.id);
+	}
+
+	@Get(':id/members')
+	getContributors(@AuthUser() user: Account, @Param('id') projectId: number) {
+		return this.projectService.getContributors(user.id, projectId);
 	}
 
 	@Post()

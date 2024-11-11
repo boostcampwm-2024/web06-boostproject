@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Github, Harmony, HarmonyIcon } from '@/components/logo';
+import { Github, Harmony } from '@/components/logo';
 
 function Home() {
 	const [isScrolled, setIsScrolled] = useState(false);
@@ -27,7 +27,6 @@ function Home() {
 			>
 				<div className="flex items-center space-x-4">
 					<Harmony size={32} />
-					<HarmonyIcon size={32} />
 				</div>
 				<div className="flex items-center space-x-2">
 					<Button variant="ghost" asChild>

@@ -10,7 +10,6 @@ import { UpdateTaskRequest } from '../dto/update-task-request.dto';
 import { UpdateTaskResponse } from '../dto/update-task-response.dto';
 import { MoveTaskRequest } from '../dto/move-task-request.dto';
 import { MoveTaskResponse } from '../dto/move-task-response.dto';
-import { DeleteTaskResponse } from '../dto/delete-task-response.dto';
 import { TaskResponse } from '../dto/task-response.dto';
 
 @Injectable()
@@ -58,6 +57,11 @@ export class TaskService {
 
 		await this.taskRepository.save(task);
 		return new MoveTaskResponse(task);
+	}
+
+	async get(id: number) {
+		const task = await this.findTaskOrThrow(id);
+		return new TaskResponse(task);
 	}
 
 	private async findTaskOrThrow(id: number) {

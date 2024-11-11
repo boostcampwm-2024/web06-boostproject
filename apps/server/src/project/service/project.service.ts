@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from '../entity/project.entity';
@@ -7,12 +7,14 @@ import { ContributorStatus } from '../enum/contributor-status.enum';
 import { ProjectRole } from '../enum/project-role.enum';
 import { CreateProjectResponse } from '../dto/create-project-response.dto';
 import { UserProjectsResponse } from '../dto/user-projects-response.dto';
+import { Account } from '@/account/entity/account.entity';
 
 @Injectable()
 export class ProjectService {
 	constructor(
 		@InjectRepository(Project) private projectRepository: Repository<Project>,
-		@InjectRepository(Contributor) private contributorRepository: Repository<Contributor>
+		@InjectRepository(Contributor) private contributorRepository: Repository<Contributor>,
+		@InjectRepository(Account) private accountRepository: Repository<Account>
 	) {}
 
 	async getUserProjects(userId: number) {
@@ -43,5 +45,25 @@ export class ProjectService {
 			role: ProjectRole.ADMIN,
 		});
 		return new CreateProjectResponse(project);
+	}
+
+	async invite(userId: number, projectId: number, username: string) {
+		const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
+		if (!userContributor || userContributor.role !== ProjectRole.ADMIN) {
+			throw new NotFoundException('Does not found user contributor or project');
+		}
+		const invitee = await this.accountRepository.findOneBy({ username });
+		if (!invitee) {
+			throw new NotFoundException('Does not found username');
+		}
+		if (await this.contributorRepository.existsBy({ projectId, userId: invitee.id })) {
+			throw new BadRequestException('Already existed invitation');
+		}
+		await this.contributorRepository.save({
+			projectId,
+			userId: invitee.id,
+			status: ContributorStatus.PENDING,
+			role: ProjectRole.GUEST,
+		});
 	}
 }

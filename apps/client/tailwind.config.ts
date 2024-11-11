@@ -8,6 +8,32 @@ export default {
 			sans: ['Pretendard', ...fontFamily.sans],
 		},
 		extend: {
+			animation: {
+				'gradient-rotate': 'gradient-rotate 10s linear infinite',
+			},
+			keyframes: {
+				'gradient-rotate': {
+					'0%, 100%': {
+						'background-size': '200% 200%',
+						'background-position': '0% 100%',
+					},
+					'25%': {
+						'background-size': '200% 200%',
+						'background-position': '100% 100%',
+					},
+					'50%': {
+						'background-size': '200% 200%',
+						'background-position': '0% 100%',
+					},
+					'75%': {
+						'background-size': '200% 200%',
+						'background-position': '0% 0%',
+					},
+				},
+			},
+			backgroundImage: {
+				'gradient-conic': 'conic-gradient(from 0deg, var(--tw-gradient-stops))',
+			},
 			colors: {
 				green: {
 					400: 'hsl(var(--green-400))',
@@ -16,7 +42,7 @@ export default {
 					700: 'hsl(var(--green-700))',
 				},
 
-				white: 'var(--white)',
+				white: 'hsl(var(--white))',
 				gray: {
 					100: 'hsl(var(--gray-100))',
 					200: 'hsl(var(--gray-200))',

@@ -13,7 +13,7 @@ export class Task {
 	description: string;
 
 	@Column()
-	position: number;
+	position: string;
 
 	@ManyToOne(() => Section)
 	@JoinColumn({ name: 'section_id' })

@@ -1,3 +1,5 @@
+import { Section } from '@/task/domain/section.entity';
+import { Task } from '@/task/domain/task.entity';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
@@ -14,7 +16,7 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
 			username: this.configService.get<string>('DATABASE_USER'),
 			password: this.configService.get<string>('DATABASE_PASSWORD'),
 			database: this.configService.get<string>('DATABASE_NAME'),
-			entities: [],
+			entities: [Task, Section],
 			synchronize: true,
 			ssl: {
 				rejectUnauthorized: false,

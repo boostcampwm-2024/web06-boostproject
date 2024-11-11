@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { TaskModule } from './task/task.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeormConfig } from '../config/typeorm.config';
 import { AppService } from './app.service';
@@ -20,6 +21,7 @@ import { AllExceptionsFilter } from './common/allException.filter';
 				return new DataSource(options).initialize();
 			},
 		}),
+		TaskModule,
 	],
 	controllers: [AppController],
 	providers: [

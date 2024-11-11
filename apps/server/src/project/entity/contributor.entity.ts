@@ -1,9 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ContributorStatus } from '../enum/contributor-status.enum';
 import { ProjectRole } from '../enum/project-role.enum';
+import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()
-export class Contributor {
+export class Contributor extends EntityTimestamp {
 	@PrimaryGeneratedColumn()
 	id: number;
 

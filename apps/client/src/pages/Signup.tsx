@@ -2,9 +2,10 @@ import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Github, Harmony, HarmonyWithText } from '@/components/logo';
+import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import SignupForm from '@/auth/SignupForm.tsx';
+import Footer from '@/components/Footer.tsx';
 
 interface SignupFormData {
 	username: string;
@@ -20,7 +21,9 @@ function Signup() {
 			axios.post('/api/auth/signup', { username, password }),
 		onSuccess: (response) => {
 			const { username } = response.data;
+
 			alert(`회원가입 성공 ${username}님 환영합니다!`);
+
 			navigate({ to: '/login' });
 		},
 		onError: (error) => {
@@ -28,6 +31,7 @@ function Signup() {
 				alert('이미 사용중인 아이디입니다.');
 				return;
 			}
+
 			alert('알 수 없는 오류가 발생했습니다.');
 		},
 	});
@@ -61,26 +65,8 @@ function Signup() {
 					<SignupForm isPending={isPending} onSubmit={onSubmit} />
 				</div>
 			</main>
-			<footer className="flex h-[100px] w-full items-center justify-center bg-white p-5 text-gray-500 dark:bg-gray-800">
-				<div className="container mx-auto flex max-w-6xl flex-col items-center justify-between md:flex-row">
-					<div className="flex items-center space-x-4">
-						<div className="flex justify-center">
-							<Harmony />
-							<span className="pl-4">2024 Naver Boostcamp Project</span>
-						</div>
-					</div>
-					<div className="mt-4 flex space-x-4 md:mt-0">
-						<a
-							target="_blank"
-							rel="noreferrer"
-							href="https://github.com/boostcampwm-2024/web06-harmony"
-							className="hover:text-secondary"
-						>
-							<Github size={24} color="currentColor" />
-						</a>
-					</div>
-				</div>
-			</footer>
+
+			<Footer />
 		</div>
 	);
 }

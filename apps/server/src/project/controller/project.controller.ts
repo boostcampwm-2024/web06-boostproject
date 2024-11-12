@@ -6,6 +6,7 @@ import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
 import { InviteUserRequest } from '../dto/invite-user-request.dto';
 import { UpdateContributorRequest } from '../dto/update-contributor-request.dts';
+import { CreateTaskRequest } from '../dto/create-task-request.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('projects')
@@ -41,6 +42,11 @@ export class ProjectController {
 	async invite(@AuthUser() user: Account, @Body() body: InviteUserRequest) {
 		await this.projectService.invite(user.id, body.projectId, body.username);
 		return { message: 'Successfully invite user', success: true };
+	}
+
+	@Post(':id/tasks')
+	createTask(@Param() projectId: number, @Body() createTaskRequest: CreateTaskRequest) {
+		return this.projectService.createTask(projectId, createTaskRequest);
 	}
 
 	@Patch('invitation')

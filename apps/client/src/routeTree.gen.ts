@@ -101,6 +101,13 @@ declare module '@tanstack/react-router' {
 			preLoaderRoute: typeof LoginImport;
 			parentRoute: typeof rootRoute;
 		};
+		'/signup': {
+			id: '/signup';
+			path: '/signup';
+			fullPath: '/signup';
+			preLoaderRoute: typeof SignupImport;
+			parentRoute: typeof rootRoute;
+		};
 		'/_auth/account': {
 			id: '/_auth/account';
 			path: '/account';
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
 	'': typeof AuthRouteWithChildren;
 	'/join': typeof JoinRoute;
 	'/login': typeof LoginRoute;
+	'/signup': typeof SignupRoute;
 	'/account': typeof AuthAccountRouteWithChildren;
 	'/account/settings': typeof AuthAccountSettingsRoute;
 	'/account/': typeof AuthAccountIndexRoute;
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
 	'': typeof AuthRouteWithChildren;
 	'/join': typeof JoinRoute;
 	'/login': typeof LoginRoute;
+	'/signup': typeof SignupRoute;
 	'/account/settings': typeof AuthAccountSettingsRoute;
 	'/account': typeof AuthAccountIndexRoute;
 }
@@ -174,6 +183,7 @@ export interface FileRoutesById {
 	'/_auth': typeof AuthRouteWithChildren;
 	'/join': typeof JoinRoute;
 	'/login': typeof LoginRoute;
+	'/signup': typeof SignupRoute;
 	'/_auth/account': typeof AuthAccountRouteWithChildren;
 	'/_auth/account/settings': typeof AuthAccountSettingsRoute;
 	'/_auth/account/': typeof AuthAccountIndexRoute;
@@ -181,15 +191,24 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
 	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths: '/' | '' | '/join' | '/login' | '/account' | '/account/settings' | '/account/';
+	fullPaths:
+		| '/'
+		| ''
+		| '/join'
+		| '/login'
+		| '/signup'
+		| '/account'
+		| '/account/settings'
+		| '/account/';
 	fileRoutesByTo: FileRoutesByTo;
-	to: '/' | '' | '/join' | '/login' | '/account/settings' | '/account';
+	to: '/' | '' | '/join' | '/login' | '/signup' | '/account/settings' | '/account';
 	id:
 		| '__root__'
 		| '/'
 		| '/_auth'
 		| '/join'
 		| '/login'
+		| '/signup'
 		| '/_auth/account'
 		| '/_auth/account/settings'
 		| '/_auth/account/';
@@ -225,7 +244,8 @@ export const routeTree = rootRoute
         "/",
         "/_auth",
         "/join",
-        "/login"
+        "/login",
+        "/signup"
       ]
     },
     "/": {
@@ -242,6 +262,9 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/signup": {
+      "filePath": "signup.tsx"
     },
     "/_auth/account": {
       "filePath": "_auth.account.tsx",

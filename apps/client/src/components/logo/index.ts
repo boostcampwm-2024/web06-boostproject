@@ -1,5 +1,5 @@
 import Github from '@/components/logo/GitHub';
+import HarmonyWithText from '@/components/logo/HarmonyWithText';
 import Harmony from '@/components/logo/Harmony';
-import HarmonyIcon from '@/components/logo/HarmonyIcon';
 
-export { Harmony, HarmonyIcon, Github };
+export { HarmonyWithText, Harmony, Github };

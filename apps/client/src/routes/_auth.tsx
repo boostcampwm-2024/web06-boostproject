@@ -1,6 +1,6 @@
 import { Link, Outlet, createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import { Harmony } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import {
 	DropdownMenu,
@@ -44,7 +44,7 @@ function AuthLayout() {
 				leftContent={
 					<>
 						<Link to="/account">
-							<Logo />
+							<Harmony />
 						</Link>
 						<div className="flex items-center gap-2">
 							<div>My Account</div>

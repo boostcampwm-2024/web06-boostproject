@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router';
-import { LogoWithText } from '@/components/logo';
+import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import { Button } from '@/components/ui/button';
 
@@ -18,7 +18,7 @@ function JoinPage() {
 			<Topbar
 				leftContent={
 					<Link to="/">
-						<LogoWithText />
+						<HarmonyWithText />
 					</Link>
 				}
 				rightContent={

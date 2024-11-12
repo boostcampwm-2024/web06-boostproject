@@ -25,14 +25,19 @@ const login = async ({ username, password }: { username: string; password: strin
 
 function Login() {
 	const auth = useAuth();
-	const navigate = useNavigate();
+	const navigate = useNavigate({ from: '/login' });
 
 	const { isPending, mutate } = useMutation({
 		mutationFn: login,
 		onSuccess: async (response) => {
 			const { username, accessToken } = response;
-			auth.login(username, accessToken);
-			navigate({ to: '/account' });
+
+			await auth.login(username, accessToken);
+			await new Promise((resolve) => {
+				setTimeout(resolve, 100);
+			});
+
+			await navigate({ to: '/account' });
 		},
 		onError: (error) => {
 			console.error('Login failed:', error);

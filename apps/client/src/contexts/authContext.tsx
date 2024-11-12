@@ -1,53 +1,54 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { getStoredUser, setStoredUser } from '@/utils/authStorage';
-import { sleep } from '@/utils/sleep';
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
 export interface AuthContext {
-  isAuthenticated: boolean;
-  login: (username: string) => Promise<void>;
-  logout: () => Promise<void>;
-  user: string | null;
+	isAuthenticated: boolean;
+	login: (username: string, accessToken: string) => Promise<void>;
+	logout: () => Promise<void>;
+	username: string;
+	accessToken: string;
 }
 
-const AuthContext = createContext<AuthContext | null>(null);
+export const initialAuthContext: AuthContext = {
+	isAuthenticated: false,
+	login: async () => {},
+	logout: async () => {},
+	username: '',
+	accessToken: '',
+};
 
-/* eslint-disable react/jsx-no-constructed-context-values */
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<string | null>(getStoredUser());
-  const isAuthenticated = !!user;
+const AuthContext = createContext<AuthContext>(initialAuthContext);
 
-  const login = useCallback(async (username: string) => {
-    // TODO: 로그인 API 호출
-    await sleep(100);
-    setStoredUser(username);
-    setUser(username);
-  }, []);
+export function AuthProvider({ children }: { children: ReactNode }) {
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+	const [username, setUsername] = useState<string>('');
+	const [accessToken, setAccessToken] = useState<string>('');
 
-  const logout = useCallback(async () => {
-    // TODO: 로그아웃 API 호출
-    await sleep(100);
-    setStoredUser(null);
-    setUser(null);
-  }, []);
+	const login = useCallback(async (username: string, accessToken: string) => {
+		setIsAuthenticated(true);
+		setUsername(username);
+		setAccessToken(accessToken);
+	}, []);
 
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
+	const logout = useCallback(async () => {
+		setIsAuthenticated(false);
+		setUsername('');
+		setAccessToken('');
+	}, []);
 
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+	const value = useMemo(
+		() => ({
+			isAuthenticated,
+			login,
+			logout,
+			username,
+			accessToken,
+		}),
+		[isAuthenticated, login, logout, username, accessToken]
+	);
+
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-/* eslint-disable react/jsx-no-constructed-context-values */
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-
-  return context;
-}
+export const useAuth = () => {
+	return useContext(AuthContext);
+};

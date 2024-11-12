@@ -1,4 +1,11 @@
-import { Link, Outlet, createFileRoute, redirect, useRouter } from '@tanstack/react-router';
+import {
+	Link,
+	Outlet,
+	createFileRoute,
+	redirect,
+	useParams,
+	useRouter,
+} from '@tanstack/react-router';
 import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
 import { Harmony } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
@@ -22,10 +29,30 @@ export const Route = createFileRoute('/_auth')({
 	component: AuthLayout,
 });
 
+const projectList = [
+	{
+		role: 'ADMIN',
+		project: {
+			id: 1,
+			title: 'project-01',
+			createdAt: '2024-11-12T04:15:54.354Z',
+		},
+	},
+	{
+		role: 'GUEST',
+		project: {
+			id: 2,
+			title: 'project-02',
+			createdAt: '2024-11-12T04:16:01.855Z',
+		},
+	},
+];
+
 function AuthLayout() {
 	const router = useRouter();
 	const navigate = Route.useNavigate();
 	const auth = useAuth();
+	const params = useParams({ strict: false });
 
 	const handleLogout = async () => {
 		try {
@@ -43,19 +70,26 @@ function AuthLayout() {
 			<Topbar
 				leftContent={
 					<>
-						<Link to="/account">
+						<Link to={params.project === undefined ? '/account' : '/$project'}>
 							<Harmony />
 						</Link>
 						<div className="flex items-center gap-2">
-							<div>My Account</div>
+							<h2>{params.project ?? 'My Account'}</h2>
 							<DropdownMenu>
 								<DropdownMenuTrigger className="h-8">
 									<ChevronsUpDownIcon className="h-4 w-4" />
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="start" className="bg-white">
-									<DropdownMenuItem>My Account</DropdownMenuItem>
-									<DropdownMenuItem>팀 포카드</DropdownMenuItem>
-									<DropdownMenuItem>Web06 project</DropdownMenuItem>
+									<DropdownMenuItem>
+										<Link to="/account">My Account</Link>
+									</DropdownMenuItem>
+									{projectList.map(({ project }) => (
+										<DropdownMenuItem key={project.id}>
+											<Link to="/$project/board" params={{ project: project.title }}>
+												{project.title}
+											</Link>
+										</DropdownMenuItem>
+									))}
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>

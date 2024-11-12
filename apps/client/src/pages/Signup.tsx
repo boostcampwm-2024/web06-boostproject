@@ -4,14 +4,8 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
-import SignupForm from '@/auth/SignupForm.tsx';
+import SignupForm, { SignupFormData } from '@/auth/SignupForm.tsx';
 import Footer from '@/components/Footer.tsx';
-
-interface SignupFormData {
-	username: string;
-	password: string;
-	passwordConfirm: string;
-}
 
 function Signup() {
 	const navigate = useNavigate({ from: '/signup' });
@@ -19,12 +13,12 @@ function Signup() {
 	const { isPending, mutate } = useMutation({
 		mutationFn: ({ username, password }: { username: string; password: string }) =>
 			axios.post('/api/auth/signup', { username, password }),
-		onSuccess: (response) => {
+		onSuccess: async (response) => {
 			const { username } = response.data;
 
 			alert(`회원가입 성공 ${username}님 환영합니다!`);
 
-			navigate({ to: '/login' });
+			await navigate({ to: '/login' });
 		},
 		onError: (error) => {
 			if (error.response.data.message === 'Already used email') {
@@ -36,7 +30,7 @@ function Signup() {
 		},
 	});
 
-	const onSubmit = (signupFormData: SignupFormData) => {
+	const handleSubmit = (signupFormData: SignupFormData) => {
 		mutate({
 			username: signupFormData.username,
 			password: signupFormData.password,
@@ -62,7 +56,7 @@ function Signup() {
 					<div className="mb-8 pt-12 text-center">
 						<h1 className="text-3xl font-bold">Harmony 시작하기</h1>
 					</div>
-					<SignupForm isPending={isPending} onSubmit={onSubmit} />
+					<SignupForm isPending={isPending} onSubmit={handleSubmit} />
 				</div>
 			</main>
 

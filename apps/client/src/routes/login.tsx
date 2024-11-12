@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createFileRoute, Link, redirect, useRouter, useRouterState } from '@tanstack/react-router';
 import { useAuth } from '@/contexts/authContext';
 import { sleep } from '@/utils/sleep';
-import { LogoWithText } from '@/components/logo';
+import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import { Button } from '@/components/ui/button';
 
@@ -50,7 +50,7 @@ function LoginPage() {
 			<Topbar
 				leftContent={
 					<Link to="/">
-						<LogoWithText />
+						<HarmonyWithText />
 					</Link>
 				}
 				rightContent={

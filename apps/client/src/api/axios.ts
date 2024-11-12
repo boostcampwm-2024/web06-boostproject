@@ -18,6 +18,11 @@ api.interceptors.request.use(
 			newConfig.headers.Authorization = `Bearer ${accessToken}`;
 		}
 
+		const refreshToken = localStorage.getItem('refreshToken');
+		if (refreshToken) {
+			newConfig.headers['x-refresh-token'] = refreshToken;
+		}
+
 		return newConfig;
 	},
 	(error) => {

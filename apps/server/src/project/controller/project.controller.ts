@@ -22,6 +22,11 @@ export class ProjectController {
 		return this.projectService.getContributors(user.id, projectId);
 	}
 
+	@Get('invitation')
+	getInvitations(@AuthUser() user: Account) {
+		return this.projectService.getInvitations(user.id);
+	}
+
 	@Post()
 	create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
 		return this.projectService.create(user.id, body.title);

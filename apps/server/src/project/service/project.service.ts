@@ -14,6 +14,7 @@ import { CreateProjectResponse } from '../dto/create-project-response.dto';
 import { UserProjectsResponse } from '../dto/user-projects-response.dto';
 import { Account } from '@/account/entity/account.entity';
 import { ProjectContributorsResponse } from '../dto/project-contributors-response-dto';
+import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
 
 @Injectable()
 export class ProjectService {
@@ -47,6 +48,8 @@ export class ProjectService {
 		const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
 		if (!userContributor) {
 			throw new NotFoundException('Does not found user contributor or project');
+		} else if (userContributor.status !== ContributorStatus.ACCEPTED) {
+			throw new ForbiddenException('Permission denied');
 		}
 		const result = await this.contributorRepository
 			.createQueryBuilder('c')
@@ -60,6 +63,27 @@ export class ProjectService {
 		});
 	}
 
+	async getInvitations(userId: number) {
+		const result = await this.contributorRepository
+			.createQueryBuilder('c')
+			.leftJoin('project', 'p', 'c.projectId = p.id')
+			.leftJoin('account', 'a', 'c.inviterId = a.id')
+			.where('c.userId = :userId', { userId })
+			.andWhere('c.status = :status', { status: ContributorStatus.PENDING })
+			.addSelect(['p.title', 'a.username'])
+			.getRawMany();
+		return result.map(
+			(record: { c_id: number; c_projectId: number; p_title: string; a_username: string }) => {
+				return new UserInvitationResponse(
+					record.c_id,
+					record.c_projectId,
+					record.p_title,
+					record.a_username
+				);
+			}
+		);
+	}
+
 	async create(userId: number, title: string) {
 		const queryRunner = this.dataSource.createQueryRunner();
 
@@ -70,6 +94,7 @@ export class ProjectService {
 			const project = await queryRunner.manager.save(Project, { title });
 			await queryRunner.manager.save(Contributor, {
 				userId,
+				inviterId: userId,
 				projectId: project.id,
 				status: ContributorStatus.ACCEPTED,
 				role: ProjectRole.ADMIN,
@@ -101,6 +126,7 @@ export class ProjectService {
 		await this.contributorRepository.save({
 			projectId,
 			userId: invitee.id,
+			inviterId: userId,
 			status: ContributorStatus.PENDING,
 			role: ProjectRole.GUEST,
 		});

@@ -12,6 +12,9 @@ export class Contributor extends EntityTimestamp {
 	userId: number;
 
 	@Column()
+	inviterId: number;
+
+	@Column()
 	projectId: number;
 
 	@Column({ type: 'enum', enum: ContributorStatus })

@@ -34,9 +34,14 @@ export class ProjectService {
 			.addSelect(['p.title', 'p.createdAt'])
 			.getRawMany();
 		return result.map(
-			(record: { p_id: number; p_title: string; p_createdAt: Date; c_role: ContributorStatus }) => {
+			(record: {
+				c_projectId: number;
+				p_title: string;
+				p_createdAt: Date;
+				c_role: ContributorStatus;
+			}) => {
 				return new UserProjectsResponse(record.c_role, {
-					id: record.p_id,
+					id: record.c_projectId,
 					title: record.p_title,
 					createdAt: record.p_createdAt,
 				});

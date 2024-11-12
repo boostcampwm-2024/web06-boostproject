@@ -1,4 +1,4 @@
-function HarmonyWithText({ size = 24 }: { size?: number }) {
+function HarmonyWithText({ size = 28 }: { size?: number }) {
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" width={size * 4} height={size} viewBox="0 0 1000 250">
 			<g>

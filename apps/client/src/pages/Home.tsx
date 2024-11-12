@@ -1,12 +1,28 @@
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Github } from '@/components/logo';
-import Header from '@/components/Header.tsx';
+import { Github, HarmonyWithText } from '@/components/logo';
+import { Topbar } from '@/components/navigation/topbar';
 
 function Home() {
 	return (
 		<div className="flex min-h-screen flex-col">
-			<Header />
+			<Topbar
+				leftContent={
+					<Link to="/">
+						<HarmonyWithText />
+					</Link>
+				}
+				rightContent={
+					<>
+						<Button variant="ghost" asChild>
+							<Link to="/login">로그인</Link>
+						</Button>
+						<Button asChild>
+							<Link to="/signup">회원가입</Link>
+						</Button>
+					</>
+				}
+			/>
 
 			<main className="mt-16 flex-grow bg-white text-black dark:bg-black dark:text-white">
 				<section className="container mx-auto max-w-6xl from-pink-500 via-red-500 to-yellow-500 px-6 py-20 text-center">

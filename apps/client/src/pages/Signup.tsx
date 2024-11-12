@@ -1,13 +1,25 @@
-import Header from '@/components/Header.tsx';
+import { Link } from '@tanstack/react-router';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { Github, Harmony } from '@/components/logo';
+import { Github, Harmony, HarmonyWithText } from '@/components/logo';
+import { Topbar } from '@/components/navigation/topbar';
 
 function Signup() {
 	return (
 		<>
 			<div className="flex h-screen flex-col">
-				<Header />
+				<Topbar
+					leftContent={
+						<Link to="/">
+							<HarmonyWithText />
+						</Link>
+					}
+					rightContent={
+						<Button variant="outline" asChild>
+							<Link to="/login">로그인</Link>
+						</Button>
+					}
+				/>
 
 				<main className="flex h-full items-center justify-center">
 					<div className="w-full max-w-md rounded-2xl border">

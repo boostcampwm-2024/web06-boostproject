@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Project } from '../entity/project.entity';
@@ -47,6 +52,7 @@ export class ProjectService {
 			.createQueryBuilder('c')
 			.leftJoin('account', 'a', 'c.userId = a.id')
 			.where('c.projectId = :projectId', { projectId })
+			.andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
 			.addSelect(['a.id, a.username, c.role'])
 			.getRawMany();
 		return result.map((record: { id: number; username: string; role: ContributorStatus }) => {
@@ -80,8 +86,10 @@ export class ProjectService {
 
 	async invite(userId: number, projectId: number, username: string) {
 		const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
-		if (!userContributor || userContributor.role !== ProjectRole.ADMIN) {
+		if (!userContributor) {
 			throw new NotFoundException('Does not found user contributor or project');
+		} else if (userContributor.role !== ProjectRole.ADMIN) {
+			throw new ForbiddenException('Permission denied');
 		}
 		const invitee = await this.accountRepository.findOneBy({ username });
 		if (!invitee) {
@@ -96,5 +104,18 @@ export class ProjectService {
 			status: ContributorStatus.PENDING,
 			role: ProjectRole.GUEST,
 		});
+	}
+
+	async updateInvitation(userId: number, contributorId: number, status: ContributorStatus) {
+		const contributor = await this.contributorRepository.findOneBy({ id: contributorId });
+		if (!contributor) {
+			throw new NotFoundException('Does not found invitation');
+		} else if (contributor.userId !== userId) {
+			throw new ForbiddenException('Permission denied');
+		} else if (contributor.status !== ContributorStatus.PENDING) {
+			throw new BadRequestException('Already update invitation');
+		}
+		contributor.status = status;
+		await this.contributorRepository.save(contributor);
 	}
 }

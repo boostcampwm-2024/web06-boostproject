@@ -51,9 +51,9 @@ export class TaskService {
 		const section = await this.findSectionOrThrow(moveTaskRequest.sectionId);
 		task.section = section;
 
-		const beforePostion = LexoRank.parse(moveTaskRequest.beforePosition);
+		const beforePosition = LexoRank.parse(moveTaskRequest.beforePosition);
 		const afterPosition = LexoRank.parse(moveTaskRequest.afterPosition);
-		task.position = beforePostion.between(afterPosition).toString();
+		task.position = beforePosition.between(afterPosition).toString();
 
 		await this.taskRepository.save(task);
 		return new MoveTaskResponse(task);

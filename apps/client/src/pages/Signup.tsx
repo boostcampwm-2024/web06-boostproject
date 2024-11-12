@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,9 @@ function Signup() {
 			await navigate({ to: '/login' });
 		},
 		onError: (error) => {
-			if (error.response.data.message === 'Already used email') {
+			const axiosError = error as AxiosError<{ message: string }>;
+
+			if (axiosError.response && axiosError.response.data.message === 'Already used email') {
 				alert('이미 사용중인 아이디입니다.');
 				return;
 			}

@@ -2,26 +2,25 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SignupSchema } from '@/auth/SignupSchema.ts';
+import { LoginSchema } from '@/auth/LoginSchema.ts';
 
-export interface SignupFormData {
+export interface LoginFormData {
 	username: string;
 	password: string;
-	passwordConfirm: string;
 }
 
-interface SignupFormProps {
+interface LoginFormProps {
 	isPending: boolean;
-	onSubmit: (data: SignupFormData) => void;
+	onSubmit: (data: LoginFormData) => void;
 }
 
-function SignupForm({ isPending, onSubmit }: SignupFormProps) {
+function LoginForm({ isPending, onSubmit }: LoginFormProps) {
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<SignupFormData>({
-		resolver: zodResolver(SignupSchema),
+	} = useForm<LoginFormData>({
+		resolver: zodResolver(LoginSchema),
 	});
 
 	return (
@@ -54,25 +53,11 @@ function SignupForm({ isPending, onSubmit }: SignupFormProps) {
 					</label>
 				)}
 			</div>
-			<div className="mb-4">
-				<Input
-					type="password"
-					id="password_confirm"
-					placeholder="비밀번호 확인"
-					className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-					{...register('passwordConfirm')}
-				/>
-				{errors.passwordConfirm && (
-					<label htmlFor="password_confirm" className="text-red-500">
-						{errors.passwordConfirm.message}
-					</label>
-				)}
-			</div>
-			<Button disabled={isPending} className="text-md h-12 w-full">
-				{isPending ? '회원가입 중...' : '회원가입'}
+			<Button type="submit" className="h-12 w-full" disabled={isPending}>
+				로그인
 			</Button>
 		</form>
 	);
 }
 
-export default SignupForm;
+export default LoginForm;

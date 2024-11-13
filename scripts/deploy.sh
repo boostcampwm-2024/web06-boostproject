@@ -9,6 +9,6 @@ git pull
 $PNPM install
 $PNPM build
 
-$PM2 restart apps/server/ecosystem.config.js --env production || $PM2 start apps/server/ecosystem.config.js --env production
+$PM2 restart ecosystem.config.js --env production || $PM2 start ecosystem.config.js --env production
 
 echo "deploy success"

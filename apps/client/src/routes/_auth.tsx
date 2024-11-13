@@ -1,3 +1,5 @@
+import axios from 'axios';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   Link,
   Outlet,
@@ -18,41 +20,66 @@ import {
 import { useAuth } from '@/contexts/authContext';
 import { sleep } from '@/utils/sleep';
 
+type projects = {
+  role: string;
+  project: {
+    id: number;
+    title: string;
+    createdAt: string;
+  };
+}[];
+
 export const Route = createFileRoute('/_auth')({
-  beforeLoad: ({ context }) => {
-    if (!context.auth.isAuthenticated) {
+  beforeLoad: ({ context: { auth } }) => {
+    if (!auth.isAuthenticated) {
       throw redirect({
         to: '/login',
       });
     }
   },
+  loader: ({ context: { auth, queryClient } }) => {
+    return queryClient.ensureQueryData({
+      queryKey: ['projects'],
+      queryFn: async () => {
+        try {
+          const projects = await axios.get<projects>('/api/projects', {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${auth.accessToken}`,
+            },
+          });
+          return projects.data;
+        } catch (error) {
+          throw new Error('Failed to fetch projects');
+        }
+      },
+    });
+  },
+  errorComponent: () => <div>Failed to load projects</div>,
   component: AuthLayout,
 });
-
-const projectList = [
-  {
-    role: 'ADMIN',
-    project: {
-      id: 1,
-      title: 'project-01',
-      createdAt: '2024-11-12T04:15:54.354Z',
-    },
-  },
-  {
-    role: 'GUEST',
-    project: {
-      id: 2,
-      title: 'project-02',
-      createdAt: '2024-11-12T04:16:01.855Z',
-    },
-  },
-];
 
 function AuthLayout() {
   const router = useRouter();
   const navigate = Route.useNavigate();
   const auth = useAuth();
   const params = useParams({ strict: false });
+  const { data: projects } = useSuspenseQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      try {
+        const projects = await axios.get<projects>('/api/projects', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+        });
+        return projects.data;
+      } catch (error) {
+        throw new Error('Failed to fetch projects');
+      }
+    },
+  });
 
   const handleLogout = async () => {
     try {
@@ -83,9 +110,9 @@ function AuthLayout() {
                   <DropdownMenuItem>
                     <Link to="/account">My Account</Link>
                   </DropdownMenuItem>
-                  {projectList.map(({ project }) => (
+                  {projects.map(({ project }) => (
                     <DropdownMenuItem key={project.id}>
-                      <Link to="/$project/board" params={{ project: project.title }}>
+                      <Link to="/$project/board" params={{ project: String(project.id) }}>
                         {project.title}
                       </Link>
                     </DropdownMenuItem>

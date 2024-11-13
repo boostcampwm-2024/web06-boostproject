@@ -51,7 +51,7 @@ jobs:
             git fetch
             git pull
             
-            chmod +wx apps/server/.env
+            chmod +wx apps/server
             rm apps/server/.env
             echo "${{ secrets.SERVER_ENV }}" >> apps/server/.env
             

@@ -50,8 +50,10 @@ jobs:
             cd /var/www/harmony
             git fetch
             git pull
-            chmod +wx apps/server
+            
+            chmod +wx apps/server/.env
             rm apps/server/.env
             echo "${{ secrets.SERVER_ENV }}" >> apps/server/.env
+            
             chmod +x scripts/deploy.sh
             ./scripts/deploy.sh

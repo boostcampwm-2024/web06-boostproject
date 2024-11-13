@@ -3,9 +3,6 @@
 PNPM="/root/.local/share/pnpm/pnpm"
 PM2="/root/.nvm/versions/node/v22.11.0/bin/pm2"
 
-git fetch
-git pull
-
 $PNPM install
 $PNPM build
 

@@ -1,4 +1,4 @@
 export enum ProjectRole {
-	ADMIN = 'ADMIN',
-	GUEST = 'GUEST',
+  ADMIN = 'ADMIN',
+  GUEST = 'GUEST',
 }

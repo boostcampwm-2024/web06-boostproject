@@ -9,38 +9,38 @@ import { UserDto } from '../dto/user.dto';
 
 @Controller('auth')
 export class AccountController {
-	constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-	@Post('signup')
-	async signUp(@Body() body: CreateUserDto) {
-		const user = await this.authService.signUp(body.username, body.password);
-		return new UserDto(user);
-	}
+  @Post('signup')
+  async signUp(@Body() body: CreateUserDto) {
+    const user = await this.authService.signUp(body.username, body.password);
+    return new UserDto(user);
+  }
 
-	@Post('signin')
-	async signIn(@Body() body: CreateUserDto, @Res({ passthrough: true }) res: Response) {
-		const signInResult = await this.authService.signIn(body.username, body.password);
-		res.setHeader('authorization', `Bearer ${signInResult.accessToken}`);
-		res.setHeader('x-refresh-token', signInResult.refreshToken);
-		return new UserDto(signInResult.user);
-	}
+  @Post('signin')
+  async signIn(@Body() body: CreateUserDto, @Res({ passthrough: true }) res: Response) {
+    const signInResult = await this.authService.signIn(body.username, body.password);
+    res.setHeader('authorization', `Bearer ${signInResult.accessToken}`);
+    res.setHeader('x-refresh-token', signInResult.refreshToken);
+    return new UserDto(signInResult.user);
+  }
 
-	@UseGuards(RefreshTokenGuard)
-	@Post('refresh')
-	async refresh(
-		@AuthUser() user: Account,
-		@Headers('x-refresh-token') refreshToken: string,
-		@Res({ passthrough: true }) res: Response
-	) {
-		const tokens = await this.authService.refresh(user, refreshToken);
-		res.setHeader('Authorization', `Bearer ${tokens.accessToken}`);
-		return new UserDto(user);
-	}
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  async refresh(
+    @AuthUser() user: Account,
+    @Headers('x-refresh-token') refreshToken: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const tokens = await this.authService.refresh(user, refreshToken);
+    res.setHeader('Authorization', `Bearer ${tokens.accessToken}`);
+    return new UserDto(user);
+  }
 
-	@UseGuards(RefreshTokenGuard)
-	@Post('signout')
-	async signOut(@AuthUser() user: Account) {
-		this.authService.signOut(user);
-		return { message: 'Successfully sign out', success: true };
-	}
+  @UseGuards(RefreshTokenGuard)
+  @Post('signout')
+  async signOut(@AuthUser() user: Account) {
+    this.authService.signOut(user);
+    return { message: 'Successfully sign out', success: true };
+  }
 }

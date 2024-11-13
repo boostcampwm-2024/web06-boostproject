@@ -7,8 +7,8 @@ import { Contributor } from './entity/contributor.entity';
 import { Account } from '@/account/entity/account.entity';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Project, Contributor, Account])],
-	controllers: [ProjectController],
-	providers: [ProjectService],
+  imports: [TypeOrmModule.forFeature([Project, Contributor, Account])],
+  controllers: [ProjectController],
+  providers: [ProjectService],
 })
 export class ProjectModule {}

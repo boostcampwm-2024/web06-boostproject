@@ -15,6 +15,7 @@ import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 
 @Injectable()
 export class TaskService {
+<<<<<<< HEAD
 	constructor(
 		@InjectRepository(Task)
 		private taskRepository: Repository<Task>,
@@ -41,52 +42,71 @@ export class TaskService {
 		});
 		return new CreateTaskResponse(task);
 	}
+=======
+  constructor(
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
+    @InjectRepository(Section)
+    private sectionRepository: Repository<Section>
+  ) {}
 
-	async update(id: number, updateTaskRequest: UpdateTaskRequest) {
-		const task = await this.findTaskOrThrow(id);
+  async create(createTaskRequest: CreateTaskRequest) {
+    const position: string = createTaskRequest.lastTaskPosition
+      ? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
+      : LexoRank.min().toString();
 
-		task.title = updateTaskRequest.title ?? task.title;
-		task.description = updateTaskRequest.description ?? task.description;
+    const task = await this.taskRepository.save({
+      position,
+    });
+    return new CreateTaskResponse(task);
+  }
+>>>>>>> 7679844a70608707288d38f187371a9580eafb79
 
-		const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
-		task.section = section;
+  async update(id: number, updateTaskRequest: UpdateTaskRequest) {
+    const task = await this.findTaskOrThrow(id);
 
-		await this.taskRepository.save(task);
-		return new UpdateTaskResponse(task);
-	}
+    task.title = updateTaskRequest.title ?? task.title;
+    task.description = updateTaskRequest.description ?? task.description;
 
-	async move(id: number, moveTaskRequest: MoveTaskRequest) {
-		const task = await this.findTaskOrThrow(id);
+    const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
+    task.section = section;
 
-		const section = await this.findSectionOrThrow(moveTaskRequest.sectionId);
-		task.section = section;
+    await this.taskRepository.save(task);
+    return new UpdateTaskResponse(task);
+  }
 
-		const beforePosition = LexoRank.parse(moveTaskRequest.beforePosition);
-		const afterPosition = LexoRank.parse(moveTaskRequest.afterPosition);
-		task.position = beforePosition.between(afterPosition).toString();
+  async move(id: number, moveTaskRequest: MoveTaskRequest) {
+    const task = await this.findTaskOrThrow(id);
 
-		await this.taskRepository.save(task);
-		return new MoveTaskResponse(task);
-	}
+    const section = await this.findSectionOrThrow(moveTaskRequest.sectionId);
+    task.section = section;
 
-	async get(id: number) {
-		const task = await this.findTaskOrThrow(id);
-		return new TaskResponse(task);
-	}
+    const beforePosition = LexoRank.parse(moveTaskRequest.beforePosition);
+    const afterPosition = LexoRank.parse(moveTaskRequest.afterPosition);
+    task.position = beforePosition.between(afterPosition).toString();
 
-	private async findTaskOrThrow(id: number) {
-		const task = await this.taskRepository.findOneBy({ id });
-		if (!task) {
-			throw new NotFoundException('Task not found');
-		}
-		return task;
-	}
+    await this.taskRepository.save(task);
+    return new MoveTaskResponse(task);
+  }
 
-	private async findSectionOrThrow(id: number) {
-		const section = await this.sectionRepository.findOneBy({ id });
-		if (!section) {
-			throw new NotFoundException('Section not found');
-		}
-		return section;
-	}
+  async get(id: number) {
+    const task = await this.findTaskOrThrow(id);
+    return new TaskResponse(task);
+  }
+
+  private async findTaskOrThrow(id: number) {
+    const task = await this.taskRepository.findOneBy({ id });
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return task;
+  }
+
+  private async findSectionOrThrow(id: number) {
+    const section = await this.sectionRepository.findOneBy({ id });
+    if (!section) {
+      throw new NotFoundException('Section not found');
+    }
+    return section;
+  }
 }

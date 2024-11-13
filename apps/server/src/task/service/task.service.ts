@@ -9,6 +9,7 @@ import { UpdateTaskResponse } from '../dto/update-task-response.dto';
 import { MoveTaskRequest } from '../dto/move-task-request.dto';
 import { MoveTaskResponse } from '../dto/move-task-response.dto';
 import { TaskResponse } from '../dto/task-response.dto';
+import { DeleteTaskResponse } from '../dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
@@ -72,6 +73,11 @@ export class TaskService {
   async get(id: number) {
     const task = await this.findTaskOrThrow(id);
     return new TaskResponse(task);
+  }
+
+  async delete(id: number) {
+    await this.taskRepository.delete(id);
+    return new DeleteTaskResponse(id);
   }
 
   private async findTaskOrThrow(id: number) {

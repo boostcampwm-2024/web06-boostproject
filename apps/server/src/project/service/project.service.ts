@@ -100,16 +100,22 @@ export class ProjectService {
 		});
 
 		const taskBySection = tasks.reduce((acc, task) => {
+			const sectionId = task.section.id;
 			const sectionName = task.section.name;
+			const sectionData = acc.find((data) => data.id === sectionId);
 
-			if (!acc[sectionName]) {
-				acc[sectionName] = [];
+			if (!sectionData) {
+				acc.push({
+					id: sectionId,
+					name: sectionName,
+					tasks: [],
+				});
 			}
 
-			acc[sectionName].push(new TaskResponse(task));
+			sectionData.tasks.push(new TaskResponse(task));
 
 			return acc;
-		}, {});
+		}, []);
 
 		return taskBySection;
 	}

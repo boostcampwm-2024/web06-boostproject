@@ -40,6 +40,11 @@ jobs:
     if: github.event_name == 'push'
 
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
       - name: connect to server via ssh
         uses: appleboy/ssh-action@master
         with:

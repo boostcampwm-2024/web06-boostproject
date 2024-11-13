@@ -1,4 +1,4 @@
-import { Task } from '../../task/domain/task.entity';
+import { Task } from '../domain/task.entity';
 
 export class CreateTaskResponse {
 	constructor(task: Task) {

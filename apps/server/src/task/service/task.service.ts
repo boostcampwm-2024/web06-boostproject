@@ -9,6 +9,9 @@ import { UpdateTaskResponse } from '../dto/update-task-response.dto';
 import { MoveTaskRequest } from '../dto/move-task-request.dto';
 import { MoveTaskResponse } from '../dto/move-task-response.dto';
 import { TaskResponse } from '../dto/task-response.dto';
+import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
+import { Project } from '@/project/entity/project.entity';
+import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 
 @Injectable()
 export class TaskService {
@@ -16,8 +19,28 @@ export class TaskService {
 		@InjectRepository(Task)
 		private taskRepository: Repository<Task>,
 		@InjectRepository(Section)
-		private sectionRepository: Repository<Section>
+		private sectionRepository: Repository<Section>,
+		@InjectRepository(Project)
+		private projectRepository: Repository<Project>
 	) {}
+
+	async create(createTaskRequest: CreateTaskRequest) {
+		const project = await this.projectRepository.findOneBy({ id: createTaskRequest.projectId });
+		if (!project) {
+			throw new Error('Project not found');
+		}
+
+		const sections = await this.sectionRepository.find({ where: { project } });
+		const position: string = createTaskRequest.lastTaskPosition
+			? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
+			: LexoRank.min().toString();
+
+		const task = await this.taskRepository.save({
+			position,
+			section: sections[0],
+		});
+		return new CreateTaskResponse(task);
+	}
 
 	async update(id: number, updateTaskRequest: UpdateTaskRequest) {
 		const task = await this.findTaskOrThrow(id);

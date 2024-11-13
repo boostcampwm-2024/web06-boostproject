@@ -1,11 +1,17 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { TaskService } from '../service/task.service';
 import { UpdateTaskRequest } from '../dto/update-task-request.dto';
 import { MoveTaskRequest } from '../dto/move-task-request.dto';
+import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 
 @Controller('task')
 export class TaskController {
 	constructor(private taskService: TaskService) {}
+
+	@Post()
+	createTask(@Body() createTaskRequest: CreateTaskRequest) {
+		return this.taskService.create(createTaskRequest);
+	}
 
 	@Patch(':id/status')
 	update(@Param('id') id: number, @Body() updateTaskRequest: UpdateTaskRequest) {

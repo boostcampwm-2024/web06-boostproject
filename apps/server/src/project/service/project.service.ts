@@ -17,9 +17,6 @@ import { ProjectContributorsResponse } from '../dto/project-contributors-respons
 import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
 import { Task } from '@/task/domain/task.entity';
 import { TaskResponse } from '@/task/dto/task-response.dto';
-import { CreateTaskRequest } from '../dto/create-task-request.dto';
-import { LexoRank } from 'lexorank';
-import { CreateTaskResponse } from '../dto/create-task-response.dto';
 
 @Injectable()
 export class ProjectService {
@@ -163,19 +160,6 @@ export class ProjectService {
 			status: ContributorStatus.PENDING,
 			role: ProjectRole.GUEST,
 		});
-	}
-
-	async createTask(projectId: number, createTaskRequest: CreateTaskRequest) {
-		const project = await this.projectRepository.findOneBy({ id: projectId });
-		const position: string = createTaskRequest.lastTaskPosition
-			? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
-			: LexoRank.min().toString();
-
-		const task = await this.taskRepository.save({
-			position,
-			project,
-		});
-		return new CreateTaskResponse(task);
 	}
 
 	async updateInvitation(userId: number, contributorId: number, status: ContributorStatus) {

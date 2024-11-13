@@ -1,5 +1,5 @@
-import { Project } from '@/project/entity/project.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Project } from '@/project/entity/project.entity';
 
 @Entity()
 export class Section {

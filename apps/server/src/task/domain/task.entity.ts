@@ -3,19 +3,19 @@ import { Section } from './section.entity';
 
 @Entity()
 export class Task {
-	@PrimaryGeneratedColumn()
-	id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-	@Column({ default: '' })
-	title: string;
+  @Column({ default: '' })
+  title: string;
 
-	@Column({ default: '' })
-	description: string;
+  @Column({ default: '' })
+  description: string;
 
-	@Column()
-	position: string;
+  @Column()
+  position: string;
 
-	@ManyToOne(() => Section)
-	@JoinColumn({ name: 'section_id' })
-	section: Section;
+  @ManyToOne(() => Section)
+  @JoinColumn({ name: 'section_id' })
+  section: Section;
 }

@@ -11,16 +11,16 @@ import { AuthService } from './service/auth.service';
 import { Account } from './entity/account.entity';
 
 @Module({
-	imports: [JwtModule.register({ global: true }), TypeOrmModule.forFeature([Account])],
-	controllers: [AccountController],
-	providers: [
-		AccountService,
-		AuthService,
-		AccessTokenStrategy,
-		RefreshTokenStrategy,
-		AccessTokenGuard,
-		RefreshTokenGuard,
-	],
-	exports: [AccessTokenGuard],
+  imports: [JwtModule.register({ global: true }), TypeOrmModule.forFeature([Account])],
+  controllers: [AccountController],
+  providers: [
+    AccountService,
+    AuthService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    AccessTokenGuard,
+    RefreshTokenGuard,
+  ],
+  exports: [AccessTokenGuard],
 })
 export class AccountModule {}

@@ -5,21 +5,21 @@ import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()
 export class Contributor extends EntityTimestamp {
-	@PrimaryGeneratedColumn()
-	id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-	@Column()
-	userId: number;
+  @Column()
+  userId: number;
 
-	@Column()
-	inviterId: number;
+  @Column()
+  inviterId: number;
 
-	@Column()
-	projectId: number;
+  @Column()
+  projectId: number;
 
-	@Column({ type: 'enum', enum: ContributorStatus })
-	status: ContributorStatus;
+  @Column({ type: 'enum', enum: ContributorStatus })
+  status: ContributorStatus;
 
-	@Column({ type: 'enum', enum: ProjectRole })
-	role: ProjectRole;
+  @Column({ type: 'enum', enum: ProjectRole })
+  role: ProjectRole;
 }

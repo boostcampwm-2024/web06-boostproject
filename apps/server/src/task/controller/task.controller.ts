@@ -6,30 +6,30 @@ import { MoveTaskRequest } from '../dto/move-task-request.dto';
 
 @Controller('task')
 export class TaskController {
-	constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService) {}
 
-	@Post()
-	create(@Body() createTaskRequest: CreateTaskRequest) {
-		return this.taskService.create(createTaskRequest);
-	}
+  @Post()
+  create(@Body() createTaskRequest: CreateTaskRequest) {
+    return this.taskService.create(createTaskRequest);
+  }
 
-	@Patch(':id/status')
-	update(@Param('id') id: number, @Body() updateTaskRequest: UpdateTaskRequest) {
-		return this.taskService.update(id, updateTaskRequest);
-	}
+  @Patch(':id/status')
+  update(@Param('id') id: number, @Body() updateTaskRequest: UpdateTaskRequest) {
+    return this.taskService.update(id, updateTaskRequest);
+  }
 
-	@Patch(':id/position')
-	move(@Param('id') id: number, @Body() moveTaskRequest: MoveTaskRequest) {
-		return this.taskService.move(id, moveTaskRequest);
-	}
+  @Patch(':id/position')
+  move(@Param('id') id: number, @Body() moveTaskRequest: MoveTaskRequest) {
+    return this.taskService.move(id, moveTaskRequest);
+  }
 
-	@Get(':id')
-	get(@Param('id') id: number) {
-		return this.taskService.get(id);
-	}
+  @Get(':id')
+  get(@Param('id') id: number) {
+    return this.taskService.get(id);
+  }
 
-	@Delete(':id')
-	delete(@Param('id') id: number) {
-		return this.taskService.delete(id);
-	}
+  @Delete(':id')
+  delete(@Param('id') id: number) {
+    return this.taskService.delete(id);
+  }
 }

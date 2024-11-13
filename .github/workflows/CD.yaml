@@ -1,0 +1,61 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies and build
+        run: |
+          pnpm install
+          pnpm build
+
+      - name: Deploy to Ubuntu server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # NVM setup
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # Install pnpm pm2
+            npm install -g pnpm
+            npm install -g pm2
+            
+            # move to directory and pull latest changes
+            cd ../var/www/harmony
+            git pull origin dev
+            
+            # Install dependencies
+            pnpm install
+            
+            # Add envs
+            echo "${{ secrets.SERVER_ENV }}" >> apps/server/.env
+            echo "${{ secrets.CLIENT_ENV }}" >> apps/client/.env
+            
+            # Build
+            pnpm build
+            
+            # Restart pm2
+            pm2 restart apps/server/ecosystem.config.js --env production || pm2 start apps/server/ecosystem.config.js --env production
+            
+            echo "Deployment Success"
+            

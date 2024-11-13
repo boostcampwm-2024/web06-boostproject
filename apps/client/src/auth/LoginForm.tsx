@@ -26,32 +26,28 @@ function LoginForm({ isPending, onSubmit }: LoginFormProps) {
 	return (
 		<form className="mb-4 bg-white px-8 pb-8 dark:bg-gray-800" onSubmit={handleSubmit(onSubmit)}>
 			<div className="mb-4">
-				<Input
-					type="text"
-					id="username"
-					placeholder="아이디"
-					className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-					{...register('username')}
-				/>
-				{errors.username && (
-					<label htmlFor="username" className="text-red-500">
-						{errors.username.message}
-					</label>
-				)}
+				<label htmlFor="username">
+					<Input
+						type="text"
+						id="username"
+						placeholder="아이디"
+						className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+						{...register('username')}
+					/>
+					{errors.username && <span className="text-red-500">{errors.username.message}</span>}
+				</label>
 			</div>
 			<div className="mb-4">
-				<Input
-					type="password"
-					id="password"
-					placeholder="비밀번호"
-					className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-					{...register('password')}
-				/>
-				{errors.password && (
-					<label htmlFor="password" className="text-red-500">
-						{errors.password.message}
-					</label>
-				)}
+				<label htmlFor="username">
+					<Input
+						type="password"
+						id="password"
+						placeholder="비밀번호"
+						className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+						{...register('password')}
+					/>
+					{errors.password && <span className="text-red-500">{errors.password.message}</span>}
+				</label>
 			</div>
 			<Button type="submit" className="h-12 w-full" disabled={isPending}>
 				로그인

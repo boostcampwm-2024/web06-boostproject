@@ -1,21 +1,21 @@
 import { Task } from '../domain/task.entity';
 
 export class UpdateTaskResponse {
-	constructor(task: Task) {
-		this.id = task.id;
-		this.title = task.title;
-		this.description = task.description;
-		this.sectionId = task.section.id;
-		this.position = task.position;
-	}
+  constructor(task: Task) {
+    this.id = task.id;
+    this.title = task.title;
+    this.description = task.description;
+    this.sectionId = task.section.id;
+    this.position = task.position;
+  }
 
-	id: number;
+  id: number;
 
-	title: string;
+  title: string;
 
-	description: string;
+  description: string;
 
-	sectionId: number;
+  sectionId: number;
 
-	position: string;
+  position: string;
 }

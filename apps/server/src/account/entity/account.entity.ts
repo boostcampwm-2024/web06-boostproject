@@ -3,19 +3,19 @@ import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()
 export class Account extends EntityTimestamp {
-	@PrimaryGeneratedColumn()
-	id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-	@Column()
-	username: string;
+  @Column()
+  username: string;
 
-	@Column()
-	password: string;
+  @Column()
+  password: string;
 
-	@Column({ nullable: true })
-	refreshToken: string;
+  @Column({ nullable: true })
+  refreshToken: string;
 
-	setRefreshToken(refreshToken: string | null) {
-		this.refreshToken = refreshToken;
-	}
+  setRefreshToken(refreshToken: string | null) {
+    this.refreshToken = refreshToken;
+  }
 }

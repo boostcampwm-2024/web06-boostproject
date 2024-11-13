@@ -3,14 +3,14 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { AuthContext } from '@/contexts/authContext';
 
 interface RouterContext {
-	auth: AuthContext;
+  auth: AuthContext;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-	component: () => (
-		<>
-			<Outlet />
-			<TanStackRouterDevtools />
-		</>
-	),
+  component: () => (
+    <>
+      <Outlet />
+      <TanStackRouterDevtools />
+    </>
+  ),
 });

@@ -5,10 +5,10 @@ import App from './App.tsx';
 
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
-	const root = createRoot(rootElement);
-	root.render(
-		<StrictMode>
-			<App />
-		</StrictMode>
-	);
+  const root = createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
 }

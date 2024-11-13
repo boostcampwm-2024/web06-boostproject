@@ -1,7 +1,7 @@
 export class UpdateTaskRequest {
-	title: string;
+  title: string;
 
-	description: string;
+  description: string;
 
-	sectionId: number;
+  sectionId: number;
 }

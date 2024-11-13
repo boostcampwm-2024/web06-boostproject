@@ -1,12 +1,12 @@
 import { Project } from '../entity/project.entity';
 
 export class CreateProjectResponse {
-	id: number;
+  id: number;
 
-	title: string;
+  title: string;
 
-	constructor(project: Project) {
-		this.id = project.id;
-		this.title = project.title;
-	}
+  constructor(project: Project) {
+    this.id = project.id;
+    this.title = project.title;
+  }
 }

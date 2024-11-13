@@ -3,9 +3,9 @@ import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()
 export class Project extends EntityTimestamp {
-	@PrimaryGeneratedColumn()
-	id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-	@Column()
-	title: string;
+  @Column()
+  title: string;
 }

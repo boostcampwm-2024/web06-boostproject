@@ -1,12 +1,12 @@
 import { Task } from '../domain/task.entity';
 
 export class CreateTaskResponse {
-	constructor(task: Task) {
-		this.id = task.id;
-		this.position = task.position;
-	}
+  constructor(task: Task) {
+    this.id = task.id;
+    this.position = task.position;
+  }
 
-	id: number;
+  id: number;
 
-	position: string;
+  position: string;
 }

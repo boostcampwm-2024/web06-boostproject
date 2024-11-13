@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies and build
         run: |
           pnpm install
-          turbo build
+          pnpm build
 
       - name: Deploy to Ubuntu server
         uses: appleboy/ssh-action@master

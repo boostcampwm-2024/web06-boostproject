@@ -27,7 +27,7 @@ export class TaskService {
   async create(createTaskRequest: CreateTaskRequest) {
     const project = await this.projectRepository.findOneBy({ id: createTaskRequest.projectId });
     if (!project) {
-      throw new Error('Project not found');
+      throw new NotFoundException('Project not found');
     }
 
     const sections = await this.sectionRepository.find({ where: { project } });

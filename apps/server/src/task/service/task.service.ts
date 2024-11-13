@@ -15,52 +15,32 @@ import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 
 @Injectable()
 export class TaskService {
-<<<<<<< HEAD
-	constructor(
-		@InjectRepository(Task)
-		private taskRepository: Repository<Task>,
-		@InjectRepository(Section)
-		private sectionRepository: Repository<Section>,
-		@InjectRepository(Project)
-		private projectRepository: Repository<Project>
-	) {}
-
-	async create(createTaskRequest: CreateTaskRequest) {
-		const project = await this.projectRepository.findOneBy({ id: createTaskRequest.projectId });
-		if (!project) {
-			throw new Error('Project not found');
-		}
-
-		const sections = await this.sectionRepository.find({ where: { project } });
-		const position: string = createTaskRequest.lastTaskPosition
-			? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
-			: LexoRank.min().toString();
-
-		const task = await this.taskRepository.save({
-			position,
-			section: sections[0],
-		});
-		return new CreateTaskResponse(task);
-	}
-=======
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
     @InjectRepository(Section)
-    private sectionRepository: Repository<Section>
+    private sectionRepository: Repository<Section>,
+    @InjectRepository(Project)
+    private projectRepository: Repository<Project>
   ) {}
 
   async create(createTaskRequest: CreateTaskRequest) {
+    const project = await this.projectRepository.findOneBy({ id: createTaskRequest.projectId });
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    const sections = await this.sectionRepository.find({ where: { project } });
     const position: string = createTaskRequest.lastTaskPosition
       ? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
       : LexoRank.min().toString();
 
     const task = await this.taskRepository.save({
       position,
+      section: sections[0],
     });
     return new CreateTaskResponse(task);
   }
->>>>>>> 7679844a70608707288d38f187371a9580eafb79
 
   async update(id: number, updateTaskRequest: UpdateTaskRequest) {
     const task = await this.findTaskOrThrow(id);

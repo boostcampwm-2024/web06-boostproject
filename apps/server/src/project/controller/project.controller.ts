@@ -27,22 +27,15 @@ export class ProjectController {
     return this.projectService.getInvitations(user.id);
   }
 
-<<<<<<< HEAD
-	@Get(':id/tasks')
-	getTasks(@Param('id') projectId: number) {
-		return this.projectService.getTasks(projectId);
-	}
+  @Get(':id/tasks')
+  getTasks(@Param('id') projectId: number) {
+    return this.projectService.getTasks(projectId);
+  }
 
-	@Post()
-	create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
-		return this.projectService.create(user.id, body.title);
-	}
-=======
   @Post()
   create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
     return this.projectService.create(user.id, body.title);
   }
->>>>>>> 7679844a70608707288d38f187371a9580eafb79
 
   @Post('invitation')
   async invite(@AuthUser() user: Account, @Body() body: InviteUserRequest) {

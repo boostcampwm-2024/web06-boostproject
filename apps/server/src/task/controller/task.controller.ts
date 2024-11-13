@@ -8,17 +8,10 @@ import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
-<<<<<<< HEAD
-	@Post()
-	createTask(@Body() createTaskRequest: CreateTaskRequest) {
-		return this.taskService.create(createTaskRequest);
-	}
-=======
   @Post()
   create(@Body() createTaskRequest: CreateTaskRequest) {
     return this.taskService.create(createTaskRequest);
   }
->>>>>>> 7679844a70608707288d38f187371a9580eafb79
 
   @Patch(':id/status')
   update(@Param('id') id: number, @Body() updateTaskRequest: UpdateTaskRequest) {

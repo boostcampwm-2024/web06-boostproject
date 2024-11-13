@@ -1,6 +1,6 @@
-import 'dotenv/config';
+require('dotenv').config();
 
-export const apps = [
+module.exports = [
 	{
 		name: 'harmony-api',
 		script: 'apps/server/dist/src/main.js',

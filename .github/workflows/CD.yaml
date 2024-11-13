@@ -42,7 +42,7 @@ jobs:
             
             # move to directory and pull latest changes
             cd ../var/www/harmony
-            git pull origin main
+            git pull origin dev
             
             # Install dependencies
             pnpm install

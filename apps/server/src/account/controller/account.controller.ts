@@ -1,11 +1,11 @@
 import { Body, Controller, Headers, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { AuthService } from '../service/auth.service';
-import { RefreshTokenGuard } from '../guard/refreshToken.guard';
-import { AuthUser } from '../decorator/authUser.decorator';
-import { Account } from '../entity/account.entity';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UserDto } from '../dto/user.dto';
+import { AuthService } from '@/account/service/auth.service';
+import { RefreshTokenGuard } from '@/account/guard/refreshToken.guard';
+import { AuthUser } from '@/account/decorator/authUser.decorator';
+import { Account } from '@/account/entity/account.entity';
+import { CreateUserDto } from '@/account/dto/create-user.dto';
+import { UserDto } from '@/account/dto/user.dto';
 
 @Controller('auth')
 export class AccountController {

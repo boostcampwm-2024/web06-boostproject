@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ProjectService } from '../service/project.service';
+import { ProjectService } from '@/project/service/project.service';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
-import { CreateProjectRequest } from '../dto/create-project-request.dto';
+import { CreateProjectRequest } from '@/project/dto/create-project-request.dto';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
-import { InviteUserRequest } from '../dto/invite-user-request.dto';
-import { UpdateContributorRequest } from '../dto/update-contributor-request.dts';
+import { InviteUserRequest } from '@/project/dto/invite-user-request.dto';
+import { UpdateContributorRequest } from '@/project/dto/update-contributor-request.dts';
 
 @UseGuards(AccessTokenGuard)
 @Controller('project')

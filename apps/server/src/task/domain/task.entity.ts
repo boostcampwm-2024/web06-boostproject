@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Section } from './section.entity';
+import { Section } from '@/task/domain/section.entity';
 
 @Entity()
 export class Task {

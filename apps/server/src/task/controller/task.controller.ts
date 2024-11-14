@@ -9,14 +9,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { TaskService } from '../service/task.service';
-import { UpdateTaskRequest } from '../dto/update-task-request.dto';
-import { MoveTaskRequest } from '../dto/move-task-request.dto';
+import { TaskService } from '@/task/service/task.service';
+import { UpdateTaskRequest } from '@/task/dto/update-task-request.dto';
+import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
-import { BaseResponse } from '../../common/BaseResponse';
+import { BaseResponse } from '@/common/BaseResponse';
 
 @UseGuards(AccessTokenGuard)
 @Controller('task')

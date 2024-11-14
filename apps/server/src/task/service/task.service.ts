@@ -2,19 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LexoRank } from 'lexorank';
-import { Task } from '../domain/task.entity';
-import { Section } from '../domain/section.entity';
-import { UpdateTaskRequest } from '../dto/update-task-request.dto';
-import { UpdateTaskResponse } from '../dto/update-task-response.dto';
-import { MoveTaskRequest } from '../dto/move-task-request.dto';
-import { MoveTaskResponse } from '../dto/move-task-response.dto';
-import { TaskResponse } from '../dto/task-response.dto';
-import { DeleteTaskResponse } from '../dto/delete-task-response.dto';
+import { Task } from '@/task/domain/task.entity';
+import { Section } from '@/task/domain/section.entity';
+import { UpdateTaskRequest } from '@/task/dto/update-task-request.dto';
+import { UpdateTaskResponse } from '@/task/dto/update-task-response.dto';
+import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';
+import { MoveTaskResponse } from '@/task/dto/move-task-response.dto';
+import { TaskResponse } from '@/task/dto/task-response.dto';
+import { DeleteTaskResponse } from '@/task/dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
-import { Snapshot } from '../domain/snapshot';
-import { CustomResponse } from '../domain/custom-response.interface';
+import { Snapshot } from '@/task/domain/snapshot';
+import { CustomResponse } from '@/task/domain/custom-response.interface';
 
 @Injectable()
 export class TaskService {

@@ -3,63 +3,64 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        /* colors */
-        /* LINE Green */
-        --green-400: 127 67% 60%; /* #58da6d */
-        --green-500: 145 98% 39%; /* #02c655 */
-        --green-600: 152 100% 33%; /* #00a84f */
-        --green-700: 152 100% 25%; /* #007d3d */
+  :root {
+    /* colors */
+    /* LINE Green */
+    --green-400: 127 67% 60%; /* #58da6d */
+    --green-500: 145 98% 39%; /* #02c655 */
+    --green-600: 152 100% 33%; /* #00a84f */
+    --green-700: 152 100% 25%; /* #007d3d */
 
-        /* Line Gray */
-        --white: 0 0% 100%; /* #ffffff */
-        --gray-100: 0 0% 99%; /* #fcfcfc */
-        --gray-200: 0 0% 94%; /* #efefef */
-        --gray-300: 0 0% 87%; /* #dfdfdf */
-        --gray-400: 0 0% 72%; /* #b7b7b7 */
-        --gray-500: 0 0% 58%; /* #949494 */
-        --gray-600: 0 0% 47%; /* #777777 */
-        --gray-700: 0 0% 33%; /* #555555 */
-        --gray-800: 0 0% 16%; /* #2a2a2a */
-        --gray-900: 0 0% 7%; /* #111111 */
-        --black: 0 0% 0%; /* #000000 */
+    /* Line Gray */
+    --white: 0 0% 100%; /* #ffffff */
+    --gray-100: 0 0% 99%; /* #fcfcfc */
+    --gray-200: 0 0% 94%; /* #efefef */
+    --gray-300: 0 0% 87%; /* #dfdfdf */
+    --gray-400: 0 0% 72%; /* #b7b7b7 */
+    --gray-500: 0 0% 58%; /* #949494 */
+    --gray-600: 0 0% 47%; /* #777777 */
+    --gray-700: 0 0% 33%; /* #555555 */
+    --gray-800: 0 0% 16%; /* #2a2a2a */
+    --gray-900: 0 0% 7%; /* #111111 */
+    --black: 0 0% 0%; /* #000000 */
 
-        /* LINE Blue */
-        --blue-400: 225 100% 80%; /* #96b2ff */
-        --blue-500: 225 100% 69%; /* #638dff */
-        --blue-600: 228 100% 65%; /* #4d73ff */
-        --blue-700: 225 63% 49%; /* #2f59cc */
+    /* LINE Blue */
+    --blue-400: 225 100% 80%; /* #96b2ff */
+    --blue-500: 225 100% 69%; /* #638dff */
+    --blue-600: 228 100% 65%; /* #4d73ff */
+    --blue-700: 225 63% 49%; /* #2f59cc */
 
-        /* LINE Navy */
-        --navy-400: 220 20% 82%; /* #c8cfdc */
-        --navy-500: 220 15% 65%; /* #98a0b3 */
-        --navy-600: 220 13% 50%; /* #707991 */
-        --navy-700: 220 21% 35%; /* #464f69 */
-        --navy-800: 220 31% 22%; /* #262f4a */
-        --navy-900: 220 35% 19%; /* #202a43 */
+    /* LINE Navy */
+    --navy-400: 220 20% 82%; /* #c8cfdc */
+    --navy-500: 220 15% 65%; /* #98a0b3 */
+    --navy-600: 220 13% 50%; /* #707991 */
+    --navy-700: 220 21% 35%; /* #464f69 */
+    --navy-800: 220 31% 22%; /* #262f4a */
+    --navy-900: 220 35% 19%; /* #202a43 */
 
-        /* LINE Red */
-        --red-400: 353 100% 60%; /* #ff334b */
+    /* LINE Red */
+    --red-400: 353 100% 60%; /* #ff334b */
 
-        /*  Surface*/
-        --surface: #FAFAFA
-    }
+    /*  Surface*/
+    --surface: #fafafa;
+  }
 
-    body {
-        font-family: 'Pretendard Variable',
-        Pretendard,
-        -apple-system,
-        BlinkMacSystemFont,
-        system-ui,
-        Roboto,
-        'Helvetica Neue',
-        'Segoe UI',
-        'Apple SD Gothic Neo',
-        'Noto Sans KR',
-        'Malgun Gothic',
-        'Apple Color Emoji',
-        'Segoe UI Emoji',
-        'Segoe UI Symbol',
-        sans-serif;
-    }
+  body {
+    font-family:
+      'Pretendard Variable',
+      Pretendard,
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      Roboto,
+      'Helvetica Neue',
+      'Segoe UI',
+      'Apple SD Gothic Neo',
+      'Noto Sans KR',
+      'Malgun Gothic',
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol',
+      sans-serif;
+  }
 }

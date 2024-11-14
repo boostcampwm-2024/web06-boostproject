@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { SignupSchema } from '@/auth/SignupSchema.ts';
+import { Input } from '@/shared/ui/input.tsx';
+import { Button } from '@/shared/ui/button.tsx';
+import { SignupSchema } from '@/features/auth/SignupSchema.ts';
 
 export interface SignupFormData {
   username: string;

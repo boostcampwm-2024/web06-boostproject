@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Harmony } from '@/components/icon';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Harmony } from '@/shared/icon';
+import { Button } from '@/shared/ui/button.tsx';
+import { cn } from '@/shared/lib/utils.ts';
 
 interface HeaderProps {
   className?: string;

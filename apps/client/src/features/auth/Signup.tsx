@@ -1,11 +1,11 @@
 import axios, { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button.tsx';
-import { HarmonyWithText } from '@/components/icon';
-import { Navigation } from '@/components/Navigation.tsx';
-import SignupForm, { SignupFormData } from '@/auth/SignupForm.tsx';
-import Footer from '@/components/Footer.tsx';
+import { Button } from '@/shared/ui/button.tsx';
+import { HarmonyWithText } from '@/shared/icon';
+import { Navigation } from '@/shared/components/Navigation.tsx';
+import SignupForm, { SignupFormData } from '@/features/auth/SignupForm.tsx';
+import Footer from '@/shared/components/Footer.tsx';
 
 function Signup() {
   const navigate = useNavigate({ from: '/signup' });

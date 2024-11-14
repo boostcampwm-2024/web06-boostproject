@@ -1,5 +1,5 @@
 import { MoreVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button.tsx';
 
 type Project = {
   id: number;

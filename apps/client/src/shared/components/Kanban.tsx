@@ -7,10 +7,10 @@ import {
   SectionFooter,
   SectionHeader,
   SectionTitle,
-} from '@/components/ui/section.tsx';
-import { useAuth } from '@/contexts/authContext.tsx';
-import TaskCard from '@/components/TaskCard.tsx';
-import type { Task } from '@/components/TaskCard.tsx';
+} from '@/shared/ui/section.tsx';
+import { useAuth } from '@/features/auth/authContext.tsx';
+import TaskCard from '@/shared/components/TaskCard.tsx';
+import type { Task } from '@/shared/components/TaskCard.tsx';
 
 const initialSections = [
   {

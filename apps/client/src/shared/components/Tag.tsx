@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils.ts';
+import { cn } from '@/shared/lib/utils.ts';
 
 export interface LabelProps {
   text: string;

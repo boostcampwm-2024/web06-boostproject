@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import Signup from '@/components/Signup.tsx';
+import Signup from '@/features/auth/Signup.tsx';
 
 export const Route = createFileRoute('/signup')({
   beforeLoad: ({ context }) => {

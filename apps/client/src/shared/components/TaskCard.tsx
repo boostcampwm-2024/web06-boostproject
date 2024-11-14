@@ -1,5 +1,5 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
-import Tag from '@/components/Tag.tsx';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card.tsx';
+import Tag from '@/shared/components/Tag.tsx';
 
 export type Task = {
   id: number;

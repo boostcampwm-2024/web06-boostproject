@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/authContext';
-import TabView from '@/components/TabView';
-import ProjectCard from '@/components/ProjectCard';
+import { Button } from '@/shared/ui/button';
+import { useAuth } from '@/features/auth/authContext.tsx';
+import TabView from '@/shared/components/TabView';
+import ProjectCard from '@/shared/components/ProjectCard';
 
 type Project = {
   id: number;

@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button.tsx';
-import { HarmonyWithText } from '@/components/icon';
-import { Navigation } from '@/components/Navigation.tsx';
-import { useAuth } from '@/contexts/authContext.tsx';
-import Footer from '@/components/Footer.tsx';
-import LoginForm, { LoginFormData } from '@/auth/LoginForm.tsx';
+import { Button } from '@/shared/ui/button.tsx';
+import { HarmonyWithText } from '@/shared/icon';
+import { Navigation } from '@/shared/components/Navigation.tsx';
+import { useAuth } from '@/features/auth/authContext.tsx';
+import Footer from '@/shared/components/Footer.tsx';
+import LoginForm, { LoginFormData } from '@/features/auth/LoginForm.tsx';
 
 const login = async ({ username, password }: { username: string; password: string }) => {
   const response = await axios.post('/api/auth/signin', { username, password });
@@ -77,7 +77,7 @@ function Login() {
         </main>
         <div className="flex h-24 w-full items-center justify-center border-y-2 bg-white dark:bg-gray-800">
           <Button variant="link" className="h-12 w-12 font-thin" asChild>
-            <a href="/signup">아직 계정이 없으신가요? 회원가입하기</a>
+            <a href="/apps/client/src/features/auth/Signup">아직 계정이 없으신가요? 회원가입하기</a>
           </Button>
         </div>
       </div>

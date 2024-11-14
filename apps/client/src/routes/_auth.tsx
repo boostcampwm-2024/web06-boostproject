@@ -9,15 +9,15 @@ import {
   useRouter,
 } from '@tanstack/react-router';
 import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
-import { Harmony } from '@/components/icon';
-import { Navigation } from '@/components/Navigation.tsx';
+import { Harmony } from '@/shared/icon';
+import { Navigation } from '@/shared/components/Navigation.tsx';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/contexts/authContext';
+} from '@/shared/ui/dropdown-menu';
+import { useAuth } from '@/features/auth/authContext.tsx';
 
 type Project = {
   id: number;

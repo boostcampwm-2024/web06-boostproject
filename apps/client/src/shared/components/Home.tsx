@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button.tsx';
-import { Github, HarmonyWithText } from '@/components/icon';
-import { Navigation } from '@/components/Navigation.tsx';
+import { Button } from '@/shared/ui/button.tsx';
+import { Github, HarmonyWithText } from '@/shared/icon';
+import { Navigation } from '@/shared/components/Navigation.tsx';
 
 function Home() {
   return (

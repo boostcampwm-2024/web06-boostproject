@@ -1,4 +1,4 @@
-import { Github, Harmony } from '@/components/icon';
+import { Github, Harmony } from '@/shared/icon';
 
 function Footer() {
   return (

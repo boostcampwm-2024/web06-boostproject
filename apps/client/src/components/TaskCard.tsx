@@ -15,7 +15,7 @@ interface TaskProps {
 
 function TaskCard({ task }: TaskProps) {
   return (
-    <Card className="bg-[#ffffff] transition-all duration-300">
+    <Card className="bg-white transition-all duration-300">
       <CardHeader className="flex flex-row items-start gap-2">
         <CardTitle className="text-md mt-1.5 flex flex-1 break-keep">{task.title}</CardTitle>
         <div className="mt-0 inline-flex h-8 w-8 rounded-full bg-amber-200" />

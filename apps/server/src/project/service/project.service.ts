@@ -13,8 +13,6 @@ import { ProjectRole } from '../enum/project-role.enum';
 import { CreateProjectResponse } from '../dto/create-project-response.dto';
 import { Account } from '@/account/entity/account.entity';
 import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
-import { Task } from '@/task/domain/task.entity';
-import { TaskResponse } from '@/task/dto/task-response.dto';
 import { BaseResponse } from '../../common/BaseResponse';
 
 @Injectable()

@@ -35,6 +35,8 @@ export default {
         'gradient-conic': 'conic-gradient(from 0deg, var(--tw-gradient-stops))',
       },
       colors: {
+        surface: `var(--surface)`,
+
         green: {
           400: 'hsl(var(--green-400))',
           500: 'hsl(var(--green-500))',

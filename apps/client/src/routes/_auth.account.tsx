@@ -29,7 +29,7 @@ function AccountLayout() {
           </li>
         </ul>
       </nav>
-      <main className="min-h-[calc(100vh-100px)] bg-[#fafafa]">
+      <main className="bg-surface min-h-[calc(100vh-100px)]">
         <Outlet />
       </main>
     </>

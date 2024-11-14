@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Harmony } from '@/components/logo';
+import { Harmony } from '@/components/icon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 

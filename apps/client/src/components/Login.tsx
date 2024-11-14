@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
-import { HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar.tsx';
+import { HarmonyWithText } from '@/components/icon';
+import { Navigation } from '@/components/Navigation.tsx';
 import { useAuth } from '@/contexts/authContext.tsx';
 import Footer from '@/components/Footer.tsx';
 import LoginForm, { LoginFormData } from '@/auth/LoginForm.tsx';
@@ -54,7 +54,7 @@ function Login() {
   return (
     <>
       <div className="flex h-screen flex-col">
-        <Topbar
+        <Navigation
           leftContent={
             <Link to="/">
               <HarmonyWithText />

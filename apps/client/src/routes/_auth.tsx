@@ -9,8 +9,8 @@ import {
   useRouter,
 } from '@tanstack/react-router';
 import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
-import { Harmony } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar';
+import { Harmony } from '@/components/icon';
+import { Navigation } from '@/components/Navigation.tsx';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,7 +96,7 @@ function AuthLayout() {
 
   return (
     <div>
-      <Topbar
+      <Navigation
         leftContent={
           <>
             <Link to={params.project === undefined ? '/account' : '/$project'}>

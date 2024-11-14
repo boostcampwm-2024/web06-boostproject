@@ -1,9 +1,11 @@
-interface TopbarProps {
-  leftContent: React.ReactNode;
-  rightContent: React.ReactNode;
+import { ReactNode } from 'react';
+
+interface NavigationProps {
+  leftContent: ReactNode;
+  rightContent: ReactNode;
 }
 
-export function Topbar({ leftContent, rightContent }: TopbarProps) {
+export function Navigation({ leftContent, rightContent }: NavigationProps) {
   return (
     <header className="px-6">
       <nav className="flex h-16 items-center justify-between">

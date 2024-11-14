@@ -2,8 +2,8 @@ import axios, { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
-import { HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar.tsx';
+import { HarmonyWithText } from '@/components/icon';
+import { Navigation } from '@/components/Navigation.tsx';
 import SignupForm, { SignupFormData } from '@/auth/SignupForm.tsx';
 import Footer from '@/components/Footer.tsx';
 
@@ -41,7 +41,7 @@ function Signup() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Topbar
+      <Navigation
         leftContent={
           <Link to="/">
             <HarmonyWithText />

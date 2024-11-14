@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
-import { Github, HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar.tsx';
+import { Github, HarmonyWithText } from '@/components/icon';
+import { Navigation } from '@/components/Navigation.tsx';
 
 function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <Topbar
+      <Navigation
         leftContent={
           <Link to="/">
             <HarmonyWithText />

@@ -20,14 +20,18 @@ import {
 import { useAuth } from '@/contexts/authContext';
 import { sleep } from '@/utils/sleep';
 
-type projects = {
+type Project = {
+  id: number;
+  title: string;
+  createdAt: string;
   role: string;
-  project: {
-    id: number;
-    title: string;
-    createdAt: string;
-  };
-}[];
+};
+
+type ProjectResponse = {
+  status: number;
+  message: string;
+  result: Project[];
+};
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: ({ context: { auth } }) => {
@@ -38,17 +42,17 @@ export const Route = createFileRoute('/_auth')({
     }
   },
   loader: ({ context: { auth, queryClient } }) => {
-    return queryClient.ensureQueryData({
+    queryClient.ensureQueryData({
       queryKey: ['projects'],
       queryFn: async () => {
         try {
-          const projects = await axios.get<projects>('/api/projects', {
+          const projects = await axios.get<ProjectResponse>('/api/projects', {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${auth.accessToken}`,
             },
           });
-          return projects.data;
+          return projects.data.result;
         } catch (error) {
           throw new Error('Failed to fetch projects');
         }
@@ -68,13 +72,13 @@ function AuthLayout() {
     queryKey: ['projects'],
     queryFn: async () => {
       try {
-        const projects = await axios.get<projects>('/api/projects', {
+        const projects = await axios.get<ProjectResponse>('/api/projects', {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${auth.accessToken}`,
           },
         });
-        return projects.data;
+        return projects.data.result;
       } catch (error) {
         throw new Error('Failed to fetch projects');
       }
@@ -110,7 +114,7 @@ function AuthLayout() {
                   <DropdownMenuItem>
                     <Link to="/account">My Account</Link>
                   </DropdownMenuItem>
-                  {projects.map(({ project }) => (
+                  {projects.map((project) => (
                     <DropdownMenuItem key={project.id}>
                       <Link to="/$project/board" params={{ project: String(project.id) }}>
                         {project.title}

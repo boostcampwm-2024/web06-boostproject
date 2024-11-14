@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from '@tanstack/react-router';
-
 import {
   Section,
   SectionContent,
@@ -9,10 +8,9 @@ import {
   SectionHeader,
   SectionTitle,
 } from '@/components/ui/section.tsx';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
-import Tag from '@/components/Tag';
 import { useAuth } from '@/contexts/authContext.tsx';
-import { cn } from '@/lib/utils';
+import TaskCard from '@/components/TaskCard.tsx';
+import type { Task } from '@/components/TaskCard.tsx';
 
 const initialSections = [
   {
@@ -32,69 +30,11 @@ const initialSections = [
   },
 ];
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  sectionName: string;
-  position: string;
-}
-
-interface Section {
+type Section = {
   id: number;
   name: string;
   tasks: Task[];
-}
-
-enum TaskStatus {
-  CREATED = 'created',
-  UPDATED = 'updated',
-  DELETED = 'deleted',
-}
-
-type TaskWithStatus = Task & { status?: TaskStatus };
-
-function TaskCard({ task }: { task: TaskWithStatus }) {
-  const [showEffect, setShowEffect] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowEffect(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const getBorderColor = () => {
-    if (!showEffect) return '';
-    switch (task.status) {
-      case TaskStatus.CREATED:
-        return 'border-2 border-green-500';
-      case TaskStatus.UPDATED:
-        return 'border-2 border-primary';
-      case TaskStatus.DELETED:
-        return 'border-2 border-red-500';
-      default:
-        return '';
-    }
-  };
-
-  return (
-    <Card className={cn('bg-[#ffffff] transition-all duration-300', getBorderColor())}>
-      <CardHeader className="flex flex-row items-start gap-2">
-        <CardTitle className="text-md mt-1.5 flex flex-1 break-keep">{task.title}</CardTitle>
-        <div className="mt-0 inline-flex h-8 w-8 rounded-full bg-amber-200" />
-      </CardHeader>
-      <CardContent className="flex gap-1">
-        <Tag text="Feature" />
-        <Tag text="FE" className="bg-pink-400" />
-      </CardContent>
-      <CardFooter className="flex justify-start">
-        <p className="text-gray-500">+ 서브 태스크 추가</p>
-      </CardFooter>
-    </Card>
-  );
-}
+};
 
 function Kanban() {
   const { project: projectId } = useParams({
@@ -105,19 +45,21 @@ function Kanban() {
   const [sections, setSections] = useState<Section[]>(initialSections);
 
   useEffect(() => {
+    // 1차 조회
     const fetchTasks = async () => {
       try {
-        // const response = await axios.get(`/api/tasks?projectId=${projectId}`, {
-        //   headers: {
-        //     Authorization: `Bearer ${auth.accessToken}`,
-        //   },
-        // });
-        //
-        // const sections = response.data.result;
+        const response = await axios.get(`/api/tasks?projectId=${projectId}`, {
+          headers: {
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+        });
 
-        setSections(initialSections);
+        const sections = response.data.result;
+
+        setSections(sections);
       } catch (error) {
-        alert('Failed to fetch tasks');
+        alert(`태스크를 불러오는 중 오류가 발생했습니다. ${error}`);
+        setSections(initialSections);
       }
     };
 
@@ -125,6 +67,7 @@ function Kanban() {
   }, [projectId, auth.accessToken]);
 
   useEffect(() => {
+    // 롱폴링
     let isMounted = true;
     const startPolling = async () => {
       try {
@@ -145,6 +88,7 @@ function Kanban() {
           await startPolling();
         }
       } catch (error) {
+        isMounted = false;
         alert(`실시간 업데이트가 종료되었습니다. ${error}`);
       }
     };
@@ -170,9 +114,7 @@ function Kanban() {
             <SectionContent className="flex-1 overflow-y-auto">
               <div className="space-y-2">
                 {section.tasks.length > 0 &&
-                  section.tasks.map((task) => (
-                    <TaskCard key={task.id} task={task as TaskWithStatus} />
-                  ))}
+                  section.tasks.map((task) => <TaskCard key={task.id} task={task} />)}
               </div>
             </SectionContent>
             <SectionFooter className="font-medium text-gray-600">+ 태스크 추가</SectionFooter>

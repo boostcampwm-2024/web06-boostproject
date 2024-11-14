@@ -55,6 +55,9 @@ export class TaskService {
     connections.forEach((res) => {
       if (res.userId !== userId) {
         const snapshot = this.snapshots.get(projectId.toString());
+        if (res.headersSent) {
+          return;
+        }
         res.json({
           status: 200,
           message: '스냅샷에 변경 사항이 발생했습니다.',
@@ -67,12 +70,17 @@ export class TaskService {
     });
   }
 
-  private updateSnapshot(projectId: number, userId: number, task: Task) {
+  private updateSnapshot(
+    projectId: number,
+    prevSectionId: number,
+    userId: number,
+    savedTask: Task
+  ) {
     const snapshot = this.snapshots.get(projectId.toString());
     if (!snapshot) {
       throw new NotFoundException('Snapshot not found');
     }
-    snapshot.update(task);
+    snapshot.update(prevSectionId, savedTask);
     this.sendConnection(projectId, userId);
   }
 
@@ -95,31 +103,27 @@ export class TaskService {
   }
 
   async getAll(projectId: number) {
+    const sections = await this.sectionRepository.find({
+      where: { project: { id: projectId } },
+      order: { id: 'ASC' },
+    });
+
     const tasks = await this.taskRepository.find({
       where: { section: { project: { id: projectId } } },
       relations: ['section'],
       select: ['id', 'title', 'description', 'position', 'section'],
     });
 
-    const taskBySection = tasks.reduce((acc, task) => {
-      const sectionId = task.section.id;
-      const sectionName = task.section.name;
-      let sectionData = acc.find((data) => data.id === sectionId);
-
-      if (!sectionData) {
-        acc.push({
-          id: sectionId,
-          name: sectionName,
-          tasks: [],
-        });
-      }
-
-      sectionData = acc.find((data) => data.id === sectionId);
-
-      sectionData.tasks.push(new TaskResponse(task));
-
-      return acc;
-    }, []);
+    const taskBySection = [];
+    sections.forEach((section) => {
+      taskBySection.push({
+        id: section.id,
+        name: section.name,
+        tasks: tasks
+          .filter((task) => task.section.id === section.id)
+          .map((task) => new TaskResponse(task)),
+      });
+    });
 
     this.snapshots.set(projectId.toString(), new Snapshot(taskBySection));
 
@@ -127,19 +131,24 @@ export class TaskService {
   }
 
   async update(id: number, userId: number, updateTaskRequest: UpdateTaskRequest) {
-    const task = await this.findTaskOrThrow(id);
+    const prevTask = await this.findTaskOrThrow(id);
+    const prevSectionId = prevTask.section.id;
+    const projectId = prevTask.section.project.id;
 
-    task.title = updateTaskRequest.title ?? task.title;
-    task.description = updateTaskRequest.description ?? task.description;
+    const newTask = new Task();
+    newTask.title = updateTaskRequest.title ?? prevTask.title;
+    newTask.description = updateTaskRequest.description ?? prevTask.description;
 
-    const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
-    task.section = section;
+    if (updateTaskRequest.sectionId) {
+      const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
+      newTask.section = section;
+    }
 
-    const result = await this.taskRepository.save(task);
+    const savedTask = await this.taskRepository.save(newTask);
 
-    this.updateSnapshot(1, userId, result);
+    this.updateSnapshot(projectId, prevSectionId, userId, savedTask);
 
-    return new UpdateTaskResponse(result);
+    return new UpdateTaskResponse(savedTask);
   }
 
   async move(id: number, moveTaskRequest: MoveTaskRequest) {
@@ -167,7 +176,10 @@ export class TaskService {
   }
 
   private async findTaskOrThrow(id: number) {
-    const task = await this.taskRepository.findOneBy({ id });
+    const task = await this.taskRepository.findOne({
+      where: { id },
+      relations: ['section', 'section.project'],
+    });
     if (!task) {
       throw new NotFoundException('Task not found');
     }
@@ -175,7 +187,7 @@ export class TaskService {
   }
 
   private async findSectionOrThrow(id: number) {
-    const section = await this.sectionRepository.findOneBy({ id });
+    const section = await this.sectionRepository.findOne({ where: { id }, relations: ['project'] });
     if (!section) {
       throw new NotFoundException('Section not found');
     }

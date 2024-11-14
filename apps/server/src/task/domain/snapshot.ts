@@ -1,4 +1,4 @@
-import { Task } from '@/task/domain/task.entity';
+import { Task } from './task.entity';
 
 export class Snapshot {
   constructor(project) {
@@ -20,8 +20,8 @@ export class Snapshot {
     }[];
   }[];
 
-  update(task: Task) {
-    const section = this.project.find((s) => s.id === task.section.id);
+  update(prevSectionId: number, task: Task) {
+    const section = this.project.find((s) => s.id === prevSectionId);
     if (!section) {
       return;
     }
@@ -35,5 +35,8 @@ export class Snapshot {
     target.description = task.description;
     target.sectionName = task.section.name;
     target.position = task.position;
+
+    this.project.find((s) => s.id === task.section.id).tasks.push(target);
+    section.tasks = section.tasks.filter((t) => t.id !== task.id);
   }
 }

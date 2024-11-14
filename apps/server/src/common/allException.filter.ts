@@ -12,7 +12,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const status = exception instanceof HttpException ? exception.getStatus() : 500;
     const message = exception.message || exception;
 
-    this.logger.error(`[RESPONSE] ${method} ${url} ${ip} - ${status} ${message}`);
+    this.logger.error(
+      `[RESPONSE] ${method} ${url} ${ip} - ${status} ${message} ${exception.stack}`
+    );
     response.status(status).json({
       status,
       message,

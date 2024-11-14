@@ -14,9 +14,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     this.logger.error(`[RESPONSE] ${method} ${url} ${ip} - ${status} ${message}`);
     response.status(status).json({
-      statusCode: status,
+      status,
       message,
-      success: false,
     });
   }
 }

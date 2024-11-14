@@ -14,6 +14,7 @@ import { CreateProjectResponse } from '../dto/create-project-response.dto';
 import { Account } from '@/account/entity/account.entity';
 import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
 import { BaseResponse } from '../../common/BaseResponse';
+import { Section } from '@/task/domain/section.entity';
 
 @Injectable()
 export class ProjectService {
@@ -125,6 +126,11 @@ export class ProjectService {
         status: ContributorStatus.ACCEPTED,
         role: ProjectRole.ADMIN,
       });
+
+      await queryRunner.manager.save(Section, { name: 'To Do', project });
+      await queryRunner.manager.save(Section, { name: 'In Progress', project });
+      await queryRunner.manager.save(Section, { name: 'Done', project });
+
       await queryRunner.commitTransaction();
       return new CreateProjectResponse(project);
     } catch (error) {

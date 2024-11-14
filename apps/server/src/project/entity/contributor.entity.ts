@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ContributorStatus } from '../enum/contributor-status.enum';
-import { ProjectRole } from '../enum/project-role.enum';
+import { ContributorStatus } from '@/project/enum/contributor-status.enum';
+import { ProjectRole } from '@/project/enum/project-role.enum';
 import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()

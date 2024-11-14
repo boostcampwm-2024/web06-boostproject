@@ -1,5 +1,5 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ProjectService } from '../service/project.service';
+import { ProjectService } from '@/project/service/project.service';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';

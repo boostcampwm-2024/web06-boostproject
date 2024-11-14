@@ -1,5 +1,5 @@
 import { IsEnum, IsIn, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
-import { ContributorStatus } from '../enum/contributor-status.enum';
+import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 
 export class UpdateContributorRequest {
   @IsNotEmpty()

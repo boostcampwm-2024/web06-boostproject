@@ -1,4 +1,4 @@
-import { Project } from '../entity/project.entity';
+import { Project } from '@/project/entity/project.entity';
 
 export class CreateProjectResponse {
   id: number;

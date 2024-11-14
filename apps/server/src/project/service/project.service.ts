@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Project } from '../entity/project.entity';
-import { Contributor } from '../entity/contributor.entity';
-import { ContributorStatus } from '../enum/contributor-status.enum';
-import { ProjectRole } from '../enum/project-role.enum';
-import { CreateProjectResponse } from '../dto/create-project-response.dto';
+import { Project } from '@/project/entity/project.entity';
+import { Contributor } from '@/project/entity/contributor.entity';
+import { ContributorStatus } from '@/project/enum/contributor-status.enum';
+import { ProjectRole } from '@/project/enum/project-role.enum';
+import { CreateProjectResponse } from '@/project/dto/create-project-response.dto';
 import { Account } from '@/account/entity/account.entity';
-import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
-import { BaseResponse } from '../../common/BaseResponse';
+import { UserInvitationResponse } from '@/project/dto/user-invitation-response.dto';
+import { BaseResponse } from '@/common/BaseResponse';
 import { Section } from '@/task/domain/section.entity';
 
 @Injectable()

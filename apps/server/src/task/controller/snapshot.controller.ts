@@ -1,10 +1,10 @@
 import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
-import { TaskService } from '../service/task.service';
+import { TaskService } from '@/task/service/task.service';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
-import { CustomResponse } from '../domain/custom-response.interface';
+import { CustomResponse } from '@/task/domain/custom-response.interface';
 
 @UseGuards(AccessTokenGuard)
 @Controller('snapshot')

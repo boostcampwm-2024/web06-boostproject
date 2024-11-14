@@ -1,4 +1,4 @@
-import { Task } from './task.entity';
+import { Task } from '@/task/domain/task.entity';
 
 export class Snapshot {
   constructor(project) {

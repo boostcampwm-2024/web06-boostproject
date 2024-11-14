@@ -12,11 +12,10 @@ import { ContributorStatus } from '../enum/contributor-status.enum';
 import { ProjectRole } from '../enum/project-role.enum';
 import { CreateProjectResponse } from '../dto/create-project-response.dto';
 import { Account } from '@/account/entity/account.entity';
-import { ProjectContributorsResponse } from '../dto/project-contributors-response-dto';
 import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
 import { Task } from '@/task/domain/task.entity';
 import { TaskResponse } from '@/task/dto/task-response.dto';
-import { BaseResponse } from '../BaseResponse';
+import { BaseResponse } from '../../common/BaseResponse';
 
 @Injectable()
 export class ProjectService {
@@ -39,17 +38,22 @@ export class ProjectService {
 
     const result =
       records.map(
-        (record: {
+        ({
+          c_projectId: id,
+          c_role: role,
+          p_title: title,
+          p_createdAt: createdAt,
+        }: {
           c_projectId: number;
           p_title: string;
           p_createdAt: Date;
           c_role: ContributorStatus;
         }) => {
           return {
-            id: record.c_projectId,
-            title: record.p_title,
-            createdAt: record.p_createdAt,
-            role: record.c_role,
+            id,
+            title,
+            createdAt,
+            role,
           };
         }
       ) || [];
@@ -60,20 +64,32 @@ export class ProjectService {
   async getContributors(userId: number, projectId: number) {
     const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
     if (!userContributor) {
-      throw new NotFoundException('Does not found user contributor or project');
-    } else if (userContributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
+      throw new NotFoundException('프로젝트가 존재하지 않습니다.');
     }
-    const result = await this.contributorRepository
+
+    if (userContributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('아직 해당 프로젝트에 참여하지 않았습니다.');
+    }
+
+    const records = await this.contributorRepository
       .createQueryBuilder('c')
       .leftJoin('account', 'a', 'c.userId = a.id')
       .where('c.projectId = :projectId', { projectId })
       .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
       .addSelect(['a.id, a.username, c.role'])
       .getRawMany();
-    return result.map((record: { id: number; username: string; role: ContributorStatus }) => {
-      return new ProjectContributorsResponse(record.id, record.username, record.role);
-    });
+
+    const response = records.map(
+      ({ id, username, role }: { id: number; username: string; role: ContributorStatus }) => {
+        return {
+          id,
+          username,
+          role,
+        };
+      }
+    );
+
+    return BaseResponse.create(200, '프로젝트 멤버 조회에 성공했습니다.', response);
   }
 
   async getInvitations(userId: number) {

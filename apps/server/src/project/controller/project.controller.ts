@@ -12,13 +12,8 @@ import { UpdateContributorRequest } from '../dto/update-contributor-request.dts'
 export class ProjectController {
   constructor(private projectService: ProjectService) {}
 
-  @Get()
-  getProjects(@AuthUser() user: Account) {
-    return this.projectService.getUserProjects(user.id);
-  }
-
   @Get(':id/members')
-  getContributors(@AuthUser() user: Account, @Param('id') projectId: number) {
+  getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
     return this.projectService.getContributors(user.id, projectId);
   }
 

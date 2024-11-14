@@ -8,7 +8,7 @@ import { InviteUserRequest } from '../dto/invite-user-request.dto';
 import { UpdateContributorRequest } from '../dto/update-contributor-request.dts';
 
 @UseGuards(AccessTokenGuard)
-@Controller('projects')
+@Controller('project')
 export class ProjectController {
   constructor(private projectService: ProjectService) {}
 

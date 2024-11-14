@@ -11,12 +11,12 @@ import { Contributor } from '../entity/contributor.entity';
 import { ContributorStatus } from '../enum/contributor-status.enum';
 import { ProjectRole } from '../enum/project-role.enum';
 import { CreateProjectResponse } from '../dto/create-project-response.dto';
-import { UserProjectsResponse } from '../dto/user-projects-response.dto';
 import { Account } from '@/account/entity/account.entity';
 import { ProjectContributorsResponse } from '../dto/project-contributors-response-dto';
 import { UserInvitationResponse } from '../dto/user-invitation-response.dto';
 import { Task } from '@/task/domain/task.entity';
 import { TaskResponse } from '@/task/dto/task-response.dto';
+import { BaseResponse } from '../BaseResponse';
 
 @Injectable()
 export class ProjectService {
@@ -29,27 +29,32 @@ export class ProjectService {
   ) {}
 
   async getUserProjects(userId: number) {
-    const result = await this.contributorRepository
+    const records = await this.contributorRepository
       .createQueryBuilder('c')
       .leftJoin('project', 'p', 'c.projectId = p.id')
       .where('c.userId = :userId', { userId })
       .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
       .addSelect(['p.title', 'p.createdAt'])
       .getRawMany();
-    return result.map(
-      (record: {
-        c_projectId: number;
-        p_title: string;
-        p_createdAt: Date;
-        c_role: ContributorStatus;
-      }) => {
-        return new UserProjectsResponse(record.c_role, {
-          id: record.c_projectId,
-          title: record.p_title,
-          createdAt: record.p_createdAt,
-        });
-      }
-    );
+
+    const result =
+      records.map(
+        (record: {
+          c_projectId: number;
+          p_title: string;
+          p_createdAt: Date;
+          c_role: ContributorStatus;
+        }) => {
+          return {
+            id: record.c_projectId,
+            title: record.p_title,
+            createdAt: record.p_createdAt,
+            role: record.c_role,
+          };
+        }
+      ) || [];
+
+    return new BaseResponse(200, '프로젝트 목록 조회에 성공했습니다.', result);
   }
 
   async getContributors(userId: number, projectId: number) {

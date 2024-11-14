@@ -1,9 +1,9 @@
 import axios, { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import { HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar';
+import { Topbar } from '@/components/navigation/topbar.tsx';
 import SignupForm, { SignupFormData } from '@/auth/SignupForm.tsx';
 import Footer from '@/components/Footer.tsx';
 

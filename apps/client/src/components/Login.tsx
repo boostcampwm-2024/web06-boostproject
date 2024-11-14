@@ -3,8 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
 import { HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar';
-import { useAuth } from '@/contexts/authContext';
+import { Topbar } from '@/components/navigation/topbar.tsx';
+import { useAuth } from '@/contexts/authContext.tsx';
 import Footer from '@/components/Footer.tsx';
 import LoginForm, { LoginFormData } from '@/auth/LoginForm.tsx';
 
@@ -39,8 +39,7 @@ function Login() {
 
       await navigate({ to: '/account' });
     },
-    onError: (error) => {
-      console.error('Login failed:', error);
+    onError: () => {
       alert('로그인 실패');
     },
   });

@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/authContext';
-import { sleep } from '@/utils/sleep';
 
 type Project = {
   id: number;
@@ -89,7 +88,6 @@ function AuthLayout() {
     try {
       await auth.logout();
       await router.invalidate();
-      await sleep(1); // 상태 업데이트를 위한 임시 방편
       await navigate({ to: '/' });
     } catch (error) {
       console.error('Logout failed:', error);

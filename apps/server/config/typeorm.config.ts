@@ -9,22 +9,22 @@ import { Contributor } from '@/project/entity/contributor.entity';
 
 @Injectable()
 export class TypeormConfig implements TypeOrmOptionsFactory {
-	constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) {}
 
-	createTypeOrmOptions(): TypeOrmModuleOptions {
-		return {
-			type: 'mysql',
-			host: this.configService.get<string>('DATABASE_HOST'),
-			port: this.configService.get<number>('DATABASE_PORT'),
-			username: this.configService.get<string>('DATABASE_USER'),
-			password: this.configService.get<string>('DATABASE_PASSWORD'),
-			database: this.configService.get<string>('DATABASE_NAME'),
-			entities: [Task, Section, Account, Project, Contributor],
-			synchronize: true,
-			ssl: {
-				rejectUnauthorized: false,
-			},
-			logging: true,
-		} as TypeOrmModuleOptions;
-	}
+  createTypeOrmOptions(): TypeOrmModuleOptions {
+    return {
+      type: 'mysql',
+      host: this.configService.get<string>('DATABASE_HOST'),
+      port: this.configService.get<number>('DATABASE_PORT'),
+      username: this.configService.get<string>('DATABASE_USER'),
+      password: this.configService.get<string>('DATABASE_PASSWORD'),
+      database: this.configService.get<string>('DATABASE_NAME'),
+      entities: [Task, Section, Account, Project, Contributor],
+      synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+      logging: false,
+    } as TypeOrmModuleOptions;
+  }
 }

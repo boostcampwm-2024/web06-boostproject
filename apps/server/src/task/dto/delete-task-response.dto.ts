@@ -1,7 +1,7 @@
 export class DeleteTaskResponse {
-	constructor(id: number) {
-		this.id = id;
-	}
+  constructor(id: number) {
+    this.id = id;
+  }
 
-	id: number;
+  id: number;
 }

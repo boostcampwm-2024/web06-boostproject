@@ -23,8 +23,7 @@ export class ProjectService {
     private dataSource: DataSource,
     @InjectRepository(Project) private projectRepository: Repository<Project>,
     @InjectRepository(Contributor) private contributorRepository: Repository<Contributor>,
-    @InjectRepository(Account) private accountRepository: Repository<Account>,
-    @InjectRepository(Task) private taskRepository: Repository<Task>
+    @InjectRepository(Account) private accountRepository: Repository<Account>
   ) {}
 
   async getUserProjects(userId: number) {
@@ -111,34 +110,6 @@ export class ProjectService {
         );
       }
     );
-  }
-
-  async getTasks(projectId: number) {
-    const tasks = await this.taskRepository.find({
-      where: { section: { project: { id: projectId } } },
-      relations: ['section'],
-      select: ['id', 'title', 'description', 'position', 'section'],
-    });
-
-    const taskBySection = tasks.reduce((acc, task) => {
-      const sectionId = task.section.id;
-      const sectionName = task.section.name;
-      const sectionData = acc.find((data) => data.id === sectionId);
-
-      if (!sectionData) {
-        acc.push({
-          id: sectionId,
-          name: sectionName,
-          tasks: [],
-        });
-      }
-
-      sectionData.tasks.push(new TaskResponse(task));
-
-      return acc;
-    }, []);
-
-    return taskBySection;
   }
 
   async create(userId: number, title: string) {

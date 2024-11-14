@@ -13,9 +13,15 @@ import { DeleteTaskResponse } from '../dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
+import { Snapshot } from '../domain/snapshot';
+import { CustomResponse } from '../domain/custom-response.interface';
 
 @Injectable()
 export class TaskService {
+  private snapshots: Map<string, Snapshot> = new Map();
+
+  private connections: Map<string, CustomResponse[]> = new Map();
+
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
@@ -24,6 +30,51 @@ export class TaskService {
     @InjectRepository(Project)
     private projectRepository: Repository<Project>
   ) {}
+
+  addConnection(projectId: number, res: CustomResponse) {
+    if (!this.connections.has(projectId.toString())) {
+      this.connections.set(projectId.toString(), [res]);
+    }
+    this.connections.get(projectId.toString()).push(res);
+  }
+
+  removeConnection(projectId: number, res: CustomResponse) {
+    const fillterdConnections = this.connections
+      .get(projectId.toString())
+      .filter((r) => r.userId !== res.userId);
+
+    this.connections.set(projectId.toString(), fillterdConnections);
+  }
+
+  sendConnection(projectId: number, userId: number) {
+    const connections = this.connections.get(projectId.toString());
+    if (!connections) {
+      return;
+    }
+
+    connections.forEach((res) => {
+      if (res.userId !== userId) {
+        const snapshot = this.snapshots.get(projectId.toString());
+        res.json({
+          status: 200,
+          message: '스냅샷에 변경 사항이 발생했습니다.',
+          result: {
+            version: snapshot.version,
+            project: snapshot.project,
+          },
+        });
+      }
+    });
+  }
+
+  private updateSnapshot(projectId: number, userId: number, task: Task) {
+    const snapshot = this.snapshots.get(projectId.toString());
+    if (!snapshot) {
+      throw new NotFoundException('Snapshot not found');
+    }
+    snapshot.update(task);
+    this.sendConnection(projectId, userId);
+  }
 
   async create(createTaskRequest: CreateTaskRequest) {
     const project = await this.projectRepository.findOneBy({ id: createTaskRequest.projectId });
@@ -43,7 +94,39 @@ export class TaskService {
     return new CreateTaskResponse(task);
   }
 
-  async update(id: number, updateTaskRequest: UpdateTaskRequest) {
+  async getAll(projectId: number) {
+    const tasks = await this.taskRepository.find({
+      where: { section: { project: { id: projectId } } },
+      relations: ['section'],
+      select: ['id', 'title', 'description', 'position', 'section'],
+    });
+
+    const taskBySection = tasks.reduce((acc, task) => {
+      const sectionId = task.section.id;
+      const sectionName = task.section.name;
+      let sectionData = acc.find((data) => data.id === sectionId);
+
+      if (!sectionData) {
+        acc.push({
+          id: sectionId,
+          name: sectionName,
+          tasks: [],
+        });
+      }
+
+      sectionData = acc.find((data) => data.id === sectionId);
+
+      sectionData.tasks.push(new TaskResponse(task));
+
+      return acc;
+    }, []);
+
+    this.snapshots.set(projectId.toString(), new Snapshot(taskBySection));
+
+    return taskBySection;
+  }
+
+  async update(id: number, userId: number, updateTaskRequest: UpdateTaskRequest) {
     const task = await this.findTaskOrThrow(id);
 
     task.title = updateTaskRequest.title ?? task.title;
@@ -52,8 +135,11 @@ export class TaskService {
     const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
     task.section = section;
 
-    await this.taskRepository.save(task);
-    return new UpdateTaskResponse(task);
+    const result = await this.taskRepository.save(task);
+
+    this.updateSnapshot(1, userId, result);
+
+    return new UpdateTaskResponse(result);
   }
 
   async move(id: number, moveTaskRequest: MoveTaskRequest) {

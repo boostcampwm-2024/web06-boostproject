@@ -43,6 +43,7 @@ function Kanban() {
 
   const auth = useAuth();
   const [sections, setSections] = useState<Section[]>(initialSections);
+  const [isPolling, setIsPolling] = useState(true);
 
   useEffect(() => {
     // 1차 조회
@@ -68,7 +69,6 @@ function Kanban() {
 
   useEffect(() => {
     // 롱폴링
-    let isMounted = true;
     const startPolling = async () => {
       try {
         const response = await axios.post(`/api/snapshot/${projectId}`, {
@@ -84,11 +84,11 @@ function Kanban() {
           setSections(newSections);
         }
 
-        if (isMounted) {
+        if (isPolling) {
           await startPolling();
         }
       } catch (error) {
-        isMounted = false;
+        setIsPolling(false);
         alert(`실시간 업데이트가 종료되었습니다. ${error}`);
       }
     };
@@ -96,7 +96,7 @@ function Kanban() {
     startPolling();
 
     return () => {
-      isMounted = false;
+      setIsPolling(false);
     };
   }, []);
 

@@ -15,5 +15,5 @@ export class TaskEvent {
   @IsEnum(EventType)
   event: EventType;
 
-  title: Information;
+  title: UpdateInformation;
 }

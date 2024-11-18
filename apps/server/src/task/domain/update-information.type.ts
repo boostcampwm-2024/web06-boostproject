@@ -1,4 +1,4 @@
-type Information = {
+type UpdateInformation = {
   position: number;
 
   content: string;

@@ -18,6 +18,7 @@ import { UpdateContributorRequest } from '@/project/dto/update-contributor-reque
 import { TaskEvent } from '@/task/dto/task-event.dto';
 import { TaskService } from '@/task/service/task.service';
 import { EventType } from '@/task/domain/eventType.enum';
+import { BaseResponse } from '@/common/BaseResponse';
 
 @UseGuards(AccessTokenGuard)
 @Controller('project')
@@ -27,31 +28,66 @@ export class ProjectController {
     private taskService: TaskService
   ) {}
 
-  @Get(':id/members')
-  getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
-    return this.projectService.getContributors(user.id, projectId);
+  @Get(':id')
+  async getProject(@AuthUser() user: Account, @Param('id') projectId: number) {
+    return new BaseResponse(
+      200,
+      '프로젝트 상세 조회에 성공했습니다.',
+      await this.projectService.getProject(user.id, projectId)
+    );
   }
 
-  @Get('invitation')
-  getInvitations(@AuthUser() user: Account) {
-    return this.projectService.getInvitations(user.id);
+  @Get(':id/members')
+  async getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
+    return new BaseResponse(
+      200,
+      '프로젝트 멤버 목록 조회에 성공했습니다.',
+      await this.projectService.getContributors(user.id, projectId)
+    );
+  }
+
+  @Get('invitations')
+  async getInvitations(@AuthUser() user: Account) {
+    return new BaseResponse(
+      200,
+      '프로젝트 멤버 초대 목록 조회에 성공했습니다.',
+      await this.projectService.getInvitations(user.id)
+    );
   }
 
   @Post()
-  create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
-    return this.projectService.create(user.id, body.title);
+  async create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
+    return new BaseResponse(
+      200,
+      '프로젝트 생성이 성공했습니다.',
+      await this.projectService.create(user.id, body.title)
+    );
   }
 
-  @Post('invitation')
-  async invite(@AuthUser() user: Account, @Body() body: InviteUserRequest) {
-    await this.projectService.invite(user.id, body.projectId, body.username);
-    return { message: 'Successfully invite user', success: true };
+  @Post(':id/invite')
+  async invite(
+    @AuthUser() user: Account,
+    @Param('id') projectId: number,
+    @Body() body: InviteUserRequest
+  ) {
+    await this.projectService.invite(user.id, projectId, body.username);
+    return new BaseResponse(200, '프로젝트 멤버 초대가 성공했습니다.', {
+      message: 'Successfully invite user',
+      success: true,
+    });
   }
 
-  @Patch('invitation')
-  async updateInvitation(@AuthUser() user: Account, @Body() body: UpdateContributorRequest) {
-    await this.projectService.updateInvitation(user.id, body.contributorId, body.status);
-    return { message: 'Successfully update invitation', success: true };
+  @Patch(':id/invite')
+  async updateInvitation(
+    @AuthUser() user: Account,
+    @Param('id') projectId: number,
+    @Body() body: UpdateContributorRequest
+  ) {
+    await this.projectService.updateInvitation(user.id, projectId, body.contributorId, body.status);
+    return new BaseResponse(200, '프로젝트 멤버 초대 처리가 성공했습니다.', {
+      message: 'Successfully update invitation',
+      success: true,
+    });
   }
 
   @Post(':id/update')

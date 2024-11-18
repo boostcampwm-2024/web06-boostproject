@@ -1,4 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
+import { BaseResponse } from './BaseResponse';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -15,9 +16,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     this.logger.error(
       `[RESPONSE] ${method} ${url} ${ip} - ${status} ${message} ${exception.stack}`
     );
-    response.status(status).json({
-      status,
-      message,
-    });
+    response.status(status).json(new BaseResponse(status, message, []));
   }
 }

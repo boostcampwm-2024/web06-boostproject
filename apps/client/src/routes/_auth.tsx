@@ -53,7 +53,7 @@ export const Route = createFileRoute('/_auth')({
             },
           });
           return projects.data.result;
-        } catch (error) {
+        } catch {
           throw new Error('Failed to fetch projects');
         }
       },
@@ -79,7 +79,7 @@ function AuthLayout() {
           },
         });
         return projects.data.result;
-      } catch (error) {
+      } catch {
         throw new Error('Failed to fetch projects');
       }
     },

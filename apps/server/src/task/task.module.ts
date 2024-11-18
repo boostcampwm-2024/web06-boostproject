@@ -11,5 +11,6 @@ import { SnapshotController } from '@/task/controller/snapshot.controller';
   imports: [TypeOrmModule.forFeature([Task, Section, Project])],
   controllers: [TaskController, SnapshotController],
   providers: [TaskService],
+  exports: [TaskService],
 })
 export class TaskModule {}

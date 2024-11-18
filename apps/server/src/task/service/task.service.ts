@@ -13,12 +13,13 @@ import { DeleteTaskResponse } from '@/task/dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
-import { Snapshot } from '@/task/domain/snapshot';
 import { CustomResponse } from '@/task/domain/custom-response.interface';
+import { Snapshot } from '../domain/snapshot';
 
 @Injectable()
 export class TaskService {
   private snapshots: Map<string, Snapshot> = new Map();
+  private operations: Map<string, []> = new Map();
 
   private connections: Map<string, CustomResponse[]> = new Map();
 
@@ -62,8 +63,8 @@ export class TaskService {
           status: 200,
           message: '스냅샷에 변경 사항이 발생했습니다.',
           result: {
-            version: snapshot.version,
-            project: snapshot.project,
+            ersion: snapshot.version,
+            roject: snapshot.project,
           },
         });
       }
@@ -129,6 +130,8 @@ export class TaskService {
 
     return taskBySection;
   }
+
+  updateQueue() {}
 
   async update(id: number, userId: number, updateTaskRequest: UpdateTaskRequest) {
     const prevTask = await this.findTaskOrThrow(id);

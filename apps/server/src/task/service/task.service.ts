@@ -21,8 +21,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 export class TaskService {
   private snapshots: Map<string, Snapshot> = new Map();
   private operations: Map<string, []> = new Map();
-  private eventEmitter: EventEmitter2 = new EventEmitter2();
-
   private connections: Map<string, CustomResponse[]> = new Map();
 
   constructor(
@@ -31,7 +29,8 @@ export class TaskService {
     @InjectRepository(Section)
     private sectionRepository: Repository<Section>,
     @InjectRepository(Project)
-    private projectRepository: Repository<Project>
+    private projectRepository: Repository<Project>,
+    private eventEmitter: EventEmitter2
   ) {}
 
   addConnection(projectId: number, res: CustomResponse) {

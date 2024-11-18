@@ -11,6 +11,7 @@ import { HttpLoggingInterceptor } from '@/common/httpLog.Interceptor';
 import { AllExceptionsFilter } from '@/common/allException.filter';
 import { AccountModule } from '@/account/account.module';
 import { ProjectModule } from '@/project/project.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ProjectModule } from '@/project/project.module';
         return new DataSource(options).initialize();
       },
     }),
+    EventEmitterModule.forRoot(),
     TaskModule,
     AccountModule,
     ProjectModule,

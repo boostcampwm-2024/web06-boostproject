@@ -13,7 +13,6 @@ import { ProjectRole } from '@/project/enum/project-role.enum';
 import { CreateProjectResponse } from '@/project/dto/create-project-response.dto';
 import { Account } from '@/account/entity/account.entity';
 import { UserInvitationResponse } from '@/project/dto/user-invitation-response.dto';
-import { BaseResponse } from '@/common/BaseResponse';
 import { Section } from '@/task/domain/section.entity';
 
 @Injectable()
@@ -24,6 +23,16 @@ export class ProjectService {
     @InjectRepository(Contributor) private contributorRepository: Repository<Contributor>,
     @InjectRepository(Account) private accountRepository: Repository<Account>
   ) {}
+
+  async getProject(userId: number, projectId: number) {
+    const project = await this.projectRepository.findOneBy({ id: projectId });
+    const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
+
+    if (!project || !userContributor || userContributor.status !== ContributorStatus.ACCEPTED) {
+      throw new BadRequestException('Does not found project');
+    }
+    return new CreateProjectResponse(project);
+  }
 
   async getUserProjects(userId: number) {
     const records = await this.contributorRepository
@@ -56,7 +65,7 @@ export class ProjectService {
         }
       ) || [];
 
-    return new BaseResponse(200, '프로젝트 목록 조회에 성공했습니다.', result);
+    return result;
   }
 
   async getContributors(userId: number, projectId: number) {
@@ -87,7 +96,7 @@ export class ProjectService {
       }
     );
 
-    return BaseResponse.create(200, '프로젝트 멤버 조회에 성공했습니다.', response);
+    return response;
   }
 
   async getInvitations(userId: number) {
@@ -145,7 +154,8 @@ export class ProjectService {
     const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
     if (!userContributor) {
       throw new NotFoundException('Does not found user contributor or project');
-    } else if (userContributor.role !== ProjectRole.ADMIN) {
+    }
+    if (userContributor.role !== ProjectRole.ADMIN) {
       throw new ForbiddenException('Permission denied');
     }
     const invitee = await this.accountRepository.findOneBy({ username });
@@ -164,13 +174,20 @@ export class ProjectService {
     });
   }
 
-  async updateInvitation(userId: number, contributorId: number, status: ContributorStatus) {
+  async updateInvitation(
+    userId: number,
+    projectId: number,
+    contributorId: number,
+    status: ContributorStatus
+  ) {
     const contributor = await this.contributorRepository.findOneBy({ id: contributorId });
-    if (!contributor) {
+    if (!contributor || contributor.projectId !== projectId) {
       throw new NotFoundException('Does not found invitation');
-    } else if (contributor.userId !== userId) {
+    }
+    if (contributor.userId !== userId) {
       throw new ForbiddenException('Permission denied');
-    } else if (contributor.status !== ContributorStatus.PENDING) {
+    }
+    if (contributor.status !== ContributorStatus.PENDING) {
       throw new BadRequestException('Already update invitation');
     }
     contributor.status = status;

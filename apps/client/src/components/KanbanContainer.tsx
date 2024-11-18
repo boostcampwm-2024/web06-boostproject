@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/authContext.tsx';
 import Kanban from '@/components/Kanban.tsx';
 import { TSection } from '@/types';
@@ -16,11 +17,13 @@ export default function KanbanContainer() {
     return data.result as TSection[];
   };
 
-  const { data: sections } = useSuspenseQuery({
+  const { data: initialSections } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => fetchTasks(projectId),
     staleTime: 1000 * 60 * 5,
   });
 
-  return <Kanban sections={sections} />;
+  const [sections, setSections] = useState<TSection[]>(initialSections);
+
+  return <Kanban sections={sections} setSections={setSections} />;
 }

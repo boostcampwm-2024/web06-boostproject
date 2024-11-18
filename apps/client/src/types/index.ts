@@ -2,7 +2,6 @@ export type TTask = {
   id: number;
   title: string;
   description: string;
-  sectionName: string;
   position: string;
 };
 

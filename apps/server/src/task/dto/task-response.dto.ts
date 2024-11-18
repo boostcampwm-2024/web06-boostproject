@@ -5,7 +5,7 @@ export class TaskResponse {
     this.id = task.id;
     this.title = task.title;
     this.description = task.description;
-    this.sectionName = task.section.name;
+    this.sectionId = task.section.id;
     this.position = task.position;
   }
 
@@ -15,7 +15,7 @@ export class TaskResponse {
 
   description: string;
 
-  sectionName: string;
+  sectionId: number;
 
   position: string;
 }

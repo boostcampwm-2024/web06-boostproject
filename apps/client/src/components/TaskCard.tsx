@@ -1,16 +1,9 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.tsx';
 import Tag from '@/components/Tag.tsx';
-
-export type Task = {
-  id: number;
-  title: string;
-  description: string;
-  sectionName: string;
-  position: string;
-};
+import { TTask } from '@/types';
 
 interface TaskProps {
-  task: Task;
+  task: TTask;
 }
 
 function TaskCard({ task }: TaskProps) {
@@ -24,9 +17,6 @@ function TaskCard({ task }: TaskProps) {
         <Tag text="Feature" />
         <Tag text="FE" className="bg-pink-400" />
       </CardContent>
-      <CardFooter className="flex justify-start">
-        <p className="text-gray-500">+ 서브 태스크 추가</p>
-      </CardFooter>
     </Card>
   );
 }

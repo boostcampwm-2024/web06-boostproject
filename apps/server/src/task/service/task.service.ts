@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LexoRank } from 'lexorank';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import ShareDB from 'sharedb';
+import * as ShareDB from 'sharedb';
 import { Task } from '@/task/domain/task.entity';
 import { Section } from '@/task/domain/section.entity';
 import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';

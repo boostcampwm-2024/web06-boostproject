@@ -190,6 +190,7 @@ export default function Kanban({ sections, refetch }: KanbanProps) {
           >
             {section.tasks.map((task) => (
               <KanbanTask
+                belowed={task.id === belowTaskId}
                 handleDragLeave={handleDragLeave}
                 handleDragOver={(e) =>
                   handleDragOver(e as unknown as DragEvent<HTMLDivElement>, section.id, task.id)
@@ -201,6 +202,11 @@ export default function Kanban({ sections, refetch }: KanbanProps) {
                 task={task}
               />
             ))}
+            <div
+              className={`mt-2 h-1 w-full rounded-full bg-blue-500 ${
+                activeSectionId === section.id && belowTaskId === -1 ? 'opacity-100' : 'opacity-0'
+              } transition-all`}
+            />
           </KanbanSection>
         ))}
         <Button type="button" variant="outline" className="h-full w-36" disabled>

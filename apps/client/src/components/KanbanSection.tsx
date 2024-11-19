@@ -66,7 +66,7 @@ export function KanbanSection({
         </SectionMenu>
       </SectionHeader>
       <SectionContent
-        className="flex flex-1 flex-col gap-2 overflow-y-auto"
+        className="flex flex-1 flex-col overflow-y-auto"
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}

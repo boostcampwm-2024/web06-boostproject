@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, DragEvent } from 'react';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +20,10 @@ interface KanbanSectionProps {
   onCreateTask: (sectionId: number) => void;
   isCreatingTask: boolean;
   children: ReactNode;
+  onDragOver: (e: DragEvent<HTMLDivElement>) => void;
+  onDragLeave: () => void;
+  onDrop: (e: DragEvent<HTMLDivElement>) => void;
+  className?: string;
 }
 
 export function KanbanSection({
@@ -27,9 +31,13 @@ export function KanbanSection({
   onCreateTask,
   isCreatingTask,
   children,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  className,
 }: KanbanSectionProps) {
   return (
-    <Section className="flex h-full w-96 flex-shrink-0 flex-col bg-gray-50">
+    <Section className={`flex h-full w-96 flex-shrink-0 flex-col bg-gray-50 ${className}`}>
       <SectionHeader>
         <div className="flex items-center">
           <SectionTitle className="text-xl">{section.name}</SectionTitle>
@@ -57,7 +65,12 @@ export function KanbanSection({
           </Button>
         </SectionMenu>
       </SectionHeader>
-      <SectionContent className="flex flex-1 flex-col gap-2 overflow-y-auto">
+      <SectionContent
+        className="flex flex-1 flex-col gap-2 overflow-y-auto"
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
         {children}
       </SectionContent>
       <SectionFooter>

@@ -36,6 +36,10 @@ export class ProjectController {
       await this.projectService.getProject(user.id, projectId)
     );
   }
+  constructor(
+    private projectService: ProjectService,
+    private taskService: TaskService
+  ) {}
 
   @Get(':id/members')
   async getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
@@ -91,7 +95,11 @@ export class ProjectController {
   }
 
   @Post(':id/update')
-  async handleEvent(@AuthUser() user: Account, @Body() taskEvent: TaskEvent) {
+  async handleEvent(
+    @AuthUser() user: Account,
+    @Param('id') projectId: number,
+    @Body() taskEvent: TaskEvent
+  ) {
     const event = taskEvent.event;
     let response;
     switch (event) {
@@ -106,7 +114,7 @@ export class ProjectController {
         break;
       case EventType.INSERT_TITLE:
       case EventType.DELETE_TITLE:
-        // response = await this.taskService.update(user.id, taskEvent);
+        response = await this.taskService.enqueue(user.id, projectId, taskEvent);
         break;
       default:
         throw new BadRequestException('올바르지 않은 이벤트 타입입니다.');

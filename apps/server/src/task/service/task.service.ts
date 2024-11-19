@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import { LexoRank } from 'lexorank';
 import { Task } from '@/task/domain/task.entity';
 import { Section } from '@/task/domain/section.entity';
-import { UpdateTaskRequest } from '@/task/dto/update-task-request.dto';
-import { UpdateTaskResponse } from '@/task/dto/update-task-response.dto';
 import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';
 import { MoveTaskResponse } from '@/task/dto/move-task-response.dto';
 import { TaskResponse } from '@/task/dto/task-response.dto';
@@ -14,13 +12,16 @@ import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 import { CustomResponse } from '@/task/domain/custom-response.interface';
-import { Snapshot } from '../domain/snapshot';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TaskEvent } from '../dto/task-event.dto';
+import { EventType } from '../domain/eventType.enum';
+import ShareDB from 'sharedb';
+
+const json0 = ShareDB.types.json0;
 
 @Injectable()
 export class TaskService {
-  private snapshots: Map<string, Snapshot> = new Map();
-  private operations: Map<string, []> = new Map();
+  private operations: Map<string, TaskEvent[]> = new Map();
   private connections: Map<string, CustomResponse[]> = new Map();
 
   constructor(
@@ -31,7 +32,11 @@ export class TaskService {
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
     private eventEmitter: EventEmitter2
-  ) {}
+  ) {
+    this.eventEmitter.on('operationAdded', async (userId: number, projectId: number) => {
+      await this.dequeue(userId, projectId);
+    });
+  }
 
   addConnection(projectId: number, res: CustomResponse) {
     if (!this.connections.has(projectId.toString())) {
@@ -53,37 +58,59 @@ export class TaskService {
     if (!connections) {
       return;
     }
-
-    connections.forEach((res) => {
-      if (res.userId !== userId) {
-        const snapshot = this.snapshots.get(projectId.toString());
-        if (res.headersSent) {
-          return;
-        }
-        res.json({
-          status: 200,
-          message: '스냅샷에 변경 사항이 발생했습니다.',
-          result: {
-            version: snapshot.version,
-            project: snapshot.project,
-          },
-        });
-      }
-    });
   }
 
-  private updateSnapshot(
-    projectId: number,
-    prevSectionId: number,
-    userId: number,
-    savedTask: Task
-  ) {
-    const snapshot = this.snapshots.get(projectId.toString());
-    if (!snapshot) {
-      throw new NotFoundException('Snapshot not found');
+  async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
+    const key = projectId.toString();
+    const currentEvents = this.operations.get(key) || [];
+    this.operations.set(key, [...currentEvents, taskEvent]);
+    this.eventEmitter.emit('operationAdded', userId, projectId);
+  }
+
+  private async dequeue(userId: number, projectId: number) {
+    const key = projectId.toString();
+    const changes = this.operations.get(key);
+    if (!changes) {
+      return;
     }
-    snapshot.update(prevSectionId, savedTask);
-    this.sendConnection(projectId, userId);
+
+    while (changes) {
+      const change = changes.shift();
+      const existing = await this.findTaskOrThrow(change.taskId);
+      const result = this.merge(change, existing);
+      this.taskRepository.save(result);
+      this.sendConnection(projectId, userId);
+    }
+  }
+
+  private merge(change: TaskEvent, existing: Task) {
+    const updateTitle = change.title;
+    const existingTitle = existing.title;
+    const event = change.event;
+    const op = this.convertToShareDbOp(event, updateTitle, existingTitle);
+    const newTitle = json0.type.apply(existingTitle, op);
+
+    return { ...existing, title: newTitle };
+  }
+
+  private convertToShareDbOp(
+    event: EventType,
+    updateTitle: UpdateInformation,
+    existingTitle: string
+  ) {
+    const { content, position, length } = updateTitle;
+
+    switch (event) {
+      case EventType.INSERT_TITLE:
+        return [{ p: [position], si: content }];
+      case EventType.DELETE_TITLE:
+        return [
+          {
+            p: [position],
+            sd: existingTitle.slice(position, position + length),
+          },
+        ];
+    }
   }
 
   async create(createTaskRequest: CreateTaskRequest) {
@@ -127,30 +154,7 @@ export class TaskService {
       });
     });
 
-    this.snapshots.set(projectId.toString(), new Snapshot(taskBySection));
-
     return taskBySection;
-  }
-
-  async update(id: number, userId: number, updateTaskRequest: UpdateTaskRequest) {
-    const prevTask = await this.findTaskOrThrow(id);
-    const prevSectionId = prevTask.section.id;
-    const projectId = prevTask.section.project.id;
-
-    const newTask = new Task();
-    newTask.title = updateTaskRequest.title ?? prevTask.title;
-    newTask.description = updateTaskRequest.description ?? prevTask.description;
-
-    if (updateTaskRequest.sectionId) {
-      const section = await this.findSectionOrThrow(updateTaskRequest.sectionId);
-      newTask.section = section;
-    }
-
-    const savedTask = await this.taskRepository.save(newTask);
-
-    this.updateSnapshot(projectId, prevSectionId, userId, savedTask);
-
-    return new UpdateTaskResponse(savedTask);
   }
 
   async move(id: number, moveTaskRequest: MoveTaskRequest) {

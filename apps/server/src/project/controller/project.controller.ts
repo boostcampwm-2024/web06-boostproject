@@ -36,10 +36,6 @@ export class ProjectController {
       await this.projectService.getProject(user.id, projectId)
     );
   }
-  constructor(
-    private projectService: ProjectService,
-    private taskService: TaskService
-  ) {}
 
   @Get(':id/members')
   async getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
@@ -100,7 +96,7 @@ export class ProjectController {
     @Param('id') projectId: number,
     @Body() taskEvent: TaskEvent
   ) {
-    const event = taskEvent.event;
+    const { event } = taskEvent;
     let response;
     switch (event) {
       case EventType.CREATE_TASK:

@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LexoRank } from 'lexorank';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import ShareDB from 'sharedb';
 import { Task } from '@/task/domain/task.entity';
 import { Section } from '@/task/domain/section.entity';
 import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';
@@ -12,16 +14,15 @@ import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
 import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 import { CustomResponse } from '@/task/domain/custom-response.interface';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TaskEvent } from '../dto/task-event.dto';
 import { EventType } from '../domain/eventType.enum';
-import ShareDB from 'sharedb';
 
-const json0 = ShareDB.types.json0;
+const { json0 } = ShareDB.types;
 
 @Injectable()
 export class TaskService {
   private operations: Map<string, TaskEvent[]> = new Map();
+
   private connections: Map<string, CustomResponse[]> = new Map();
 
   constructor(
@@ -55,9 +56,6 @@ export class TaskService {
 
   sendConnection(projectId: number, userId: number) {
     const connections = this.connections.get(projectId.toString());
-    if (!connections) {
-      return;
-    }
   }
 
   async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
@@ -74,20 +72,28 @@ export class TaskService {
       return;
     }
 
-    while (changes) {
+    let lastOp = [];
+    while (changes.length) {
       const change = changes.shift();
       const existing = await this.findTaskOrThrow(change.taskId);
       const result = this.merge(change, existing);
+
+      const transformedOp = lastOp.length ? json0.type.transform(result, lastOp, 'right') : result;
+
       this.taskRepository.save(result);
+
       this.sendConnection(projectId, userId);
+
+      lastOp = json0.type.compose(lastOp, transformedOp);
     }
   }
 
   private merge(change: TaskEvent, existing: Task) {
     const updateTitle = change.title;
     const existingTitle = existing.title;
-    const event = change.event;
+    const { event } = change;
     const op = this.convertToShareDbOp(event, updateTitle, existingTitle);
+
     const newTitle = json0.type.apply(existingTitle, op);
 
     return { ...existing, title: newTitle };
@@ -110,6 +116,8 @@ export class TaskService {
             sd: existingTitle.slice(position, position + length),
           },
         ];
+      default:
+        throw new BadRequestException('Invalid event type');
     }
   }
 

@@ -19,7 +19,6 @@ export default function KanbanContainer() {
   const { data: sections, refetch } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => fetchTasks(projectId),
-    staleTime: 1000 * 60 * 5,
   });
 
   return <Kanban sections={sections} refetch={refetch} />;

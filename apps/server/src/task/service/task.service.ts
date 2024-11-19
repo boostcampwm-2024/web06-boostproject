@@ -113,7 +113,7 @@ export class TaskService {
         return [
           {
             p: [position],
-            sd: existingTitle.slice(position, position + length),
+            sd: content,
           },
         ];
       default:

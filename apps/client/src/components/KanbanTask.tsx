@@ -6,7 +6,7 @@ interface TaskProps {
   task: TTask;
 }
 
-function TaskCard({ task }: TaskProps) {
+function KanbanTask({ task }: TaskProps) {
   return (
     <Card className="bg-white transition-all duration-300">
       <CardHeader className="flex flex-row items-start gap-2">
@@ -21,4 +21,4 @@ function TaskCard({ task }: TaskProps) {
   );
 }
 
-export default TaskCard;
+export default KanbanTask;

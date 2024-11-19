@@ -41,19 +41,6 @@ export class TaskController {
     );
   }
 
-  @Patch(':id/status')
-  async update(
-    @AuthUser() user: Account,
-    @Param('id') id: number,
-    @Body() updateTaskRequest: UpdateTaskRequest
-  ) {
-    return new BaseResponse(
-      200,
-      '태스크가 정상적으로 수정되었습니다.',
-      await this.taskService.update(id, user.id, updateTaskRequest)
-    );
-  }
-
   @Patch(':id/position')
   async move(@Param('id') id: number, @Body() moveTaskRequest: MoveTaskRequest) {
     return new BaseResponse(

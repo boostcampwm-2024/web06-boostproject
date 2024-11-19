@@ -26,3 +26,8 @@ export interface GetProjectMembersResponseDTO {
   message: string;
   result: ProjectMember[];
 }
+
+export interface InviteProjectMemberRequestDTO {
+  username: string;
+  projectId: number;
+}

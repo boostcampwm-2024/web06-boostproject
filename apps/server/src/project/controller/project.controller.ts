@@ -28,6 +28,15 @@ export class ProjectController {
     private taskService: TaskService
   ) {}
 
+  @Get('invitations')
+  async getInvitations(@AuthUser() user: Account) {
+    return new BaseResponse(
+      200,
+      '프로젝트 멤버 초대 목록 조회에 성공했습니다.',
+      await this.projectService.getInvitations(user.id)
+    );
+  }
+
   @Get(':id')
   async getProject(@AuthUser() user: Account, @Param('id') projectId: number) {
     return new BaseResponse(
@@ -43,15 +52,6 @@ export class ProjectController {
       200,
       '프로젝트 멤버 목록 조회에 성공했습니다.',
       await this.projectService.getContributors(user.id, projectId)
-    );
-  }
-
-  @Get('invitations')
-  async getInvitations(@AuthUser() user: Account) {
-    return new BaseResponse(
-      200,
-      '프로젝트 멤버 초대 목록 조회에 성공했습니다.',
-      await this.projectService.getInvitations(user.id)
     );
   }
 

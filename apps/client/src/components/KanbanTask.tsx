@@ -9,9 +9,16 @@ interface TaskProps {
   handleDragOver: (e: DragEvent<HTMLDivElement>) => void;
   handleDragLeave: () => void;
   handleDragStart: (e: DragEvent<HTMLDivElement>) => void;
+  belowed: boolean;
 }
 
-function KanbanTask({ task, handleDragOver, handleDragLeave, handleDragStart }: TaskProps) {
+function KanbanTask({
+  task,
+  handleDragOver,
+  handleDragLeave,
+  handleDragStart,
+  belowed,
+}: TaskProps) {
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -27,6 +34,9 @@ function KanbanTask({ task, handleDragOver, handleDragLeave, handleDragStart }: 
       onDragOver={onDragOver}
       onDragLeave={handleDragLeave}
     >
+      <div
+        className={`my-1 h-1 w-full rounded-full bg-blue-500 ${belowed ? 'opacity-100' : 'opacity-0'} transition-all`}
+      />
       <Card className="bg-white transition-all duration-300">
         <CardHeader className="flex flex-row items-start gap-2">
           <CardTitle className="text-md mt-1.5 flex flex-1 break-keep">{task.title}</CardTitle>

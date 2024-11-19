@@ -43,7 +43,9 @@ function ProjectLayout() {
           </li>
         </ul>
       </nav>
-      <Outlet />
+      <main className="bg-surface min-h-[calc(100vh-100px)]">
+        <Outlet />
+      </main>
     </>
   );
 }

@@ -14,3 +14,15 @@ export interface GetProjectsResponseDTO {
 export interface CreateProjectRequestDTO {
   title: string;
 }
+
+export interface ProjectMember {
+  id: number;
+  username: string;
+  role: string;
+}
+
+export interface GetProjectMembersResponseDTO {
+  status: number;
+  message: string;
+  result: ProjectMember[];
+}

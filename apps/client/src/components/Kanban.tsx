@@ -1,9 +1,22 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { useParams } from '@tanstack/react-router';
+import { useMutation, UseQueryResult } from '@tanstack/react-query';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { LexoRank } from 'lexorank';
 import axios from 'axios';
-import { useMutation, UseQueryResult } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Section,
   SectionContent,
@@ -11,15 +24,9 @@ import {
   SectionHeader,
   SectionTitle,
 } from '@/components/ui/section';
-import { Button } from '@/components/ui/button';
-import { TSection, TTask } from '@/types';
 import TaskCard from '@/components/TaskCard';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/authContext';
+import { TSection, TTask } from '@/types';
 
 interface KanbanProps {
   sections: TSection[];
@@ -40,6 +47,7 @@ const calculateLastPosition = (tasks: TTask[]): string => {
 };
 
 export default function Kanban({ sections, refetch }: KanbanProps) {
+  const [dialogError, setDialogError] = useState<string | null>(null);
   const { project: projectId } = useParams({ from: '/_auth/$project/board' });
   const { accessToken } = useAuth();
 
@@ -60,6 +68,7 @@ export default function Kanban({ sections, refetch }: KanbanProps) {
     },
     onError: (error) => {
       console.error('Failed to create task:', error);
+      setDialogError('태스크 생성 중 문제가 발생했습니다. 다시 시도해주세요.');
     },
   });
 
@@ -72,17 +81,44 @@ export default function Kanban({ sections, refetch }: KanbanProps) {
   }
 
   return (
-    <SectionWrapper>
-      {sections.map((section) => (
-        <Section key={section.id} className="flex h-full w-96 flex-shrink-0 flex-col bg-gray-50">
-          <SectionHeader>
-            <div className="flex items-center">
-              <SectionTitle className="text-xl">{section.name}</SectionTitle>
-              <SectionCounter>{section.tasks.length}</SectionCounter>
-            </div>
-            <SectionMenu>
+    <>
+      <SectionWrapper>
+        {sections.map((section) => (
+          <Section key={section.id} className="flex h-full w-96 flex-shrink-0 flex-col bg-gray-50">
+            <SectionHeader>
+              <div className="flex items-center">
+                <SectionTitle className="text-xl">{section.name}</SectionTitle>
+                <SectionCounter>{section.tasks.length}</SectionCounter>
+              </div>
+              <SectionMenu>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full border-none px-0 text-black"
+                  onClick={() => handleCreateTask(section.id)}
+                  disabled={createTaskMutation.isPending}
+                >
+                  <PlusIcon />
+                  태스크 추가
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="hover:text-destructive w-full border-none bg-white px-0 text-black"
+                  disabled
+                >
+                  <TrashIcon />
+                  섹션 삭제
+                </Button>
+              </SectionMenu>
+            </SectionHeader>
+            <SectionContent className="flex flex-1 flex-col gap-2 overflow-y-auto">
+              {section.tasks.map((task) => (
+                <TaskCard key={task.id} task={task} />
+              ))}
+            </SectionContent>
+            <SectionFooter>
               <Button
-                type="button"
                 variant="ghost"
                 className="w-full border-none px-0 text-black"
                 onClick={() => handleCreateTask(section.id)}
@@ -91,40 +127,28 @@ export default function Kanban({ sections, refetch }: KanbanProps) {
                 <PlusIcon />
                 태스크 추가
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="hover:text-destructive w-full border-none bg-white px-0 text-black"
-                disabled
-              >
-                <TrashIcon />
-                섹션 삭제
-              </Button>
-            </SectionMenu>
-          </SectionHeader>
-          <SectionContent className="flex flex-1 flex-col gap-2 overflow-y-auto">
-            {section.tasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </SectionContent>
-          <SectionFooter>
-            <Button
-              variant="ghost"
-              className="w-full border-none px-0 text-black"
-              onClick={() => handleCreateTask(section.id)}
-              disabled={createTaskMutation.isPending}
-            >
-              <PlusIcon />
-              태스크 추가
+            </SectionFooter>
+          </Section>
+        ))}
+        <Button type="button" variant="outline" className="h-full w-36" disabled>
+          <PlusIcon />
+          섹션 추가
+        </Button>
+      </SectionWrapper>
+      <Dialog open={!!dialogError} onOpenChange={() => setDialogError(null)}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>문제가 발생했어요</DialogTitle>
+          </DialogHeader>
+          <p className="py-2 text-gray-600">{dialogError}</p>
+          <DialogFooter>
+            <Button variant="default" onClick={() => setDialogError(null)}>
+              확인
             </Button>
-          </SectionFooter>
-        </Section>
-      ))}
-      <Button type="button" variant="outline" className="h-full w-36" disabled>
-        <PlusIcon />
-        섹션 추가
-      </Button>
-    </SectionWrapper>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

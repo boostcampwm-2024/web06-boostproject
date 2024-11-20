@@ -6,8 +6,17 @@ export class TaskEventResponse {
 
   event: EventType;
 
-  constructor(taskEvent: TaskEvent) {
-    this.taskId = taskEvent.taskId;
-    this.event = taskEvent.event;
+  static from(taskEvent: TaskEvent) {
+    const response = new TaskEventResponse();
+    response.taskId = taskEvent.taskId;
+    response.event = taskEvent.event;
+    return response;
+  }
+
+  static of(taskId: number, taskEvent: TaskEvent) {
+    const response = new TaskEventResponse();
+    response.taskId = taskId;
+    response.event = taskEvent.event;
+    return response;
   }
 }

@@ -23,7 +23,7 @@ import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
 import { UpdateInformation } from '@/task/domain/update-information.type';
 
-const { json0 } = ShareDB.types;
+const json0 = ShareDB.types.defaultType;
 
 @Injectable()
 export class TaskService {
@@ -73,13 +73,13 @@ export class TaskService {
       const existing = await this.findTaskOrThrow(taskEvent.taskId);
       const result = this.merge(taskEvent, existing);
 
-      const transformedOp = lastOp.length ? json0.type.transform(result, lastOp, 'right') : result;
+      const transformedOp = lastOp.length ? json0.transform(result, lastOp, 'right') : result;
 
       this.taskRepository.save(result);
 
-      this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
+      this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskEvent));
 
-      lastOp = json0.type.compose(lastOp, transformedOp);
+      lastOp = json0.compose(lastOp, transformedOp);
     }
   }
 
@@ -87,9 +87,10 @@ export class TaskService {
     const updateTitle = change.title;
     const existingTitle = existing.title;
     const { event } = change;
+    console.log(change);
     const op = this.convertToShareDbOp(event, updateTitle);
 
-    const newTitle = json0.type.apply(existingTitle, op);
+    const newTitle = json0.apply(existingTitle, op);
 
     return { ...existing, title: newTitle };
   }
@@ -101,12 +102,7 @@ export class TaskService {
       case EventType.INSERT_TITLE:
         return [{ p: [position], si: content }];
       case EventType.DELETE_TITLE:
-        return [
-          {
-            p: [position],
-            sd: content,
-          },
-        ];
+        return [{ p: [position], sd: content }];
       default:
         throw new BadRequestException('Invalid event type');
     }
@@ -129,7 +125,12 @@ export class TaskService {
       section,
     });
 
-    this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
+    this.eventEmitter.emit(
+      'broadcast',
+      userId,
+      projectId,
+      TaskEventResponse.of(task.id, taskEvent)
+    );
     return new CreateTaskResponse(task);
   }
 
@@ -180,7 +181,7 @@ export class TaskService {
     task.section = section;
     await this.taskRepository.save(task);
 
-    this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
+    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskEvent));
     return new MoveTaskResponse(task);
   }
 
@@ -210,7 +211,7 @@ export class TaskService {
     }
     await this.taskRepository.delete(taskEvent.taskId);
 
-    this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
+    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskEvent));
     return new DeleteTaskResponse(taskEvent.taskId);
   }
 

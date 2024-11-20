@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
-import KanbanContainer from '@/components/KanbanContainer.tsx';
+import KanbanBoard from '@/components/KanbanBoard.tsx';
 
 export default function Board() {
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <KanbanContainer />
+      <KanbanBoard />
     </Suspense>
   );
 }

@@ -30,6 +30,7 @@ const calculateLastPosition = (tasks: TTask[]): string => {
 };
 
 export default function Kanban({ sections, refetch }: KanbanProps) {
+  console.log(sections);
   const [dialogError, setDialogError] = useState<string | null>(null);
   const { project: projectId } = useParams({ from: '/_auth/$project/board' });
   const { accessToken } = useAuth();
@@ -200,6 +201,7 @@ export default function Kanban({ sections, refetch }: KanbanProps) {
                 }
                 key={task.id}
                 task={task}
+                refetch={refetch}
               />
             ))}
             <div

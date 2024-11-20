@@ -7,6 +7,7 @@ export class BroadcastService {
   private connections: Map<number, CustomResponse[]> = new Map();
 
   addConnection(projectId: number, res: CustomResponse) {
+    res.setTimeout(10000);
     if (!this.connections.has(projectId)) {
       this.connections.set(projectId, [res]);
     } else {

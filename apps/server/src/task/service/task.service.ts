@@ -43,7 +43,11 @@ export class TaskService {
     this.eventEmitter.on(
       'operationAdded',
       async (userId: number, projectId: number, taskId: number) => {
-        await this.dequeue(userId, projectId, taskId);
+        try {
+          await this.dequeue(userId, projectId, taskId);
+        } catch (e) {
+          throw new BadRequestException(e.message);
+        }
       }
     );
   }

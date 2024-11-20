@@ -14,14 +14,12 @@ import { MoveTaskResponse } from '@/task/dto/move-task-response.dto';
 import { TaskResponse } from '@/task/dto/task-response.dto';
 import { DeleteTaskResponse } from '@/task/dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
-import { Project } from '@/project/entity/project.entity';
 import { TaskEvent } from '@/task/dto/task-event.dto';
 import { EventType } from '@/task/domain/eventType.enum';
 import { Contributor } from '@/project/entity/contributor.entity';
 import { BroadcastService } from '@/task/service/broadcast.service';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
-import { UpdateInformation } from '@/task/domain/update-information.type';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -34,8 +32,6 @@ export class TaskService {
     private taskRepository: Repository<Task>,
     @InjectRepository(Section)
     private sectionRepository: Repository<Section>,
-    @InjectRepository(Project)
-    private projectRepository: Repository<Project>,
     @InjectRepository(Contributor)
     private contributorRepository: Repository<Contributor>,
     private broadcastService: BroadcastService,
@@ -44,58 +40,53 @@ export class TaskService {
     this.eventEmitter.on('broadcast', (userId: number, projectId: number, event: TaskEvent) => {
       this.broadcastService.sendConnection(userId, projectId, event);
     });
-    this.eventEmitter.on('operationAdded', async (userId: number, projectId: number) => {
-      await this.dequeue(userId, projectId);
-    });
+    this.eventEmitter.on(
+      'operationAdded',
+      async (userId: number, projectId: number, taskId: number) => {
+        await this.dequeue(userId, projectId, taskId);
+      }
+    );
   }
 
   async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
-    const key = projectId;
+    const taskId = taskEvent.taskId;
     const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
     if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
       throw new ForbiddenException('Permission denied');
     }
-    const currentEvents = this.operations.get(key) || [];
-    this.operations.set(key, [...currentEvents, taskEvent]);
-    this.eventEmitter.emit('operationAdded', userId, projectId);
+    const currentEvents = this.operations.get(taskId) || [];
+    this.operations.set(taskId, [...currentEvents, taskEvent]);
+    this.eventEmitter.emit('operationAdded', userId, projectId, taskId);
   }
 
-  private async dequeue(userId: number, projectId: number) {
-    const key = projectId;
-    const taskEvents = this.operations.get(key);
-    if (!taskEvents) {
+  private async dequeue(userId: number, projectId: number, taskId: number) {
+    const taskEventQueue = this.operations.get(taskId);
+    if (!taskEventQueue) {
       return;
     }
 
-    let lastOp = [];
-    while (taskEvents.length) {
-      const taskEvent = taskEvents.shift();
-      const existing = await this.findTaskOrThrow(taskEvent.taskId);
-      const result = this.merge(taskEvent, existing);
+    const initialTask = this.taskRepository.findOneBy({ id: taskId });
+    let accumulateOperations = [];
+    while (taskEventQueue.length) {
+      const taskEvent = taskEventQueue.shift();
+      const operation = this.convertToOperation(taskEvent);
 
-      const transformedOp = lastOp.length ? json0.transform(result, lastOp, 'right') : result;
+      const transformedOperation = accumulateOperations.length
+        ? json0.transform(operation, accumulateOperations, 'right')
+        : operation;
 
-      this.taskRepository.save(result);
-
-      this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskEvent));
-
-      lastOp = json0.compose(lastOp, transformedOp);
+      accumulateOperations = json0.compose(accumulateOperations, transformedOperation);
     }
+
+    const newText = json0.apply(initialTask, accumulateOperations);
+    const result = { ...initialTask, title: newText };
+    this.taskRepository.save(result);
+    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskId));
   }
 
-  private merge(change: TaskEvent, existing: Task) {
-    const updateTitle = change.title;
-    const existingTitle = existing.title;
-    const { event } = change;
-    const op = this.convertToShareDbOp(event, updateTitle);
-
-    const newTitle = json0.apply(existingTitle, op);
-
-    return { ...existing, title: newTitle };
-  }
-
-  private convertToShareDbOp(event: EventType, updateTitle: UpdateInformation) {
-    const { content, position } = updateTitle;
+  private convertToOperation(taskEvent: TaskEvent) {
+    const { event } = taskEvent;
+    const { content, position } = taskEvent.title;
 
     switch (event) {
       case EventType.INSERT_TITLE:
@@ -124,12 +115,7 @@ export class TaskService {
       section,
     });
 
-    this.eventEmitter.emit(
-      'broadcast',
-      userId,
-      projectId,
-      TaskEventResponse.of(task.id, taskEvent)
-    );
+    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(task.id));
     return new CreateTaskResponse(task);
   }
 
@@ -180,7 +166,12 @@ export class TaskService {
     task.section = section;
     await this.taskRepository.save(task);
 
-    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskEvent));
+    this.eventEmitter.emit(
+      'broadcast',
+      userId,
+      projectId,
+      TaskEventResponse.from(taskEvent.taskId)
+    );
     return new MoveTaskResponse(task);
   }
 
@@ -210,7 +201,12 @@ export class TaskService {
     }
     await this.taskRepository.delete(taskEvent.taskId);
 
-    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskEvent));
+    this.eventEmitter.emit(
+      'broadcast',
+      userId,
+      projectId,
+      TaskEventResponse.from(taskEvent.taskId)
+    );
     return new DeleteTaskResponse(taskEvent.taskId);
   }
 

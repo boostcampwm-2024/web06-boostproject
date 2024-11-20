@@ -1,9 +1,10 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import * as cookieParser from 'cookie-parser';
 import { TaskModule } from '@/task/task.module';
 import { TypeormConfig } from '../config/typeorm.config';
 import { AppService } from '@/app.service';
@@ -56,4 +57,8 @@ import { PlanningPokerModule } from './planning-poker/planning-poker.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(cookieParser()).forRoutes('*');
+  }
+}

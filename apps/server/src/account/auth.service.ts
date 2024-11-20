@@ -2,24 +2,26 @@ import { JwtService } from '@nestjs/jwt';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { AccountService } from '@/account/service/account.service';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from '@/account/entity/account.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private accountService: AccountService,
+    @InjectRepository(Account)
+    private accountRepository: Repository<Account>,
     private jwtService: JwtService,
     private configService: ConfigService
   ) {}
 
   async signUp(username: string, password: string) {
-    const account = await this.accountService.findByUsername(username);
+    const account = await this.accountRepository.findOneBy({ username });
     if (account) {
       throw new BadRequestException('Already used username');
     }
     const hash = await bcrypt.hash(password, 10);
-    const user = await this.accountService.create(username, hash);
+    const user = await this.accountRepository.save({ username, password: hash });
     return user;
   }
 
@@ -30,12 +32,14 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(payload);
 
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.accountService.setRefreshToken(user, hashRefreshToken);
+    user.setRefreshToken(hashRefreshToken);
+    await this.accountRepository.save(user);
     return { user, accessToken, refreshToken };
   }
 
   async signOut(user: Account) {
-    await this.accountService.setRefreshToken(user, null);
+    user.setRefreshToken(null);
+    await this.accountRepository.save(user);
   }
 
   async refresh(user: Account, refreshToken: string) {
@@ -47,11 +51,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
     const accessToken = await this.generateAccessToken({ id: user.id, username: user.username });
-    return { accessToken, refreshToken };
+    return accessToken;
   }
 
   private async validateUser(username: string, password: string) {
-    const account = await this.accountService.findByUsername(username);
+    const account = await this.accountRepository.findOneBy({ username });
     if (!account) {
       throw new UnauthorizedException('Does not found user by username');
     }

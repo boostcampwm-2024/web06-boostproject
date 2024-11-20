@@ -23,7 +23,7 @@ import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
 import { UpdateInformation } from '@/task/domain/update-information.type';
 
-const json0 = ShareDB.types.defaultType;
+const { defaultType: json0 } = ShareDB.types;
 
 @Injectable()
 export class TaskService {
@@ -87,7 +87,6 @@ export class TaskService {
     const updateTitle = change.title;
     const existingTitle = existing.title;
     const { event } = change;
-    console.log(change);
     const op = this.convertToShareDbOp(event, updateTitle);
 
     const newTitle = json0.apply(existingTitle, op);

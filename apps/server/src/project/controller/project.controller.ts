@@ -100,13 +100,13 @@ export class ProjectController {
     let response;
     switch (event) {
       case EventType.CREATE_TASK:
-        // response = await this.taskService.create(user.id, taskEvent);
+        response = await this.taskService.create(user.id, projectId, taskEvent);
         break;
       case EventType.DELETE_TASK:
-        // response = await this.taskService.delete(user.id, taskEvent);
+        response = await this.taskService.delete(user.id, projectId, taskEvent);
         break;
       case EventType.UPDATE_POSITION:
-        // response = await this.taskService.move(user.id, taskEvent);
+        response = await this.taskService.move(user.id, projectId, taskEvent);
         break;
       case EventType.INSERT_TITLE:
       case EventType.DELETE_TITLE:
@@ -115,6 +115,6 @@ export class ProjectController {
       default:
         throw new BadRequestException('올바르지 않은 이벤트 타입입니다.');
     }
-    return response;
+    return new BaseResponse(200, '이벤트 처리 완료했습니다.', response);
   }
 }

@@ -29,6 +29,7 @@ module.exports = {
     'class-methods-use-this': 'off', // nest not use this in class
     'import/no-extraneous-dependencies': 'off',
     'import/extensions': 'off',
+    'no-await-in-loop': 'off',
 
     'prettier/prettier': ['error', { endOfLine: 'auto' }],
   },

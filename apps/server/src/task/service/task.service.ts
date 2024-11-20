@@ -1,29 +1,33 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LexoRank } from 'lexorank';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as ShareDB from 'sharedb';
 import { Task } from '@/task/domain/task.entity';
 import { Section } from '@/task/domain/section.entity';
-import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';
 import { MoveTaskResponse } from '@/task/dto/move-task-response.dto';
 import { TaskResponse } from '@/task/dto/task-response.dto';
 import { DeleteTaskResponse } from '@/task/dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { Project } from '@/project/entity/project.entity';
-import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
-import { CustomResponse } from '@/task/domain/custom-response.interface';
-import { TaskEvent } from '../dto/task-event.dto';
-import { EventType } from '../domain/eventType.enum';
+import { TaskEvent } from '@/task/dto/task-event.dto';
+import { EventType } from '@/task/domain/eventType.enum';
+import { Contributor } from '@/project/entity/contributor.entity';
+import { BroadcastService } from '@/task/service/broadcast.service';
+import { ContributorStatus } from '@/project/enum/contributor-status.enum';
+import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
+import { UpdateInformation } from '@/task/domain/update-information.type';
 
 const { json0 } = ShareDB.types;
 
 @Injectable()
 export class TaskService {
-  private operations: Map<string, TaskEvent[]> = new Map();
-
-  private connections: Map<string, CustomResponse[]> = new Map();
+  private operations: Map<number, TaskEvent[]> = new Map();
 
   constructor(
     @InjectRepository(Task)
@@ -32,57 +36,48 @@ export class TaskService {
     private sectionRepository: Repository<Section>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
+    @InjectRepository(Contributor)
+    private contributorRepository: Repository<Contributor>,
+    private broadcastService: BroadcastService,
     private eventEmitter: EventEmitter2
   ) {
+    this.eventEmitter.on('broadcast', (userId: number, projectId: number, event: TaskEvent) => {
+      this.broadcastService.sendConnection(userId, projectId, event);
+    });
     this.eventEmitter.on('operationAdded', async (userId: number, projectId: number) => {
       await this.dequeue(userId, projectId);
     });
   }
 
-  addConnection(projectId: number, res: CustomResponse) {
-    if (!this.connections.has(projectId.toString())) {
-      this.connections.set(projectId.toString(), [res]);
-    }
-    this.connections.get(projectId.toString()).push(res);
-  }
-
-  removeConnection(projectId: number, res: CustomResponse) {
-    const fillterdConnections = this.connections
-      .get(projectId.toString())
-      .filter((r) => r.userId !== res.userId);
-
-    this.connections.set(projectId.toString(), fillterdConnections);
-  }
-
-  sendConnection(projectId: number, userId: number) {
-    const connections = this.connections.get(projectId.toString());
-  }
-
   async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
-    const key = projectId.toString();
+    const key = projectId;
+    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
     const currentEvents = this.operations.get(key) || [];
     this.operations.set(key, [...currentEvents, taskEvent]);
     this.eventEmitter.emit('operationAdded', userId, projectId);
   }
 
   private async dequeue(userId: number, projectId: number) {
-    const key = projectId.toString();
-    const changes = this.operations.get(key);
-    if (!changes) {
+    const key = projectId;
+    const taskEvents = this.operations.get(key);
+    if (!taskEvents) {
       return;
     }
 
     let lastOp = [];
-    while (changes.length) {
-      const change = changes.shift();
-      const existing = await this.findTaskOrThrow(change.taskId);
-      const result = this.merge(change, existing);
+    while (taskEvents.length) {
+      const taskEvent = taskEvents.shift();
+      const existing = await this.findTaskOrThrow(taskEvent.taskId);
+      const result = this.merge(taskEvent, existing);
 
       const transformedOp = lastOp.length ? json0.type.transform(result, lastOp, 'right') : result;
 
       this.taskRepository.save(result);
 
-      this.sendConnection(projectId, userId);
+      this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
 
       lastOp = json0.type.compose(lastOp, transformedOp);
     }
@@ -92,19 +87,15 @@ export class TaskService {
     const updateTitle = change.title;
     const existingTitle = existing.title;
     const { event } = change;
-    const op = this.convertToShareDbOp(event, updateTitle, existingTitle);
+    const op = this.convertToShareDbOp(event, updateTitle);
 
     const newTitle = json0.type.apply(existingTitle, op);
 
     return { ...existing, title: newTitle };
   }
 
-  private convertToShareDbOp(
-    event: EventType,
-    updateTitle: UpdateInformation,
-    existingTitle: string
-  ) {
-    const { content, position, length } = updateTitle;
+  private convertToShareDbOp(event: EventType, updateTitle: UpdateInformation) {
+    const { content, position } = updateTitle;
 
     switch (event) {
       case EventType.INSERT_TITLE:
@@ -121,25 +112,32 @@ export class TaskService {
     }
   }
 
-  async create(createTaskRequest: CreateTaskRequest) {
-    const project = await this.projectRepository.findOneBy({ id: createTaskRequest.projectId });
-    if (!project) {
+  async create(userId: number, projectId: number, taskEvent: TaskEvent) {
+    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
+    if (!taskEvent.sectionId) {
+      throw new BadRequestException('Required section id');
+    }
+    const section = await this.findSectionOrThrow(taskEvent.sectionId);
+    if (section.project.id !== projectId) {
       throw new NotFoundException('Project not found');
     }
-
-    const sections = await this.sectionRepository.find({ where: { project } });
-    const position: string = createTaskRequest.lastTaskPosition
-      ? LexoRank.parse(createTaskRequest.lastTaskPosition).genNext().toString()
-      : LexoRank.min().toString();
-
     const task = await this.taskRepository.save({
-      position,
-      section: sections[0],
+      position: taskEvent.position,
+      section,
     });
+
+    this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
     return new CreateTaskResponse(task);
   }
 
-  async getAll(projectId: number) {
+  async getAll(userId: number, projectId: number) {
+    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
     const sections = await this.sectionRepository.find({
       where: { project: { id: projectId } },
       order: { id: 'ASC' },
@@ -165,28 +163,55 @@ export class TaskService {
     return taskBySection;
   }
 
-  async move(id: number, moveTaskRequest: MoveTaskRequest) {
-    const task = await this.findTaskOrThrow(id);
-
-    const section = await this.findSectionOrThrow(moveTaskRequest.sectionId);
+  async move(userId: number, projectId: number, taskEvent: TaskEvent) {
+    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
+    if (!taskEvent.taskId || !taskEvent.sectionId || !taskEvent.position) {
+      throw new BadRequestException('Required section id');
+    }
+    const task = await this.findTaskOrThrow(taskEvent.taskId);
+    const section = await this.findSectionOrThrow(taskEvent.sectionId);
+    if (task.section.project.id !== projectId || section.project.id !== projectId) {
+      throw new NotFoundException('Project not found');
+    }
+    task.position = taskEvent.position;
     task.section = section;
-
-    const beforePosition = LexoRank.parse(moveTaskRequest.beforePosition);
-    const afterPosition = LexoRank.parse(moveTaskRequest.afterPosition);
-    task.position = beforePosition.between(afterPosition).toString();
-
     await this.taskRepository.save(task);
+
+    this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
     return new MoveTaskResponse(task);
   }
 
-  async get(id: number) {
-    const task = await this.findTaskOrThrow(id);
+  async get(userId: number, taskId: number) {
+    const task = await this.findTaskOrThrow(taskId);
+    const contributor = await this.contributorRepository.findOneBy({
+      userId,
+      projectId: task.section.project.id,
+    });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
     return new TaskResponse(task);
   }
 
-  async delete(id: number) {
-    await this.taskRepository.delete(id);
-    return new DeleteTaskResponse(id);
+  async delete(userId: number, projectId: number, taskEvent: TaskEvent) {
+    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
+    if (!taskEvent.taskId) {
+      throw new BadRequestException('Required section id');
+    }
+    const task = await this.findTaskOrThrow(taskEvent.taskId);
+    if (!task || task.section.project.id !== projectId) {
+      throw new NotFoundException('Task not found');
+    }
+    await this.taskRepository.delete(taskEvent.taskId);
+
+    this.eventEmitter.emit('broadcast', userId, projectId, new TaskEventResponse(taskEvent));
+    return new DeleteTaskResponse(taskEvent.taskId);
   }
 
   private async findTaskOrThrow(id: number) {

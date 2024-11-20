@@ -1,18 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { TaskService } from '@/task/service/task.service';
-import { UpdateTaskRequest } from '@/task/dto/update-task-request.dto';
-import { MoveTaskRequest } from '@/task/dto/move-task-request.dto';
-import { CreateTaskRequest } from '@/task/dto/create-task-request.dto';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
@@ -23,48 +10,21 @@ import { BaseResponse } from '@/common/BaseResponse';
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
-  @Post()
-  async create(@AuthUser() user: Account, @Body() body: CreateTaskRequest) {
-    return new BaseResponse(
-      200,
-      '태스크가 정상적으로 생성되었습니다.',
-      await this.taskService.create(body)
-    );
-  }
-
   @Get()
-  async getAll(@Query('projectId') projectId: number) {
+  async getAll(@AuthUser() user: Account, @Query('projectId') projectId: number) {
     return new BaseResponse(
       200,
       '태스크 목록이 정상적으로 조회되었습니다.',
-      await this.taskService.getAll(projectId)
-    );
-  }
-
-  @Patch(':id/position')
-  async move(@Param('id') id: number, @Body() moveTaskRequest: MoveTaskRequest) {
-    return new BaseResponse(
-      200,
-      '태스크가 정상적으로 이동되었습니다.',
-      await this.taskService.move(id, moveTaskRequest)
+      await this.taskService.getAll(user.id, projectId)
     );
   }
 
   @Get(':id')
-  async get(@Param('id') id: number) {
+  async get(@AuthUser() user: Account, @Param('id') id: number) {
     return new BaseResponse(
       200,
       '태스크가 정상적으로 조회되었습니다.',
-      await this.taskService.get(id)
-    );
-  }
-
-  @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return new BaseResponse(
-      200,
-      '태스크가 정상적으로 삭제되었습니다.',
-      await this.taskService.delete(id)
+      await this.taskService.get(user.id, id)
     );
   }
 }

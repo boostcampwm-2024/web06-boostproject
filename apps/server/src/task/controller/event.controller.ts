@@ -1,15 +1,15 @@
 import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
-import { TaskService } from '@/task/service/task.service';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
 import { CustomResponse } from '@/task/domain/custom-response.interface';
+import { BroadcastService } from '@/task/service/broadcast.service';
 
 @UseGuards(AccessTokenGuard)
-@Controller('snapshot')
-export class SnapshotController {
-  constructor(private taskService: TaskService) {}
+@Controller('event')
+export class EventController {
+  constructor(private broadcastService: BroadcastService) {}
 
   @Get()
   polling(
@@ -21,10 +21,10 @@ export class SnapshotController {
     const customResponse = res as CustomResponse;
     customResponse.userId = user.id;
 
-    this.taskService.addConnection(projectId, customResponse);
+    this.broadcastService.addConnection(projectId, customResponse);
 
     req.socket.on('close', () => {
-      this.taskService.removeConnection(projectId, customResponse);
+      this.broadcastService.removeConnection(projectId, customResponse);
     });
   }
 }

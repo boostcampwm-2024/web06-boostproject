@@ -31,3 +31,21 @@ export interface InviteProjectMemberRequestDTO {
   username: string;
   projectId: number;
 }
+
+export interface ProjectInvitation {
+  contributorId: number;
+  projectId: number;
+  projectTitle: string;
+  inviter: string;
+}
+
+export interface GetProjectInvitationsResponseDTO {
+  status: number;
+  message: string;
+  result: ProjectInvitation[];
+}
+
+export interface HandleProjectInvitationRequestDTO {
+  contributorId: number;
+  status: 'ACCEPTED' | 'REJECTED';
+}

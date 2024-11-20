@@ -44,6 +44,7 @@ import { ProjectModule } from '@/project/project.module';
       provide: APP_PIPE,
       useValue: new ValidationPipe({
         whitelist: true,
+        transform: true,
       }),
     },
   ],

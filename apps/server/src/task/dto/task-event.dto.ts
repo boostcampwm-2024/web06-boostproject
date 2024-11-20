@@ -1,5 +1,6 @@
 import { IsNumber, IsNotEmpty, IsString, IsEnum } from 'class-validator';
-import { EventType } from '../domain/eventType.enum';
+import { EventType } from '@/task/domain/eventType.enum';
+import { UpdateInformation } from '@/task/domain/update-information.type';
 
 export class TaskEvent {
   @IsNumber()

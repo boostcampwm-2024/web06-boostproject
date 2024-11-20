@@ -1,4 +1,4 @@
-type UpdateInformation = {
+export type UpdateInformation = {
   position: number;
 
   content: string;

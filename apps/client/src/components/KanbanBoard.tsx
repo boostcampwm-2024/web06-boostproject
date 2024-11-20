@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LexoRank } from 'lexorank';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
-import { useEffect } from 'react';
+import { DragEvent, useEffect, useState } from 'react';
 
 import { useAuth } from '@/contexts/authContext.tsx';
 import {
@@ -75,11 +75,12 @@ export default function KanbanBoard() {
   });
 
   // polling events
-  const { status, refetch: refetchEvents } = useQuery({
+  const { data: events, status } = useQuery({
     queryKey: ['events', projectId],
     queryFn: async () => {
       const response = await axios.get<EventResponse>(`/api/event?projectId=${projectId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
+        timeout: 10000,
       });
 
       return response.data.result;
@@ -89,9 +90,16 @@ export default function KanbanBoard() {
 
   useEffect(() => {
     if (status === 'success' || status === 'error') {
-      refetchEvents();
+      if (events?.taskId) {
+        queryClient.invalidateQueries({
+          queryKey: ['tasks', projectId],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: ['events', projectId],
+      });
     }
-  }, [status]);
+  }, [status, events]);
 
   // create Task
   const { mutate: createTask } = useMutation({
@@ -128,6 +136,142 @@ export default function KanbanBoard() {
     createTask({ sectionId, position });
   };
 
+  // delete Task
+  const { mutate: deleteTask } = useMutation({
+    mutationFn: async (taskId: number) => {
+      const payload = {
+        event: 'DELETE_TASK',
+        taskId,
+      };
+
+      return axios.post(`/api/project/${projectId}/update`, payload, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['tasks', projectId],
+      });
+    },
+    onError: (error) => {
+      console.error('createTaskError', error);
+    },
+  });
+
+  const handleDeleteButtonClick = (taskId: number) => {
+    deleteTask(taskId);
+  };
+
+  // drag&drop
+  const [belowSectionId, setBelowSectionId] = useState(-1);
+  console.log(belowSectionId);
+  const [belowTaskId, setBelowTaskId] = useState(-1);
+
+  const handleDragStart = (event: DragEvent<HTMLDivElement>, sectionId: number, taskId: number) => {
+    event.dataTransfer.setData('taskId', taskId.toString());
+    event.dataTransfer.setData('sectionId', sectionId.toString());
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>, sectionId: number, taskId?: number) => {
+    e.preventDefault();
+    setBelowSectionId(sectionId);
+
+    if (!taskId) {
+      setBelowTaskId(-1);
+      return;
+    }
+
+    setBelowTaskId(taskId);
+  };
+
+  const handleDragLeave = () => {
+    setBelowTaskId(-1);
+    setBelowSectionId(-1);
+  };
+
+  const calculatePosition = (tasks: Task[], belowTaskId: number) => {
+    if (tasks.length === 0) {
+      // 빈 섹션이라면 랜덤 값 부여.
+      return LexoRank.middle().toString();
+    }
+
+    if (belowTaskId === -1) {
+      // 특정 태스크 위에 드랍하지 않은 경우
+      return LexoRank.parse(tasks[tasks.length - 1].position)
+        .genNext()
+        .toString();
+    }
+
+    const belowTaskIndex = tasks.findIndex((task) => task.id === belowTaskId);
+    const belowTask = tasks[belowTaskIndex];
+
+    if (belowTaskIndex === 0) {
+      // 첫 번째 태스크 위에 드랍한 경우
+      return LexoRank.parse(belowTask.position).genPrev().toString();
+    }
+
+    return LexoRank.parse(tasks[belowTaskIndex - 1].position)
+      .between(LexoRank.parse(belowTask.position))
+      .toString();
+  };
+
+  const { mutate: updateTaskPosition } = useMutation({
+    mutationFn: async ({
+      sectionId,
+      taskId,
+      position,
+    }: {
+      sectionId: number;
+      taskId: number;
+      position: string;
+    }) => {
+      const payload = {
+        event: 'UPDATE_POSITION',
+        sectionId,
+        taskId,
+        position,
+      };
+
+      return axios.post(`/api/project/${projectId}/update`, payload, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['tasks', projectId],
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to update task position:', error);
+    },
+    onSettled: () => {
+      setBelowSectionId(-1);
+      setBelowTaskId(-1);
+    },
+  });
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>, sectionId: number) => {
+    const taskId = Number(event.dataTransfer.getData('taskId'));
+
+    if (taskId === belowTaskId) {
+      setBelowTaskId(-1);
+      setBelowSectionId(-1);
+      return;
+    }
+
+    updateTaskPosition({
+      sectionId,
+      taskId,
+      position: calculatePosition(
+        sections.find((section) => section.id === sectionId)?.tasks || [],
+        belowTaskId
+      ),
+    });
+  };
+
+  // update task title
+
+  // render
   const sortedSections = sections.map((section) => {
     section.tasks.sort((a, b) => a.position.localeCompare(b.position));
     return section;
@@ -172,20 +316,41 @@ export default function KanbanBoard() {
               </DropdownMenuContent>
             </DropdownMenu>
           </SectionHeader>
-          <SectionContent className="flex flex-1 flex-col overflow-y-auto">
+          <SectionContent
+            className="flex flex-1 flex-col gap-2 overflow-y-auto"
+            onDragOver={(e) => handleDragOver(e, section.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, section.id)}
+          >
             {section.tasks.map((task) => (
-              <motion.div key={task.id} layout layoutId={task.id.toString()} draggable>
-                <div
-                  className={`my-1 h-1 w-full rounded-full bg-blue-500 ${false ? 'opacity-100' : 'opacity-0'} transition-all`}
-                />
+              <motion.div
+                key={task.id}
+                layout
+                layoutId={task.id.toString()}
+                draggable
+                onDragStart={(e) =>
+                  handleDragStart(e as unknown as DragEvent<HTMLDivElement>, section.id, task.id)
+                }
+                onDrop={(e) => handleDrop(e, section.id)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDragOver(e, section.id, task.id);
+                }}
+                onDragLeave={handleDragLeave}
+                className="z-50"
+              >
                 <Card className="bg-white transition-all duration-300">
                   <CardHeader className="flex flex-row items-start gap-2">
-                    <input
-                      type="text"
-                      value={task.title}
-                      className="text-md mt-1.5 flex flex-1 break-keep"
-                    />
-                    <div className="mt-0 inline-flex h-8 w-8 rounded-full bg-amber-200" />
+                    <div className="flex h-8 flex-1 rounded-sm bg-gray-300" />
+                    <Button
+                      asChild
+                      variant="ghost"
+                      type="button"
+                      onClick={() => handleDeleteButtonClick(task.id)}
+                    >
+                      X
+                    </Button>
                   </CardHeader>
                   <CardContent className="flex gap-1">
                     <Tag text="Feature" />

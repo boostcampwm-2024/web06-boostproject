@@ -56,8 +56,8 @@ type BaseResponse<T> = {
   result: T;
 };
 
-type TasksResponse = BaseResponse<Section[]>;
-type EventResponse = BaseResponse<Event>;
+export type TasksResponse = BaseResponse<Section[]>;
+export type EventResponse = BaseResponse<Event>;
 
 export default function KanbanBoard() {
   const { project: projectId } = useParams({ from: '/_auth/$project/board' });

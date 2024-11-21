@@ -111,11 +111,18 @@ function AuthLayout() {
                   <ChevronsUpDownIcon className="h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="bg-white">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    asChild
+                    className="hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
+                  >
                     <Link to="/account">My Account</Link>
                   </DropdownMenuItem>
                   {projects.map((project) => (
-                    <DropdownMenuItem key={project.id}>
+                    <DropdownMenuItem
+                      key={project.id}
+                      asChild
+                      className="hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
+                    >
                       <Link to="/$project/board" params={{ project: String(project.id) }}>
                         {project.title}
                       </Link>
@@ -133,7 +140,10 @@ function AuthLayout() {
               <div className="h-8 w-8 rounded-full bg-[#333333]" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-white">
-              <DropdownMenuItem className="justify-between text-red-400" onClick={handleLogout}>
+              <DropdownMenuItem
+                className="justify-between text-red-400 hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-red-400"
+                onClick={handleLogout}
+              >
                 로그아웃
                 <LogOut width={16} />
               </DropdownMenuItem>

@@ -84,7 +84,7 @@ export class TaskService {
 
     const newText = json0.apply(initialTask.title, accumulateOperations);
     const result = { ...initialTask, title: newText };
-    this.taskRepository.save(result);
+    await this.taskRepository.save(result);
     const eventPublisher = accumulateOperations.length <= 1 ? userId : null;
     this.eventEmitter.emit('broadcast', eventPublisher, projectId, TaskEventResponse.from(taskId));
   }

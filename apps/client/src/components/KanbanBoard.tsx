@@ -1,10 +1,11 @@
 import { useParams } from '@tanstack/react-router';
-import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LexoRank } from 'lexorank';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { DragEvent, useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 
 import { useAuth } from '@/contexts/authContext.tsx';
 import {
@@ -75,33 +76,42 @@ export default function KanbanBoard() {
     },
   });
 
-  // polling events
-  const { data: events, status } = useQuery({
-    queryKey: ['events', projectId],
-    queryFn: async () => {
-      const response = await axios.get<EventResponse>(`/api/event?projectId=${projectId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        timeout: 10000,
-      });
-
-      return response.data.result;
-    },
-    retry: false,
-  });
-
   useEffect(() => {
-    if (status === 'success' || status === 'error') {
-      if (events?.taskId) {
-        queryClient.invalidateQueries({
-          queryKey: ['tasks', projectId],
-        });
-      }
-      queryClient.invalidateQueries({
-        queryKey: ['events', projectId],
-      });
-    }
-  }, [status, events]);
+    const ac = new AbortController();
+    let timeoutId: number;
 
+    const fetchEvent = async () => {
+      try {
+        const response = await axios.get<EventResponse>(`/api/event?projectId=${projectId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          signal: ac.signal,
+        });
+
+        if (response.data.result?.taskId) {
+          queryClient.invalidateQueries({
+            queryKey: ['tasks', projectId],
+          });
+        }
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.error('Request canceled:', error.message);
+        } else {
+          console.error(error);
+        }
+      }
+
+      timeoutId = window.setTimeout(fetchEvent, 500);
+    };
+
+    fetchEvent();
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      ac.abort();
+    };
+  }, [projectId, accessToken, queryClient]);
   // create Task
   const { mutate: createTask } = useMutation({
     mutationFn: async ({ sectionId, position }: { sectionId: number; position: string }) => {
@@ -138,34 +148,33 @@ export default function KanbanBoard() {
   };
 
   // delete Task
-  // const { mutate: deleteTask } = useMutation({
-  //   mutationFn: async (taskId: number) => {
-  //     const payload = {
-  //       event: 'DELETE_TASK',
-  //       taskId,
-  //     };
-  //
-  //     return axios.post(`/api/project/${projectId}/update`, payload, {
-  //       headers: { Authorization: `Bearer ${accessToken}` },
-  //     });
-  //   },
-  //   onSuccess: async () => {
-  //     await queryClient.invalidateQueries({
-  //       queryKey: ['tasks', projectId],
-  //     });
-  //   },
-  //   onError: (error) => {
-  //     console.error('createTaskError', error);
-  //   },
-  // });
+  const { mutate: deleteTask } = useMutation({
+    mutationFn: async (taskId: number) => {
+      const payload = {
+        event: 'DELETE_TASK',
+        taskId,
+      };
 
-  // const handleDeleteButtonClick = (taskId: number) => {
-  //   deleteTask(taskId);
-  // };
+      return axios.post(`/api/project/${projectId}/update`, payload, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['tasks', projectId],
+      });
+    },
+    onError: (error) => {
+      console.error('createTaskError', error);
+    },
+  });
+
+  const handleDeleteButtonClick = (taskId: number) => {
+    deleteTask(taskId);
+  };
 
   // drag&drop
   const [belowSectionId, setBelowSectionId] = useState(-1);
-  console.log(belowSectionId);
   const [belowTaskId, setBelowTaskId] = useState(-1);
 
   const handleDragStart = (event: DragEvent<HTMLDivElement>, sectionId: number, taskId: number) => {
@@ -279,9 +288,12 @@ export default function KanbanBoard() {
   });
 
   return (
-    <div className="flex h-[calc(100vh-110px)] space-x-2 overflow-x-auto p-4">
+    <div className="spazce-x-2 flex h-[calc(100vh-110px)] gap-2 overflow-x-auto p-4">
       {sortedSections.map((section) => (
-        <Section key={section.id} className="flex h-full w-96 flex-shrink-0 flex-col bg-gray-50">
+        <Section
+          key={section.id}
+          className={`flex h-full w-96 flex-shrink-0 flex-col border bg-gray-50 ${section.id === belowSectionId ? 'border-blue-600' : 'border-transparent'}`}
+        >
           <SectionHeader>
             <div className="flex items-center">
               <SectionTitle className="text-xl">{section.name}</SectionTitle>
@@ -325,7 +337,7 @@ export default function KanbanBoard() {
           >
             {section.tasks.map((task) => (
               <motion.div
-                key={task.id}
+                key={`${task.id}-${task.title}`}
                 layout
                 layoutId={task.id.toString()}
                 draggable
@@ -341,16 +353,22 @@ export default function KanbanBoard() {
                 onDragLeave={handleDragLeave}
                 className="z-50"
               >
-                <Card className="bg-white transition-all duration-300">
+                <Card
+                  className={`border bg-white transition-all duration-300 ${task.id === belowTaskId ? 'border-blue-500' : 'border-transparent'}`}
+                >
                   <CardHeader className="flex flex-row items-start gap-2">
                     <TaskTextArea taskId={task.id} initialTitle={task.title} />
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      onClick={() => handleDeleteButtonClick(task.id)}
+                    >
+                      <X className="text-red-600" />
+                    </Button>
                   </CardHeader>
-                  <CardContent className="flex justify-between">
-                    <div className="flex gap-1">
-                      <Tag text="Feature" />
-                      <Tag text="FE" className="bg-pink-400" />
-                    </div>
-                    <div className="h-6 w-6 rounded-full bg-amber-300" />
+                  <CardContent className="flex gap-1">
+                    <Tag text="Feature" />
+                    <Tag text="FE" className="bg-pink-400" />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -368,7 +386,6 @@ export default function KanbanBoard() {
           </SectionFooter>
         </Section>
       ))}
-
       <Dialog>
         <DialogContent className="bg-white">
           <DialogHeader>
@@ -380,6 +397,7 @@ export default function KanbanBoard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      ;
     </div>
   );
 }

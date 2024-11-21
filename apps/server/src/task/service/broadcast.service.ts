@@ -34,9 +34,5 @@ export class BroadcastService {
         res.json(new BaseResponse(200, '이벤트가 발생했습니다.', event));
       }
     });
-    this.connections.set(
-      projectId,
-      connections.filter((res) => res.userId === userId)
-    );
   }
 }

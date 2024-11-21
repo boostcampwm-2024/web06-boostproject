@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
 import Tag from '@/components/Tag.tsx';
+import TaskTextArea from '@/components/TaskTextArea.tsx';
 
 export interface Event {
   taskId: number;
@@ -137,30 +138,30 @@ export default function KanbanBoard() {
   };
 
   // delete Task
-  const { mutate: deleteTask } = useMutation({
-    mutationFn: async (taskId: number) => {
-      const payload = {
-        event: 'DELETE_TASK',
-        taskId,
-      };
+  // const { mutate: deleteTask } = useMutation({
+  //   mutationFn: async (taskId: number) => {
+  //     const payload = {
+  //       event: 'DELETE_TASK',
+  //       taskId,
+  //     };
+  //
+  //     return axios.post(`/api/project/${projectId}/update`, payload, {
+  //       headers: { Authorization: `Bearer ${accessToken}` },
+  //     });
+  //   },
+  //   onSuccess: async () => {
+  //     await queryClient.invalidateQueries({
+  //       queryKey: ['tasks', projectId],
+  //     });
+  //   },
+  //   onError: (error) => {
+  //     console.error('createTaskError', error);
+  //   },
+  // });
 
-      return axios.post(`/api/project/${projectId}/update`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ['tasks', projectId],
-      });
-    },
-    onError: (error) => {
-      console.error('createTaskError', error);
-    },
-  });
-
-  const handleDeleteButtonClick = (taskId: number) => {
-    deleteTask(taskId);
-  };
+  // const handleDeleteButtonClick = (taskId: number) => {
+  //   deleteTask(taskId);
+  // };
 
   // drag&drop
   const [belowSectionId, setBelowSectionId] = useState(-1);
@@ -342,19 +343,14 @@ export default function KanbanBoard() {
               >
                 <Card className="bg-white transition-all duration-300">
                   <CardHeader className="flex flex-row items-start gap-2">
-                    <div className="flex h-8 flex-1 rounded-sm bg-gray-300" />
-                    <Button
-                      asChild
-                      variant="ghost"
-                      type="button"
-                      onClick={() => handleDeleteButtonClick(task.id)}
-                    >
-                      X
-                    </Button>
+                    <TaskTextArea taskId={task.id} initialTitle={task.title} />
                   </CardHeader>
-                  <CardContent className="flex gap-1">
-                    <Tag text="Feature" />
-                    <Tag text="FE" className="bg-pink-400" />
+                  <CardContent className="flex justify-between">
+                    <div className="flex gap-1">
+                      <Tag text="Feature" />
+                      <Tag text="FE" className="bg-pink-400" />
+                    </div>
+                    <div className="h-6 w-6 rounded-full bg-amber-300" />
                   </CardContent>
                 </Card>
               </motion.div>

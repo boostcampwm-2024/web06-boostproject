@@ -46,7 +46,7 @@ export class TaskService {
         try {
           await this.dequeue(userId, projectId, taskId);
         } catch (e) {
-          throw new BadRequestException(e.message);
+          console.error(e);
         }
       }
     );
@@ -69,7 +69,7 @@ export class TaskService {
       return;
     }
 
-    const initialTask = this.taskRepository.findOneBy({ id: taskId });
+    const initialTask = await this.taskRepository.findOneBy({ id: taskId });
     let accumulateOperations = [];
     while (taskEventQueue.length) {
       const taskEvent = taskEventQueue.shift();
@@ -82,10 +82,11 @@ export class TaskService {
       accumulateOperations = json0.compose(accumulateOperations, transformedOperation);
     }
 
-    const newText = json0.apply(initialTask, accumulateOperations);
+    const newText = json0.apply(initialTask.title, accumulateOperations);
     const result = { ...initialTask, title: newText };
     this.taskRepository.save(result);
-    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(taskId));
+    const eventPublisher = accumulateOperations.length <= 1 ? userId : null;
+    this.eventEmitter.emit('broadcast', eventPublisher, projectId, TaskEventResponse.from(taskId));
   }
 
   private convertToOperation(taskEvent: TaskEvent) {

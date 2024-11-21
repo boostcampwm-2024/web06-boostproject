@@ -34,7 +34,7 @@ import TaskTextArea from '@/components/TaskTextArea.tsx';
 
 export interface Event {
   taskId: number;
-  event: string;
+  taskEvent: string;
 }
 
 export type Task = {
@@ -89,7 +89,19 @@ export default function KanbanBoard() {
           signal: ac.signal,
         });
 
-        if (response.data.result?.taskId) {
+        const { taskId, taskEvent } = response.data.result;
+
+        if (!taskId) {
+          return;
+        }
+
+        if (taskEvent === 'TITLE') {
+          queryClient.invalidateQueries({
+            queryKey: ['task-detail', taskId],
+          });
+        }
+
+        if (taskEvent === 'CARD') {
           queryClient.invalidateQueries({
             queryKey: ['tasks', projectId],
           });
@@ -279,8 +291,6 @@ export default function KanbanBoard() {
     });
   };
 
-  // update task title
-
   // render
   const sortedSections = sections.map((section) => {
     section.tasks.sort((a, b) => a.position.localeCompare(b.position));
@@ -337,7 +347,7 @@ export default function KanbanBoard() {
           >
             {section.tasks.map((task) => (
               <motion.div
-                key={`${task.id}-${task.title}`}
+                key={task.id}
                 layout
                 layoutId={task.id.toString()}
                 draggable

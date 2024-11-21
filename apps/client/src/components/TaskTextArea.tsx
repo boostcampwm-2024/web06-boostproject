@@ -1,5 +1,5 @@
 import { ChangeEvent, CompositionEvent, useEffect, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useParams } from '@tanstack/react-router';
 import { useAuth } from '@/contexts/authContext.tsx';
@@ -29,6 +29,32 @@ export default function TaskTextArea({
       prevTitleRef.current = initialTitle;
     }
   }, [initialTitle]);
+
+  const { data: updatedTitle } = useQuery({
+    queryKey: ['task-detail', taskId],
+    queryFn: async () => {
+      const response = await axios.get<{
+        status: number;
+        message: string;
+        result: {
+          id: number;
+          title: string;
+        };
+      }>(`/api/task/${taskId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      return response.data.result.title;
+    },
+    initialData: initialTitle,
+  });
+
+  useEffect(() => {
+    if (updatedTitle !== prevTitleRef.current) {
+      setLocalTitle(updatedTitle);
+      prevTitleRef.current = updatedTitle;
+    }
+  }, [updatedTitle]);
 
   const { mutate: updateTitle } = useMutation({
     mutationFn: async ({ position, content, event }: TextDiff) => {

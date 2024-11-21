@@ -53,7 +53,7 @@ export class TaskService {
   }
 
   async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
-    const taskId = taskEvent.taskId;
+    const { taskId } = taskEvent;
     const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
     if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
       throw new ForbiddenException('Permission denied');

@@ -86,7 +86,12 @@ export class TaskService {
     const result = { ...initialTask, title: newText };
     await this.taskRepository.save(result);
     const eventPublisher = accumulateOperations.length <= 1 ? userId : null;
-    this.eventEmitter.emit('broadcast', eventPublisher, projectId, TaskEventResponse.from(taskId));
+    this.eventEmitter.emit(
+      'broadcast',
+      eventPublisher,
+      projectId,
+      TaskEventResponse.of(taskId, 'TITLE')
+    );
   }
 
   private convertToOperation(taskEvent: TaskEvent) {
@@ -120,7 +125,7 @@ export class TaskService {
       section,
     });
 
-    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.from(task.id));
+    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.of(task.id, 'CARD'));
     return new CreateTaskResponse(task);
   }
 
@@ -175,7 +180,7 @@ export class TaskService {
       'broadcast',
       userId,
       projectId,
-      TaskEventResponse.from(taskEvent.taskId)
+      TaskEventResponse.of(taskEvent.taskId, 'CARD')
     );
     return new MoveTaskResponse(task);
   }
@@ -210,7 +215,7 @@ export class TaskService {
       'broadcast',
       userId,
       projectId,
-      TaskEventResponse.from(taskEvent.taskId)
+      TaskEventResponse.of(taskEvent.taskId, 'CARD')
     );
     return new DeleteTaskResponse(taskEvent.taskId);
   }

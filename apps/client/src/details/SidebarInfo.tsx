@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TrashIcon } from '@radix-ui/react-icons';
 import { Separator } from '@/components/ui/separator';
 import { Assignee, Label, Sprint as TSprint } from '@/details/types.tsx';
 import Assignees from '@/details/Assignees.tsx';
@@ -6,6 +7,7 @@ import Labels from '@/details/Labels.tsx';
 import Priority from '@/details/Priority.tsx';
 import Sprint from '@/details/Sprint.tsx';
 import Estimate from '@/details/Estimate.tsx';
+import { Button } from '@/components/ui/button.tsx';
 
 export default function DetailSidebar() {
   // assignees
@@ -103,6 +105,17 @@ export default function DetailSidebar() {
       <Separator className="rounded-full bg-gray-300" />
 
       <Estimate estimate={estimate} setEstimate={setEstimate} />
+      <Separator className="rounded-full bg-gray-300" />
+
+      <div>
+        <Button
+          variant="ghost"
+          className="m-0 p-0 px-2 font-medium text-gray-500 hover:text-red-600"
+        >
+          <TrashIcon className="h-5 w-5" />
+          <span className="text-xs">태스크 지우기</span>
+        </Button>
+      </div>
     </div>
   );
 }

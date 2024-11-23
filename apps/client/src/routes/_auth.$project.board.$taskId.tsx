@@ -1,16 +1,163 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Star, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { Badge } from '@/components/ui/badge.tsx';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Input } from '@/components/ui/input.tsx';
+import DetailSidebar from '@/details/SidebarInfo.tsx';
 
+// Types
+interface Subtask {
+  id: number;
+  content: string;
+  completed: boolean;
+  isNew?: boolean;
+}
+
+interface SubtaskProps {
+  subtask: Subtask;
+  onToggle: (id: number) => void;
+  onUpdate: (id: number, content: string) => void;
+  onDelete: (id: number) => void;
+}
+
+// Subtask Component
+function SubtaskComponent({ subtask, onToggle, onUpdate, onDelete }: SubtaskProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(subtask.content);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDoubleClick = () => {
+    if (!subtask.completed) {
+      setIsEditing(true);
+    }
+  };
+
+  const handleSave = () => {
+    onUpdate(subtask.id, editedContent);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedContent(subtask.content);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
+  return (
+    <div className="group flex items-center space-x-2 rounded p-1 hover:bg-gray-50">
+      <Checkbox
+        checked={subtask.completed}
+        onCheckedChange={() => onToggle(subtask.id)}
+        id={`subtask-${subtask.id}`}
+        className="border-black data-[state=checked]:bg-black"
+      />
+
+      {isEditing ? (
+        <div className="flex flex-1 items-center space-x-2">
+          <Input
+            ref={inputRef}
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            className="flex-1"
+          />
+          <div className="flex space-x-1">
+            <Button onClick={handleSave} size="sm" variant="ghost">
+              저장
+            </Button>
+            <Button onClick={handleCancel} size="sm" variant="ghost" className="hover:text-red-600">
+              취소
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 items-center justify-between">
+          <p
+            onDoubleClick={handleDoubleClick}
+            className={`flex-1 cursor-pointer select-none ${
+              subtask.completed ? 'text-muted-foreground line-through' : ''
+            }`}
+          >
+            {subtask.content}
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(subtask.id)}
+            className="hover:text-red-600"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Description Section Component
+function DescriptionSection({
+  description,
+  isEditDescription,
+  setDescription,
+  setIsEditDescription,
+  handleSave,
+  handleCancel,
+}: {
+  description: string;
+  isEditDescription: boolean;
+  setDescription: (value: string) => void;
+  setIsEditDescription: (value: boolean) => void;
+  handleSave: () => void;
+  handleCancel: () => void;
+}) {
+  const handleDoubleClick = () => setIsEditDescription(true);
+
+  return (
+    <div>
+      <h3 className="mb-2 text-lg font-medium">Description</h3>
+      {isEditDescription ? (
+        <div className="space-y-2">
+          <Textarea
+            value={description}
+            placeholder="설명을 작성해주세요."
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[100px]"
+            autoFocus
+          />
+          <div className="flex justify-end gap-2">
+            <Button onClick={handleCancel} variant="outline" size="sm">
+              취소
+            </Button>
+            <Button onClick={handleSave} size="sm">
+              저장
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p
+          className="cursor-pointer rounded p-2 text-gray-700 hover:bg-gray-50"
+          onDoubleClick={handleDoubleClick}
+        >
+          {description.length === 0 ? '더블 클릭으로 편집할 수 있습니다.' : description}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Main Component
 export const Route = createFileRoute('/_auth/$project/board/$taskId')({
   component: TaskDetailComponent,
 });
@@ -18,23 +165,25 @@ export const Route = createFileRoute('/_auth/$project/board/$taskId')({
 function TaskDetailComponent() {
   const navigate = useNavigate({ from: '/$project/board/$taskId' });
   const [isClosing, setIsClosing] = useState(false);
+  const [isEditDescription, setIsEditDescription] = useState(false);
+  const [description, setDescription] = useState('');
+  const prevDescriptionRef = useRef(description);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const handleClose = useCallback(async () => {
     setIsClosing(true);
-
     setTimeout(() => {
       navigate({ to: '/$project/board' });
     }, 300);
   }, [navigate]);
-
-  // data
-  const [isEditDescription, setIsEditDescription] = useState(false);
-  const [description, setDescription] = useState('');
-  const prevDescriptionRef = useRef(description);
-
-  const handleDoubleClick = () => {
-    setIsEditDescription(true);
-  };
 
   const handleSave = () => {
     prevDescriptionRef.current = description;
@@ -46,16 +195,13 @@ function TaskDetailComponent() {
     setDescription(prevDescriptionRef.current);
   };
 
-  // Subtasks 상태 관리 추가
-  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
-
   const handleAddSubtask = () => {
     const newId = Math.max(...subtasks.map((task) => task.id), 0) + 1;
     const newSubtask = {
       id: newId,
       content: '새 서브 태스크',
       completed: false,
-      isNew: true, // 새로 추가된 항목 표시
+      isNew: true,
     };
     setSubtasks((prev) => [...prev, newSubtask]);
   };
@@ -70,7 +216,6 @@ function TaskDetailComponent() {
 
   const handleUpdateSubtask = (id: number, newContent: string) => {
     if (newContent.trim() === '') {
-      // 내용이 비어있으면 삭제
       handleDeleteSubtask(id);
       return;
     }
@@ -84,6 +229,14 @@ function TaskDetailComponent() {
   const handleDeleteSubtask = (id: number) => {
     setSubtasks((prevSubtasks) => prevSubtasks.filter((subtask) => subtask.id !== id));
   };
+
+  const subtasksRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (subtasksRef.current) {
+      subtasksRef.current.scrollTop = subtasksRef.current.scrollHeight;
+    }
+  }, [subtasks.length]); // subtasks 길이가 변경될 때만 실행
 
   return (
     <AnimatePresence mode="wait" onExitComplete={() => setIsClosing(false)}>
@@ -121,42 +274,21 @@ function TaskDetailComponent() {
                 </div>
               </CardHeader>
               <CardContent className="mt-4 grid grid-cols-3 gap-6">
-                <div className="col-span-2 space-y-6 border-r border-gray-300 pr-4">
-                  <div>
-                    <h3 className="mb-2 text-lg font-medium">Description</h3>
-                    {isEditDescription ? (
-                      <div className="space-y-2">
-                        <Textarea
-                          value={description}
-                          placeholder="설명을 작성해주세요."
-                          onChange={(e) => setDescription(e.target.value)}
-                          className="min-h-[100px]"
-                          autoFocus
-                        />
-                        <div className="flex justify-end gap-2">
-                          <Button onClick={handleCancel} variant="outline" size="sm">
-                            취소
-                          </Button>{' '}
-                          <Button onClick={handleSave} size="sm">
-                            저장
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p
-                        className="text-muted-foreground cursor-pointer rounded p-2 hover:bg-gray-50"
-                        onDoubleClick={handleDoubleClick}
-                      >
-                        {description.length === 0 ? '설명을 작성해주세요.' : description}
-                      </p>
-                    )}
-                  </div>
+                <div className="col-span-2 space-y-6 pr-4">
+                  <DescriptionSection
+                    description={description}
+                    isEditDescription={isEditDescription}
+                    setDescription={setDescription}
+                    setIsEditDescription={setIsEditDescription}
+                    handleSave={handleSave}
+                    handleCancel={handleCancel}
+                  />
+
                   <div>
                     <h3 className="mb-2 text-lg font-medium">Subtasks</h3>
-
-                    <div className="space-y-2">
+                    <div className="max-h-96 space-y-0.5 overflow-y-auto" ref={subtasksRef}>
                       {subtasks.map((subtask) => (
-                        <Subtask
+                        <SubtaskComponent
                           key={subtask.id}
                           subtask={subtask}
                           onToggle={handleToggleSubtask}
@@ -166,168 +298,22 @@ function TaskDetailComponent() {
                       ))}
                     </div>
                     <Button
-                      variant="outline"
                       size="sm"
+                      variant="outline"
                       onClick={handleAddSubtask}
                       className="mt-2 w-full text-xs"
                     >
-                      + Add subtask
+                      + 서브 태스크 추가
                     </Button>
                   </div>
                 </div>
 
-                <div className="space-y-5 pb-4">
-                  <div>
-                    <h3 className="text-muted-foreground mb-2 text-sm font-medium">Assignee</h3>
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src="https://avatars.githubusercontent.com/u/101315505?v=4" />
-                        <AvatarFallback>PMtHk</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">Jooyeob</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator className="rounded-full bg-gray-300" />
-
-                  <div>
-                    <h3 className="text-muted-foreground mb-2 text-sm font-medium">Labels</h3>
-                    <div className="flex flex-wrap gap-1">
-                      <Badge className="bg-[#6188ff] hover:bg-[#6188ff]">Feature</Badge>
-                      <Badge className="bg-[#F472b6] hover:bg-[#F472b6]">FE</Badge>
-                    </div>
-                  </div>
-
-                  <Separator className="rounded-full bg-gray-300" />
-
-                  <div>
-                    <h3 className="text-muted-foreground mb-2 text-sm font-medium">Priority</h3>
-                    <Badge variant="outline" className="">
-                      <Star size={16} />
-                      <Star size={16} />
-                      <Star size={16} />
-                      <Star size={16} />
-                      <Star size={16} />
-                    </Badge>
-                  </div>
-
-                  <Separator className="rounded-full bg-gray-300" />
-
-                  <div>
-                    <h3 className="text-muted-foreground mb-2 text-sm font-medium">Sprint</h3>
-                    <p className="text-sm">Week 4</p>
-                    <div>
-                      <p className="text-muted-foreground text-xs">2024-11-25</p>
-                      <p className="text-muted-foreground text-xs">2024-11-25</p>
-                    </div>
-                  </div>
-
-                  <Separator className="rounded-full bg-gray-300" />
-
-                  <div>
-                    <h3 className="text-muted-foreground mb-2 text-sm font-medium">Estimate</h3>
-                    <p className="text-sm">3 points</p>
-                  </div>
-                </div>
+                <DetailSidebar />
               </CardContent>
             </Card>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
-}
-
-type Subtask = {
-  id: number;
-  content: string;
-  completed: boolean;
-};
-
-interface SubtaskProps {
-  subtask: {
-    id: number;
-    content: string;
-    completed: boolean;
-  };
-  onToggle: (id: number) => void;
-  onUpdate: (id: number, content: string) => void;
-  onDelete: (id: number) => void;
-}
-
-function Subtask({ subtask, onToggle, onUpdate, onDelete }: SubtaskProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(subtask.content);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleDoubleClick = () => {
-    if (!subtask.completed) {
-      setIsEditing(true);
-    }
-  };
-
-  const handleSave = () => {
-    onUpdate(subtask.id, editedContent);
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditedContent(subtask.content);
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      handleCancel();
-    }
-  };
-
-  return (
-    <div className="group flex items-center space-x-2 rounded p-1 hover:bg-gray-50">
-      <Checkbox
-        checked={subtask.completed}
-        onCheckedChange={() => onToggle(subtask.id)}
-        id={`subtask-${subtask.id}`}
-      />
-
-      {isEditing ? (
-        <div className="flex flex-1 items-center space-x-2">
-          <Input
-            ref={inputRef}
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            autoFocus
-            className="flex-1"
-          />
-          <div className="flex space-x-1">
-            <Button onClick={handleSave} size="sm" variant="ghost">
-              저장
-            </Button>
-            <Button onClick={handleCancel} size="sm" variant="ghost">
-              취소
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-1 items-center justify-between">
-          <p
-            onDoubleClick={handleDoubleClick}
-            className={`flex-1 cursor-pointer select-none ${
-              subtask.completed ? 'text-muted-foreground line-through' : ''
-            }`}
-          >
-            {subtask.content}
-          </p>
-          <Button variant="ghost" size="sm" onClick={() => onDelete(subtask.id)}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-    </div>
   );
 }

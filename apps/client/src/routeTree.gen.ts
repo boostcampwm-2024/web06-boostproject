@@ -22,6 +22,7 @@ import { Route as AuthProjectIndexImport } from './routes/_auth.$project.index';
 import { Route as AuthAccountSettingsImport } from './routes/_auth.account.settings';
 import { Route as AuthProjectSettingsImport } from './routes/_auth.$project.settings';
 import { Route as AuthProjectBoardImport } from './routes/_auth.$project.board';
+import { Route as AuthProjectBoardTaskIdImport } from './routes/_auth.$project.board.$taskId';
 
 // Create/Update Routes
 
@@ -88,6 +89,12 @@ const AuthProjectBoardRoute = AuthProjectBoardImport.update({
   id: '/board',
   path: '/board',
   getParentRoute: () => AuthProjectRoute,
+} as any);
+
+const AuthProjectBoardTaskIdRoute = AuthProjectBoardTaskIdImport.update({
+  id: '/$taskId',
+  path: '/$taskId',
+  getParentRoute: () => AuthProjectBoardRoute,
 } as any);
 
 // Populate the FileRoutesByPath interface
@@ -171,19 +178,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAccountIndexImport;
       parentRoute: typeof AuthAccountImport;
     };
+    '/_auth/$project/board/$taskId': {
+      id: '/_auth/$project/board/$taskId';
+      path: '/$taskId';
+      fullPath: '/$project/board/$taskId';
+      preLoaderRoute: typeof AuthProjectBoardTaskIdImport;
+      parentRoute: typeof AuthProjectBoardImport;
+    };
   }
 }
 
 // Create and export the route tree
 
+interface AuthProjectBoardRouteChildren {
+  AuthProjectBoardTaskIdRoute: typeof AuthProjectBoardTaskIdRoute;
+}
+
+const AuthProjectBoardRouteChildren: AuthProjectBoardRouteChildren = {
+  AuthProjectBoardTaskIdRoute: AuthProjectBoardTaskIdRoute,
+};
+
+const AuthProjectBoardRouteWithChildren = AuthProjectBoardRoute._addFileChildren(
+  AuthProjectBoardRouteChildren
+);
+
 interface AuthProjectRouteChildren {
-  AuthProjectBoardRoute: typeof AuthProjectBoardRoute;
+  AuthProjectBoardRoute: typeof AuthProjectBoardRouteWithChildren;
   AuthProjectSettingsRoute: typeof AuthProjectSettingsRoute;
   AuthProjectIndexRoute: typeof AuthProjectIndexRoute;
 }
 
 const AuthProjectRouteChildren: AuthProjectRouteChildren = {
-  AuthProjectBoardRoute: AuthProjectBoardRoute,
+  AuthProjectBoardRoute: AuthProjectBoardRouteWithChildren,
   AuthProjectSettingsRoute: AuthProjectSettingsRoute,
   AuthProjectIndexRoute: AuthProjectIndexRoute,
 };
@@ -221,11 +247,12 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute;
   '/$project': typeof AuthProjectRouteWithChildren;
   '/account': typeof AuthAccountRouteWithChildren;
-  '/$project/board': typeof AuthProjectBoardRoute;
+  '/$project/board': typeof AuthProjectBoardRouteWithChildren;
   '/$project/settings': typeof AuthProjectSettingsRoute;
   '/account/settings': typeof AuthAccountSettingsRoute;
   '/$project/': typeof AuthProjectIndexRoute;
   '/account/': typeof AuthAccountIndexRoute;
+  '/$project/board/$taskId': typeof AuthProjectBoardTaskIdRoute;
 }
 
 export interface FileRoutesByTo {
@@ -233,11 +260,12 @@ export interface FileRoutesByTo {
   '': typeof AuthRouteWithChildren;
   '/login': typeof LoginRoute;
   '/signup': typeof SignupRoute;
-  '/$project/board': typeof AuthProjectBoardRoute;
+  '/$project/board': typeof AuthProjectBoardRouteWithChildren;
   '/$project/settings': typeof AuthProjectSettingsRoute;
   '/account/settings': typeof AuthAccountSettingsRoute;
   '/$project': typeof AuthProjectIndexRoute;
   '/account': typeof AuthAccountIndexRoute;
+  '/$project/board/$taskId': typeof AuthProjectBoardTaskIdRoute;
 }
 
 export interface FileRoutesById {
@@ -248,11 +276,12 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute;
   '/_auth/$project': typeof AuthProjectRouteWithChildren;
   '/_auth/account': typeof AuthAccountRouteWithChildren;
-  '/_auth/$project/board': typeof AuthProjectBoardRoute;
+  '/_auth/$project/board': typeof AuthProjectBoardRouteWithChildren;
   '/_auth/$project/settings': typeof AuthProjectSettingsRoute;
   '/_auth/account/settings': typeof AuthAccountSettingsRoute;
   '/_auth/$project/': typeof AuthProjectIndexRoute;
   '/_auth/account/': typeof AuthAccountIndexRoute;
+  '/_auth/$project/board/$taskId': typeof AuthProjectBoardTaskIdRoute;
 }
 
 export interface FileRouteTypes {
@@ -268,7 +297,8 @@ export interface FileRouteTypes {
     | '/$project/settings'
     | '/account/settings'
     | '/$project/'
-    | '/account/';
+    | '/account/'
+    | '/$project/board/$taskId';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
@@ -279,7 +309,8 @@ export interface FileRouteTypes {
     | '/$project/settings'
     | '/account/settings'
     | '/$project'
-    | '/account';
+    | '/account'
+    | '/$project/board/$taskId';
   id:
     | '__root__'
     | '/'
@@ -292,7 +323,8 @@ export interface FileRouteTypes {
     | '/_auth/$project/settings'
     | '/_auth/account/settings'
     | '/_auth/$project/'
-    | '/_auth/account/';
+    | '/_auth/account/'
+    | '/_auth/$project/board/$taskId';
   fileRoutesById: FileRoutesById;
 }
 
@@ -361,7 +393,10 @@ export const routeTree = rootRoute
     },
     "/_auth/$project/board": {
       "filePath": "_auth.$project.board.tsx",
-      "parent": "/_auth/$project"
+      "parent": "/_auth/$project",
+      "children": [
+        "/_auth/$project/board/$taskId"
+      ]
     },
     "/_auth/$project/settings": {
       "filePath": "_auth.$project.settings.tsx",
@@ -378,6 +413,10 @@ export const routeTree = rootRoute
     "/_auth/account/": {
       "filePath": "_auth.account.index.tsx",
       "parent": "/_auth/account"
+    },
+    "/_auth/$project/board/$taskId": {
+      "filePath": "_auth.$project.board.$taskId.tsx",
+      "parent": "/_auth/$project/board"
     }
   }
 }

@@ -1,11 +1,17 @@
 import { Suspense } from 'react';
+import { Outlet } from '@tanstack/react-router';
 import KanbanBoard from '@/components/KanbanBoard.tsx';
 
 export default function Board() {
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <KanbanBoard />
-    </Suspense>
+    <>
+      <Suspense fallback={<LoadingFallback />}>
+        <KanbanBoard />
+      </Suspense>
+      <div className="relative">
+        <Outlet />
+      </div>
+    </>
   );
 }
 

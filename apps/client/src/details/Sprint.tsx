@@ -30,7 +30,7 @@ export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: S
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-muted-foreground flex items-center text-sm font-medium">
           <Calendar className="mr-2 h-4 w-4" />
-          <span>스프린트</span>
+          <span>Sprint</span>
         </h3>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -49,7 +49,7 @@ export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: S
                 <Input
                   type="text"
                   className="pl-10"
-                  placeholder="스프린트 검색..."
+                  placeholder="Type to search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -62,13 +62,13 @@ export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: S
                   key={sprint.id}
                   onClick={() => toggleSprint(sprint)}
                   className={cn(
-                    'flex cursor-pointer items-center gap-1 px-4 py-2 text-sm',
+                    'flex w-full cursor-pointer items-center gap-1 px-4 py-2 text-sm',
                     selectedSprint?.id === sprint.id && 'bg-blue-100'
                   )}
                 >
-                  <div className="flex-1">
-                    <p className="font-medium">{sprint.name}</p>
-                    <p className="text-muted-foreground text-xs">
+                  <div className="flex-1 text-left">
+                    <p className="text-left font-medium">{sprint.name}</p>
+                    <p className="text-muted-foreground text-left text-xs">
                       {sprint.startDate} ~ {sprint.endDate}
                     </p>
                   </div>
@@ -94,7 +94,7 @@ export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: S
             </div>
           </div>
         ) : (
-          <p className="text-xs text-gray-600">스프린트가 없습니다.</p>
+          <p className="text-xs text-gray-600">No sprint</p>
         )}
       </div>
     </div>

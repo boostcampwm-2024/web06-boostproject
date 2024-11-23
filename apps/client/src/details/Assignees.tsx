@@ -36,7 +36,7 @@ export default function Assignees({
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-muted-foreground flex items-center text-sm font-medium">
           <Users className="mr-2 h-4 w-4" />
-          <span>담당자</span>
+          <span>Assignee</span>
         </h3>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -55,7 +55,7 @@ export default function Assignees({
                 <Input
                   type="text"
                   className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  placeholder="담당자 검색..."
+                  placeholder="Type to search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -116,9 +116,7 @@ export default function Assignees({
             );
           })}
 
-        {selectedAssignees.length === 0 && (
-          <p className="text-xs text-gray-600">담당자가 없습니다.</p>
-        )}
+        {selectedAssignees.length === 0 && <p className="text-xs text-gray-600">No assignee</p>}
       </div>
     </div>
   );

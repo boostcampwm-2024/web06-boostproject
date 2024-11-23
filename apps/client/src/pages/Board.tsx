@@ -4,14 +4,12 @@ import KanbanBoard from '@/components/KanbanBoard.tsx';
 
 export default function Board() {
   return (
-    <>
+    <div className="relative h-full overflow-hidden">
       <Suspense fallback={<LoadingFallback />}>
         <KanbanBoard />
       </Suspense>
-      <div className="relative">
-        <Outlet />
-      </div>
-    </>
+      <Outlet />
+    </div>
   );
 }
 

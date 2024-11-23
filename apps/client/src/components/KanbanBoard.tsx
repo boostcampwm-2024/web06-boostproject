@@ -1,11 +1,11 @@
-import { useParams } from '@tanstack/react-router';
+import { Link, useParams } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LexoRank } from 'lexorank';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { DragEvent, useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { PanelLeftOpen } from 'lucide-react';
 
 import { useAuth } from '@/contexts/authContext.tsx';
 import {
@@ -160,30 +160,30 @@ export default function KanbanBoard() {
   };
 
   // delete Task
-  const { mutate: deleteTask } = useMutation({
-    mutationFn: async (taskId: number) => {
-      const payload = {
-        event: 'DELETE_TASK',
-        taskId,
-      };
+  // const { mutate: deleteTask } = useMutation({
+  //   mutationFn: async (taskId: number) => {
+  //     const payload = {
+  //       event: 'DELETE_TASK',
+  //       taskId,
+  //     };
+  //
+  //     return axios.post(`/api/project/${projectId}/update`, payload, {
+  //       headers: { Authorization: `Bearer ${accessToken}` },
+  //     });
+  //   },
+  //   onSuccess: async () => {
+  //     await queryClient.invalidateQueries({
+  //       queryKey: ['tasks', projectId],
+  //     });
+  //   },
+  //   onError: (error) => {
+  //     console.error('createTaskError', error);
+  //   },
+  // });
 
-      return axios.post(`/api/project/${projectId}/update`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ['tasks', projectId],
-      });
-    },
-    onError: (error) => {
-      console.error('createTaskError', error);
-    },
-  });
-
-  const handleDeleteButtonClick = (taskId: number) => {
-    deleteTask(taskId);
-  };
+  // const handleDeleteButtonClick = (taskId: number) => {
+  //   deleteTask(taskId);
+  // };
 
   // drag&drop
   const [belowSectionId, setBelowSectionId] = useState(-1);
@@ -297,6 +297,8 @@ export default function KanbanBoard() {
     return section;
   });
 
+  // to detail page
+
   return (
     <div className="spazce-x-2 flex h-[calc(100vh-110px)] gap-2 overflow-x-auto p-4">
       {sortedSections.map((section) => (
@@ -361,7 +363,6 @@ export default function KanbanBoard() {
                   handleDragOver(e, section.id, task.id);
                 }}
                 onDragLeave={handleDragLeave}
-                className="z-50"
               >
                 <Card
                   className={`border bg-white transition-all duration-300 ${task.id === belowTaskId ? 'border-blue-500' : 'border-transparent'}`}
@@ -371,9 +372,12 @@ export default function KanbanBoard() {
                     <Button
                       variant="ghost"
                       type="button"
-                      onClick={() => handleDeleteButtonClick(task.id)}
+                      asChild
+                      // onClick={() => handleDeleteButtonClick(task.id)}
                     >
-                      <X className="text-red-600" />
+                      <Link to={`/${projectId}/board/${task.id}`}>
+                        <PanelLeftOpen />
+                      </Link>
                     </Button>
                   </CardHeader>
                   <CardContent className="flex gap-1">

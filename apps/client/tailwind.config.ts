@@ -76,26 +76,6 @@ export default {
         red: {
           400: 'hsl(var(--red-400))',
         },
-
-        primary: {
-          DEFAULT: 'hsl(var(--green-500))',
-          foreground: 'hsl(var(--white))',
-        },
-
-        secondary: {
-          DEFAULT: 'hsl(var(--blue-500))',
-          foreground: 'hsl(var(--white))',
-        },
-
-        destructive: {
-          DEFAULT: 'hsl(var(--red-400))',
-          foreground: 'hsl(var(--white))',
-        },
-
-        accent: {
-          DEFAULT: 'hsl(var(--navy-400))',
-          foreground: 'hsl(var(--white))',
-        },
       },
     },
   },

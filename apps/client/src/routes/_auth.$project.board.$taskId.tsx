@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge.tsx';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { Checkbox } from '@/components/ui/checkbox.tsx';
+import { Input } from '@/components/ui/input.tsx';
 
 export const Route = createFileRoute('/_auth/$project/board/$taskId')({
   component: TaskDetailComponent,
@@ -42,6 +44,45 @@ function TaskDetailComponent() {
   const handleCancel = () => {
     setIsEditDescription(false);
     setDescription(prevDescriptionRef.current);
+  };
+
+  // Subtasks 상태 관리 추가
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+
+  const handleAddSubtask = () => {
+    const newId = Math.max(...subtasks.map((task) => task.id), 0) + 1;
+    const newSubtask = {
+      id: newId,
+      content: '새 서브 태스크',
+      completed: false,
+      isNew: true, // 새로 추가된 항목 표시
+    };
+    setSubtasks((prev) => [...prev, newSubtask]);
+  };
+
+  const handleToggleSubtask = (id: number) => {
+    setSubtasks((prevSubtasks) =>
+      prevSubtasks.map((subtask) =>
+        subtask.id === id ? { ...subtask, completed: !subtask.completed } : subtask
+      )
+    );
+  };
+
+  const handleUpdateSubtask = (id: number, newContent: string) => {
+    if (newContent.trim() === '') {
+      // 내용이 비어있으면 삭제
+      handleDeleteSubtask(id);
+      return;
+    }
+    setSubtasks((prevSubtasks) =>
+      prevSubtasks.map((subtask) =>
+        subtask.id === id ? { ...subtask, content: newContent, isNew: false } : subtask
+      )
+    );
+  };
+
+  const handleDeleteSubtask = (id: number) => {
+    setSubtasks((prevSubtasks) => prevSubtasks.filter((subtask) => subtask.id !== id));
   };
 
   return (
@@ -112,11 +153,26 @@ function TaskDetailComponent() {
                   </div>
                   <div>
                     <h3 className="mb-2 text-lg font-medium">Subtasks</h3>
-                    <ul className="text-muted-foreground list-disc pl-5">
-                      <li>Subtask 1</li>
-                      <li>Subtask 2</li>
-                      <li>Subtask 3</li>
-                    </ul>
+
+                    <div className="space-y-2">
+                      {subtasks.map((subtask) => (
+                        <Subtask
+                          key={subtask.id}
+                          subtask={subtask}
+                          onToggle={handleToggleSubtask}
+                          onUpdate={handleUpdateSubtask}
+                          onDelete={handleDeleteSubtask}
+                        />
+                      ))}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddSubtask}
+                      className="mt-2 w-full text-xs"
+                    >
+                      + Add subtask
+                    </Button>
                   </div>
                 </div>
 
@@ -181,5 +237,97 @@ function TaskDetailComponent() {
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+type Subtask = {
+  id: number;
+  content: string;
+  completed: boolean;
+};
+
+interface SubtaskProps {
+  subtask: {
+    id: number;
+    content: string;
+    completed: boolean;
+  };
+  onToggle: (id: number) => void;
+  onUpdate: (id: number, content: string) => void;
+  onDelete: (id: number) => void;
+}
+
+function Subtask({ subtask, onToggle, onUpdate, onDelete }: SubtaskProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(subtask.content);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDoubleClick = () => {
+    if (!subtask.completed) {
+      setIsEditing(true);
+    }
+  };
+
+  const handleSave = () => {
+    onUpdate(subtask.id, editedContent);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedContent(subtask.content);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
+  return (
+    <div className="group flex items-center space-x-2 rounded p-1 hover:bg-gray-50">
+      <Checkbox
+        checked={subtask.completed}
+        onCheckedChange={() => onToggle(subtask.id)}
+        id={`subtask-${subtask.id}`}
+      />
+
+      {isEditing ? (
+        <div className="flex flex-1 items-center space-x-2">
+          <Input
+            ref={inputRef}
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            className="flex-1"
+          />
+          <div className="flex space-x-1">
+            <Button onClick={handleSave} size="sm" variant="ghost">
+              저장
+            </Button>
+            <Button onClick={handleCancel} size="sm" variant="ghost">
+              취소
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 items-center justify-between">
+          <p
+            onDoubleClick={handleDoubleClick}
+            className={`flex-1 cursor-pointer select-none ${
+              subtask.completed ? 'text-muted-foreground line-through' : ''
+            }`}
+          >
+            {subtask.content}
+          </p>
+          <Button variant="ghost" size="sm" onClick={() => onDelete(subtask.id)}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

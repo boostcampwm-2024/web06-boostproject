@@ -32,7 +32,7 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-muted-foreground flex items-center text-sm font-medium">
           <Tag className="mr-2 h-4 w-4" />
-          <span>라벨</span>
+          <span>Labels</span>
         </h3>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -51,7 +51,7 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
                 <Input
                   type="text"
                   className="pl-10"
-                  placeholder="라벨 검색..."
+                  placeholder="Type to search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -64,7 +64,7 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
                   key={label.id}
                   onClick={() => toggleLabel(label)}
                   className={cn(
-                    'flex cursor-pointer items-center gap-1 px-4 py-2 text-sm',
+                    'flex w-full cursor-pointer items-center gap-1 px-4 py-2 text-sm',
                     selectedLabels.includes(label.id) && 'bg-blue-100'
                   )}
                 >
@@ -90,7 +90,7 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
             );
           })}
 
-        {selectedLabels.length === 0 && <p className="text-xs text-gray-600">라벨이 없습니다.</p>}
+        {selectedLabels.length === 0 && <p className="text-xs text-gray-600">No labels</p>}
       </div>
     </div>
   );

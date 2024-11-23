@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LexoRank } from 'lexorank';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
-import { DragEvent, useEffect, useState } from 'react';
+import { DragEvent, useState } from 'react';
 import { PanelLeftOpen } from 'lucide-react';
 
 import { useAuth } from '@/contexts/authContext.tsx';
@@ -76,54 +76,54 @@ export default function KanbanBoard() {
     },
   });
 
-  useEffect(() => {
-    const ac = new AbortController();
-    let timeoutId: number;
-
-    const fetchEvent = async () => {
-      try {
-        const response = await axios.get<EventResponse>(`/api/event?projectId=${projectId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          signal: ac.signal,
-        });
-
-        const { taskId, taskEvent } = response.data.result;
-
-        if (!taskId) {
-          return;
-        }
-
-        if (taskEvent === 'TITLE') {
-          queryClient.invalidateQueries({
-            queryKey: ['task-detail', taskId],
-          });
-        }
-
-        if (taskEvent === 'CARD') {
-          queryClient.invalidateQueries({
-            queryKey: ['tasks', projectId],
-          });
-        }
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          console.error('Request canceled:', error.message);
-        } else {
-          console.error(error);
-        }
-      }
-
-      timeoutId = window.setTimeout(fetchEvent, 500);
-    };
-
-    fetchEvent();
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      ac.abort();
-    };
-  }, [projectId, accessToken, queryClient]);
+  // useEffect(() => {
+  //   const ac = new AbortController();
+  //   let timeoutId: number;
+  //
+  //   const fetchEvent = async () => {
+  //     try {
+  //       const response = await axios.get<EventResponse>(`/api/event?projectId=${projectId}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //         signal: ac.signal,
+  //       });
+  //
+  //       const { taskId, taskEvent } = response.data.result;
+  //
+  //       if (!taskId) {
+  //         return;
+  //       }
+  //
+  //       if (taskEvent === 'TITLE') {
+  //         queryClient.invalidateQueries({
+  //           queryKey: ['task-detail', taskId],
+  //         });
+  //       }
+  //
+  //       if (taskEvent === 'CARD') {
+  //         queryClient.invalidateQueries({
+  //           queryKey: ['tasks', projectId],
+  //         });
+  //       }
+  //     } catch (error) {
+  //       if (axios.isCancel(error)) {
+  //         console.error('Request canceled:', error.message);
+  //       } else {
+  //         console.error(error);
+  //       }
+  //     }
+  //
+  //     timeoutId = window.setTimeout(fetchEvent, 500);
+  //   };
+  //
+  //   fetchEvent();
+  //
+  //   return () => {
+  //     window.clearTimeout(timeoutId);
+  //     ac.abort();
+  //   };
+  // }, [projectId, accessToken, queryClient]);
   // create Task
   const { mutate: createTask } = useMutation({
     mutationFn: async ({ sectionId, position }: { sectionId: number; position: string }) => {

@@ -113,7 +113,7 @@ export default function DetailSidebar() {
           className="m-0 p-0 px-2 font-medium text-gray-500 hover:text-red-600"
         >
           <TrashIcon className="h-5 w-5" />
-          <span className="text-xs">태스크 지우기</span>
+          <span className="text-xs">Delete task</span>
         </Button>
       </div>
     </div>

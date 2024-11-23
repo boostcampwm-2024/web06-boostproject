@@ -131,7 +131,7 @@ function DescriptionSection({
         <div className="space-y-2">
           <Textarea
             value={description}
-            placeholder="설명을 작성해주세요."
+            placeholder="Description should be here..."
             onChange={(e) => setDescription(e.target.value)}
             className="min-h-[100px]"
             autoFocus
@@ -150,7 +150,7 @@ function DescriptionSection({
           className="cursor-pointer rounded p-2 text-gray-700 hover:bg-gray-50"
           onDoubleClick={handleDoubleClick}
         >
-          {description.length === 0 ? '더블 클릭으로 편집할 수 있습니다.' : description}
+          {description.length === 0 ? 'Double click to edit' : description}
         </p>
       )}
     </div>
@@ -199,7 +199,7 @@ function TaskDetailComponent() {
     const newId = Math.max(...subtasks.map((task) => task.id), 0) + 1;
     const newSubtask = {
       id: newId,
-      content: '새 서브 태스크',
+      content: 'New Subtask',
       completed: false,
       isNew: true,
     };
@@ -267,7 +267,7 @@ function TaskDetailComponent() {
             <Card className="h-full rounded-none border-none">
               <CardHeader className="bg-blue sticky top-0 z-40 h-[100px] backdrop-blur">
                 <div className="flex h-full items-center justify-between">
-                  <h2 className="text-3xl font-semibold">디테일 페이지</h2>
+                  <h2 className="text-3xl font-semibold">Make Project Bigger</h2>
                   <Button variant="ghost" size="icon" onClick={handleClose}>
                     <X className="h-4 w-4" />
                   </Button>
@@ -303,7 +303,7 @@ function TaskDetailComponent() {
                       onClick={handleAddSubtask}
                       className="mt-2 w-full text-xs"
                     >
-                      + 서브 태스크 추가
+                      + Add New Subtask
                     </Button>
                   </div>
                 </div>

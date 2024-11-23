@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import { Settings, Star } from 'lucide-react';
+import { Settings, Star, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +41,7 @@ export default function Priority({ priority, setPriority }: PriorityProps) {
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-muted-foreground flex items-center text-sm font-medium">
           <Star className="mr-2 h-4 w-4" />
-          <span>우선순위</span>
+          <span>Priority</span>
         </h3>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -60,12 +60,13 @@ export default function Priority({ priority, setPriority }: PriorityProps) {
                   type="button"
                   key={level}
                   className={cn(
-                    'hover:bg-accent flex cursor-pointer items-center justify-between px-4 py-2',
-                    priority === level && 'bg-accent'
+                    'flex w-full cursor-pointer items-center justify-between px-4 py-2 hover:bg-blue-100',
+                    priority === level && 'bg-blue-100'
                   )}
                   onClick={() => togglePriority(level)}
                 >
                   <PriorityStars count={level} />
+                  {priority === level && <X className="h-4 w-4 text-blue-600" />}
                 </button>
               ))}
             </div>
@@ -79,7 +80,7 @@ export default function Priority({ priority, setPriority }: PriorityProps) {
             <PriorityStars count={priority} />
           </Badge>
         ) : (
-          <p className="text-xs text-gray-600">우선순위가 없습니다.</p>
+          <p className="text-xs text-gray-600">No priority</p>
         )}
       </div>
     </div>

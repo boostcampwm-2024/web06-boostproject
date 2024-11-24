@@ -17,15 +17,15 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
 
   handleConnection(client: Socket) {
     const projectId = client.handshake.auth.projectId;
-    const { userId, username } = client.data.user;
+    const { id, username } = client.data.user;
 
     if (!this.selectedCards.has(projectId)) {
       this.selectedCards.set(projectId, new Map());
     }
-    this.selectedCards.get(projectId).set(userId, '');
+    this.selectedCards.get(projectId).set(id, '');
 
     client.join(projectId);
-    this.server.to(projectId).emit('user_joined', { userId, username });
+    this.server.to(projectId).emit('user_joined', { id, username });
   }
 
   handleDisconnect(client: Socket) {

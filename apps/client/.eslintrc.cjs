@@ -26,5 +26,11 @@ module.exports = {
     'react/jsx-props-no-spreading': 0,
     'react/prop-types': 0,
     'no-use-before-define': 'off',
+    'jsx-a11y/label-has-associated-control': [
+      2,
+      {
+        some: ['nesting', 'id'],
+      },
+    ],
   },
 };

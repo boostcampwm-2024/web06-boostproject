@@ -1,4 +1,3 @@
-// ProjectSettingsLayout.tsx
 import { Link, Outlet, useParams } from '@tanstack/react-router';
 import { Home, Tag, Calendar } from 'lucide-react';
 
@@ -22,7 +21,6 @@ function ProjectSettingsLayout() {
       </div>
 
       <div className="mx-auto flex min-h-0 w-full max-w-screen-lg flex-1">
-        {/* Sidebar - Fixed width, no scroll */}
         <div className="w-64 flex-shrink-0 border-r">
           <div className="px-6 py-6">
             <div className="w-full space-y-1">
@@ -41,7 +39,6 @@ function ProjectSettingsLayout() {
           </div>
         </div>
 
-        {/* Main Content - Scrollable */}
         <div className="min-h-0 flex-1">
           <div className="h-full overflow-y-auto px-6 py-6">
             <Outlet />

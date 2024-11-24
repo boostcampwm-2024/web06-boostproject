@@ -85,4 +85,13 @@ export class TaskController {
       await this.taskService.updateAssignees(user.id, id, body.assignees)
     );
   }
+
+  @Get(':id/detail')
+  async getTaskDetail(@AuthUser() user: Account, @Param('id') id: number) {
+    return new BaseResponse(
+      200,
+      '태스크 상세 정보 조회 완료했습니다.',
+      await this.taskService.getTaskDetail(user.id, id)
+    );
+  }
 }

@@ -28,7 +28,11 @@ import { Label } from '@/project/entity/label.entity';
 import { TaskLabel } from '@/task/domain/task-label.entity';
 import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
 import { TaskAssignee } from '@/task/domain/task-assignee.entity';
-import { AssigneeDetailsResponse } from '../dto/assignee-details-response.dto';
+import { AssigneeDetailsResponse } from '@/task/dto/assignee-details-response.dto';
+import { TaskDetailsResponse } from '@/task/dto/task-details-response.dto';
+import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto';
+import { SubTask } from '@/task/domain/subTask.entity';
+import { CreateSubTaskResponse } from '@/task/dto/create-subTask-response.dto';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -49,6 +53,12 @@ export class TaskService {
     private sprintRepository: Repository<Sprint>,
     @InjectRepository(Label)
     private labelRepository: Repository<Label>,
+    @InjectRepository(TaskLabel)
+    private taskLabelRepository: Repository<TaskLabel>,
+    @InjectRepository(TaskAssignee)
+    private taskAssigneeRepository: Repository<TaskAssignee>,
+    @InjectRepository(SubTask)
+    private subTaskRepository: Repository<SubTask>,
     private dataSource: DataSource,
     private broadcastService: BroadcastService,
     private eventEmitter: EventEmitter2
@@ -292,6 +302,38 @@ export class TaskService {
         (record) => new AssigneeDetailsResponse(record.c_userId, record.a_username, '')
       ),
     };
+  }
+
+  async getTaskDetail(userId: number, taskId: number) {
+    const task = await this.findTaskOrThrow(taskId);
+    await this.validateUserRole(userId, task.section.project.id);
+
+    const result = new TaskDetailsResponse(task);
+    const sprint = await this.sprintRepository.findOneBy({ id: task.sprintId });
+    result.setSprint(sprint ? new SprintDetailsResponse(sprint) : null);
+
+    const taskAssigneeRecords = await this.taskAssigneeRepository
+      .createQueryBuilder('ta')
+      .leftJoin('account', 'a', 'ta.accountId = a.id')
+      .where('ta.taskId = :taskId', { taskId })
+      .addSelect(['a.username'])
+      .getRawMany();
+    result.setAssignees(
+      taskAssigneeRecords.map(
+        (record) => new AssigneeDetailsResponse(record.ta_accountId, record.a_username, '')
+      )
+    );
+
+    const labels = await this.labelRepository
+      .createQueryBuilder('l')
+      .leftJoin('task_label', 'tl', 'l.id = tl.labelId')
+      .where('tl.taskId = :taskId', { taskId })
+      .getMany();
+    result.setLabels(labels.map((label) => new LabelDetailsResponse(label)));
+
+    const subTasks = await this.subTaskRepository.findBy({ taskId });
+    result.setSubtasks(subTasks.map((subTask) => new CreateSubTaskResponse(subTask)));
+    return result;
   }
 
   private async validateUserRole(userId: number, projectId: number) {

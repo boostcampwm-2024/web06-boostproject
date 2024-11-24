@@ -18,7 +18,7 @@ import { InviteUserRequest } from '@/project/dto/invite-user-request.dto';
 import { UpdateContributorRequest } from '@/project/dto/update-contributor-request.dts';
 import { TaskEvent } from '@/task/dto/task-event.dto';
 import { TaskService } from '@/task/service/task.service';
-import { EventType } from '@/task/domain/eventType.enum';
+import { EventType } from '@/task/enum/eventType.enum';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 
 @UseGuards(AccessTokenGuard)

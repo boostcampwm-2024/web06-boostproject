@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,7 +16,7 @@ import { TaskResponse } from '@/task/dto/task-response.dto';
 import { DeleteTaskResponse } from '@/task/dto/delete-task-response.dto';
 import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { TaskEvent } from '@/task/dto/task-event.dto';
-import { EventType } from '@/task/domain/eventType.enum';
+import { EventType } from '@/task/enum/eventType.enum';
 import { Contributor } from '@/project/entity/contributor.entity';
 import { BroadcastService } from '@/task/service/broadcast.service';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
@@ -25,6 +26,8 @@ const { defaultType: json0 } = ShareDB.types;
 
 @Injectable()
 export class TaskService {
+  private logger = new Logger(TaskService.name);
+
   private operations: Map<number, TaskEvent[]> = new Map();
 
   constructor(
@@ -46,7 +49,7 @@ export class TaskService {
         try {
           await this.dequeue(userId, projectId, taskId);
         } catch (e) {
-          console.error(e);
+          this.logger.error(e);
         }
       }
     );

@@ -1,31 +1,11 @@
 import { axiosInstance } from '@/lib/axios.ts';
-
-interface BaseResponse<T = void> {
-  status: number;
-  message: string;
-  result: T extends void ? never : T;
-}
-
-interface LoginRequestDto {
-  username: string;
-  password: string;
-}
-
-interface LoginResult {
-  id: number;
-  username: string;
-  accessToken: string;
-}
-
-interface RegisterRequestDto {
-  username: string;
-  password: string;
-}
-
-interface RegisterResult {
-  id: number;
-  username: string;
-}
+import { BaseResponse } from '@/features/types.ts';
+import {
+  LoginRequestDto,
+  LoginResult,
+  RegisterRequestDto,
+  RegisterResult,
+} from '@/features/auth/types.ts';
 
 export const authAPI = {
   login: async (loginRequestDto: LoginRequestDto) => {

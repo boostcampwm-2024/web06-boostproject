@@ -1,7 +1,7 @@
 export type Assignee = {
   id: number;
   username: string;
-  avatar: string;
+  avatar: string; // or imageUrl
 };
 
 export type Label = {
@@ -9,6 +9,8 @@ export type Label = {
   name: string;
   color: string;
 };
+
+export type Priority = number;
 
 export type Sprint = {
   id: number;

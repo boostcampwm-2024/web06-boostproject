@@ -14,7 +14,6 @@ interface Subtask {
   id: number;
   content: string;
   completed: boolean;
-  isNew?: boolean;
 }
 
 interface SubtaskProps {

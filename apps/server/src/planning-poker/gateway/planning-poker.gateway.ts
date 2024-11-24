@@ -13,15 +13,16 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
-  selectedCards: Map<string, Map<number, number>> = new Map();
+  selectedCards: Map<string, Map<number, string>> = new Map();
 
   handleConnection(client: Socket) {
-    const { projectId, userId, username } = client.handshake.auth.payload;
+    const projectId = client.handshake.auth.projectId;
+    const { userId, username } = client.data.user;
 
     if (!this.selectedCards.has(projectId)) {
       this.selectedCards.set(projectId, new Map());
     }
-    this.selectedCards.get(projectId).set(userId, 0);
+    this.selectedCards.get(projectId).set(userId, '');
 
     client.join(projectId);
     this.server.to(projectId).emit('user_joined', { userId, username });
@@ -51,13 +52,13 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   }
 
   @SubscribeMessage('select_card')
-  handleSelectCard(client: Socket, payload: { projectId: string; cardId: number }) {
-    const { projectId, cardId } = payload;
+  handleSelectCard(client: Socket, payload: { projectId: string; card: string }) {
+    const { projectId, card } = payload;
     const userId = client.data.user.id;
 
     const projectCardMap = this.getProjectCardsOrThrow(projectId);
 
-    projectCardMap.set(userId, cardId);
+    projectCardMap.set(userId, card);
 
     this.broadcastToOthers(client, 'card_selected', { userId });
   }
@@ -67,9 +68,9 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const { projectId } = payload;
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    const cardDetails = Array.from(projectCards.entries()).map(([userId, cardId]) => ({
+    const cardDetails = Array.from(projectCards.entries()).map(([userId, card]) => ({
       userId,
-      cardId,
+      card,
     }));
 
     this.server.to(projectId).emit('card_revealed', cardDetails);
@@ -81,7 +82,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
     projectCards.forEach((_, userId) => {
-      projectCards.set(userId, 0);
+      projectCards.set(userId, '');
     });
 
     this.broadcastToOthers(client, 'card_reset');

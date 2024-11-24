@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as ShareDB from 'sharedb';
 import { Task } from '@/task/domain/task.entity';
@@ -24,6 +24,9 @@ import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
 import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
 import { UpdateTaskDetailsResponse } from '@/task/dto/update-task-details-response.dto';
 import { Sprint } from '@/project/entity/sprint.entity';
+import { Label } from '@/project/entity/label.entity';
+import { TaskLabel } from '@/task/domain/task-label.entity';
+import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -42,6 +45,9 @@ export class TaskService {
     private contributorRepository: Repository<Contributor>,
     @InjectRepository(Sprint)
     private sprintRepository: Repository<Sprint>,
+    @InjectRepository(Label)
+    private labelRepository: Repository<Label>,
+    private dataSource: DataSource,
     private broadcastService: BroadcastService,
     private eventEmitter: EventEmitter2
   ) {
@@ -214,6 +220,35 @@ export class TaskService {
       TaskEventResponse.of(taskEvent.taskId, 'CARD')
     );
     return new DeleteTaskResponse(taskEvent.taskId);
+  }
+
+  async updateLabels(userId: number, taskId: number, labelIds: number[]) {
+    const task = await this.findTaskOrThrow(taskId);
+    await this.validateUserRole(userId, task.section.project.id);
+    const labels = await this.labelRepository.findBy({
+      projectId: task.section.project.id,
+      id: In(labelIds),
+    });
+    if (labelIds.length !== labels.length) {
+      throw new NotFoundException('Label not found');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.delete(TaskLabel, { taskId });
+      for (let i = 0; i < labelIds.length; i += 1) {
+        await queryRunner.manager.save(TaskLabel, { taskId, labelId: labelIds[i] });
+      }
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+    return { taskId, labels: labels.map((label) => new LabelDetailsResponse(label)) };
   }
 
   private async validateUserRole(userId: number, projectId: number) {

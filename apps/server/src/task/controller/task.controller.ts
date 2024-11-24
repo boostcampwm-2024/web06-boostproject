@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
 import { SubTaskService } from '@/task/service/subTask.service';
 import { CreateSubTaskRequest } from '@/task/dto/create-subTask-request.dto';
+import { UpdateLabelsRequest } from '@/task/dto/update-labels-request.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('task')
@@ -57,5 +59,18 @@ export class TaskController {
     @Body() body: CreateSubTaskRequest
   ) {
     return await this.subTaskService.create(user.id, id, body.content, body.completed);
+  }
+
+  @Put(':id/labels')
+  async updateLabels(
+    @AuthUser() user: Account,
+    @Param('id') id: number,
+    @Body() body: UpdateLabelsRequest
+  ) {
+    return new BaseResponse(
+      200,
+      '태스크 라벨 수정 완료했습니다.',
+      await this.taskService.updateLabels(user.id, id, body.labels)
+    );
   }
 }

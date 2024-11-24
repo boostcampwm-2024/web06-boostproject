@@ -37,24 +37,15 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   }
 
   handleDisconnect(client: Socket) {
+    const userId = client.data.user.id;
+
     client.rooms.forEach((projectId) => {
       client.leave(projectId);
     });
 
     this.selectedCards.forEach((projectCards) => {
-      projectCards.delete(client.data.userId);
+      projectCards.delete(userId);
     });
-
-    this.broadcastToOthers(client, 'user_left', { userId: client.data.userId });
-  }
-
-  @SubscribeMessage('leave_room')
-  handleLeaveRoom(client: Socket, payload: { projectId: string }) {
-    const { projectId } = payload;
-    const userId = client.data.user.id;
-    client.leave(projectId);
-
-    this.getProjectCardsOrThrow(projectId).delete(userId);
 
     this.broadcastToOthers(client, 'user_left', { userId });
   }

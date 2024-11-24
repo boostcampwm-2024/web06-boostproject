@@ -19,12 +19,12 @@ export class SubTaskService {
     private contributorRepository: Repository<Contributor>
   ) {}
 
-  async create(userId: number, taskId: number) {
+  async create(userId: number, taskId: number, content: string, completed: boolean) {
     await this.validateUserRole(userId, taskId);
     const subTask = await this.subTaskRepository.save({
       taskId,
-      content: '',
-      status: SubTaskStatus.PENDING,
+      content: content || '',
+      status: completed ? SubTaskStatus.COMPLETED : SubTaskStatus.PENDING,
     });
     return new CreateSubTaskResponse(subTask);
   }

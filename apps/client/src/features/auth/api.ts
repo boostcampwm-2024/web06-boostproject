@@ -9,26 +9,26 @@ import {
 
 export const authAPI = {
   login: async (loginRequestDto: LoginRequestDto) => {
-    const response = await axiosInstance.post<BaseResponse<LoginResult>>(
+    const { data } = await axiosInstance.post<BaseResponse<LoginResult>>(
       '/auth/signin',
       loginRequestDto
     );
 
-    return response.data;
+    return data;
   },
 
   logout: async () => {
-    const response = await axiosInstance.post<BaseResponse>('/auth/signout');
+    const { data } = await axiosInstance.post<BaseResponse>('/auth/signout');
 
-    return response.data;
+    return data;
   },
 
   register: async (registerRequestDto: RegisterRequestDto) => {
-    const response = await axiosInstance.post<BaseResponse<RegisterResult>>(
+    const { data } = await axiosInstance.post<BaseResponse<RegisterResult>>(
       '/auth/signup',
       registerRequestDto
     );
 
-    return response.data;
+    return data;
   },
 };

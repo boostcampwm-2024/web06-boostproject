@@ -7,7 +7,7 @@ import * as jwt from 'jsonwebtoken';
 export class CustomIoAdapter extends IoAdapter {
   createIOServer(port: number, options?: ServerOptions): any {
     const corsOptions = {
-      origin: ['http://localhost:3000', 'http://boost-harmony.kro.kr'],
+      origin: ['http://localhost:5173', 'http://boost-harmony.kro.kr'],
       methods: ['GET', 'POST'],
       credentials: true,
     };

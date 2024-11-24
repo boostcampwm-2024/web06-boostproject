@@ -1,3 +1,9 @@
+export interface AuthState {
+  isAuthenticated: boolean;
+  username: string;
+  accessToken: string;
+}
+
 export interface LoginRequestDto {
   username: string;
   password: string;

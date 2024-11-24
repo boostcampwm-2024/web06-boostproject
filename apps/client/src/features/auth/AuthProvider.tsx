@@ -1,0 +1,108 @@
+import { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+
+import { ENV } from '@/config/env';
+import {
+  AuthState,
+  LoginRequestDto,
+  LoginResult,
+  RegisterRequestDto,
+  RegisterResult,
+} from '@/features/auth/types.ts';
+import { authAPI } from '@/features/auth/api.ts';
+import { BaseResponse } from '@/features/types.ts';
+
+export interface AuthContextValue extends AuthState {
+  loginMutation: ReturnType<typeof useMutation<BaseResponse<LoginResult>, Error, LoginRequestDto>>;
+  registerMutation: ReturnType<
+    typeof useMutation<BaseResponse<RegisterResult>, Error, RegisterRequestDto>
+  >;
+  logoutMutation: ReturnType<typeof useMutation<BaseResponse, Error, void>>;
+}
+
+export const AuthContext = createContext<AuthContextValue | null>(null);
+
+const INITIAL_STATE: AuthState = {
+  isAuthenticated: false,
+  username: '',
+  accessToken: '',
+};
+
+const getStoredState = () => {
+  try {
+    const storedState = localStorage.getItem(ENV.AUTH_STORAGE_KEY);
+    if (!storedState) {
+      return INITIAL_STATE;
+    }
+
+    return JSON.parse(storedState) as AuthState;
+  } catch {
+    return INITIAL_STATE;
+  }
+};
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [authState, setAuthState] = useState<AuthState>(getStoredState());
+
+  useEffect(() => {
+    localStorage.setItem(ENV.AUTH_STORAGE_KEY, JSON.stringify(authState));
+  }, [authState]);
+
+  const registerMutation = useMutation({
+    mutationFn: (registerRequestDto: RegisterRequestDto) => {
+      return authAPI.register(registerRequestDto);
+    },
+    onSuccess: () => {
+      navigate({ to: '/login' });
+    },
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: (loginRequestDto: LoginRequestDto) => {
+      return authAPI.login(loginRequestDto);
+    },
+    onSuccess: (data) => {
+      setAuthState({
+        isAuthenticated: true,
+        username: data.result.username,
+        accessToken: data.result.accessToken,
+      });
+      queryClient.clear();
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => {
+      return authAPI.logout();
+    },
+    onSuccess: () => {
+      setAuthState(INITIAL_STATE);
+      queryClient.clear();
+    },
+  });
+
+  useEffect(() => {
+    if (authState.isAuthenticated) {
+      navigate({ to: '/account' });
+    }
+
+    if (!authState.isAuthenticated) {
+      navigate({ to: '/login' });
+    }
+  }, [authState.isAuthenticated, navigate]);
+
+  const value = useMemo(
+    () => ({
+      ...authState,
+      loginMutation,
+      registerMutation,
+      logoutMutation,
+    }),
+    [authState, loginMutation, registerMutation, logoutMutation]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}

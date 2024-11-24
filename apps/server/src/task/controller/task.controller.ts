@@ -50,15 +50,12 @@ export class TaskController {
   }
 
   @Post(':id/subtask')
+  @ResponseMessage('서브 태스크 생성 완료했습니다.')
   async create(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: CreateSubTaskRequest
   ) {
-    return new BaseResponse(
-      201,
-      '서브 태스크 생성 완료했습니다.',
-      await this.subTaskService.create(user.id, id, body.content, body.completed)
-    );
+    return await this.subTaskService.create(user.id, id, body.content, body.completed);
   }
 }

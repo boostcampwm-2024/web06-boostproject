@@ -12,6 +12,7 @@ import { HttpLoggingInterceptor } from '@/common/httpLog.Interceptor';
 import { AllExceptionsFilter } from '@/common/allException.filter';
 import { AccountModule } from '@/account/account.module';
 import { ProjectModule } from '@/project/project.module';
+import { PlanningPokerModule } from './planning-poker/planning-poker.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProjectModule } from '@/project/project.module';
     TaskModule,
     AccountModule,
     ProjectModule,
+    PlanningPokerModule,
   ],
   controllers: [AppController],
   providers: [

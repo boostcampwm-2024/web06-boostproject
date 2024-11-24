@@ -1,13 +1,8 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { ENV } from '@/config/env';
+import { AuthState } from '@/features/auth/types.ts';
 
 const { API_BASE_URL, AUTH_STORAGE_KEY } = ENV;
-
-export interface AuthStorage {
-  isAuthenticated: boolean;
-  username: string;
-  accessToken: string;
-}
 
 export const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -25,7 +20,7 @@ axiosInstance.interceptors.request.use(
         return config;
       }
 
-      const authContext = JSON.parse(authStorageString) as AuthStorage;
+      const authContext = JSON.parse(authStorageString) as AuthState;
       const { accessToken } = authContext;
 
       const newConfig = { ...config };
@@ -64,7 +59,7 @@ axiosInstance.interceptors.response.use(
       }
 
       const { username, accessToken } = response.data.result;
-      const authStorage: AuthStorage = { accessToken, isAuthenticated: true, username };
+      const authStorage: AuthState = { accessToken, isAuthenticated: true, username };
 
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authStorage));
 

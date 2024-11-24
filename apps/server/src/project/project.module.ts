@@ -12,13 +12,26 @@ import { TaskModule } from '@/task/task.module';
 import { Sprint } from '@/project/entity/sprint.entity';
 import { SprintController } from '@/project/controller/sprint.controller';
 import { SprintService } from '@/project/service/sprint.service';
+import { TaskLabel } from '@/task/domain/task-label.entity';
+import { LabelController } from '@/project/controller/label.controller';
+import { LabelService } from '@/project/service/label.service';
+import { Label } from '@/project/entity/label.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Project, Contributor, Account, Task, Section, Sprint]),
+    TypeOrmModule.forFeature([
+      Project,
+      Contributor,
+      Account,
+      Task,
+      Section,
+      Sprint,
+      Label,
+      TaskLabel,
+    ]),
     TaskModule,
   ],
-  controllers: [ProjectController, ProjectsController, SprintController],
-  providers: [ProjectService, SprintService],
+  controllers: [ProjectController, ProjectsController, SprintController, LabelController],
+  providers: [ProjectService, SprintService, LabelService],
 })
 export class ProjectModule {}

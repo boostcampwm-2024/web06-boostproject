@@ -8,6 +8,7 @@ import { CreateUserDto } from '@/account/dto/create-user.dto';
 import { UserDto } from '@/account/dto/user.dto';
 import { BaseResponse } from '@/common/BaseResponse';
 import { AuthDto } from '@/account/dto/auth.dto';
+import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +48,7 @@ export class AuthController {
     );
   }
 
-  @UseGuards(RefreshTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('signout')
   @HttpCode(200)
   async signOut(@AuthUser() user: Account, @Res({ passthrough: true }) res: Response) {

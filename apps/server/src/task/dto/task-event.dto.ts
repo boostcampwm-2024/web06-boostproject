@@ -7,7 +7,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { EventType } from '@/task/domain/eventType.enum';
+import { EventType } from '@/task/enum/eventType.enum';
 import { UpdateInformation } from '@/task/domain/update-information.type';
 
 export class TaskEvent {

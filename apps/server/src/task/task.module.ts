@@ -8,11 +8,14 @@ import { Project } from '@/project/entity/project.entity';
 import { EventController } from '@/task/controller/event.controller';
 import { BroadcastService } from '@/task/service/broadcast.service';
 import { Contributor } from '@/project/entity/contributor.entity';
+import { SubTask } from '@/task/domain/subTask.entity';
+import { SubTaskService } from '@/task/service/subTask.service';
+import { SubTaskController } from '@/task/controller/subTask.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, Section, Project, Contributor])],
-  controllers: [TaskController, EventController],
-  providers: [TaskService, BroadcastService],
+  imports: [TypeOrmModule.forFeature([Task, Section, Project, Contributor, SubTask])],
+  controllers: [TaskController, EventController, SubTaskController],
+  providers: [TaskService, BroadcastService, SubTaskService],
   exports: [TaskService],
 })
 export class TaskModule {}

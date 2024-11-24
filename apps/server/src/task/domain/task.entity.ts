@@ -1,8 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Section } from '@/task/domain/section.entity';
+import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()
-export class Task {
+export class Task extends EntityTimestamp {
   @PrimaryGeneratedColumn()
   id: number;
 

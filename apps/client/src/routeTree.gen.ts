@@ -22,6 +22,9 @@ import { Route as AuthProjectIndexImport } from './routes/_auth.$project.index';
 import { Route as AuthAccountSettingsImport } from './routes/_auth.account.settings';
 import { Route as AuthProjectSettingsImport } from './routes/_auth.$project.settings';
 import { Route as AuthProjectBoardImport } from './routes/_auth.$project.board';
+import { Route as AuthProjectSettingsIndexImport } from './routes/_auth.$project.settings.index';
+import { Route as AuthProjectSettingsSprintsImport } from './routes/_auth.$project.settings.sprints';
+import { Route as AuthProjectSettingsLabelsImport } from './routes/_auth.$project.settings.labels';
 import { Route as AuthProjectBoardTaskIdImport } from './routes/_auth.$project.board.$taskId';
 
 // Create/Update Routes
@@ -89,6 +92,24 @@ const AuthProjectBoardRoute = AuthProjectBoardImport.update({
   id: '/board',
   path: '/board',
   getParentRoute: () => AuthProjectRoute,
+} as any);
+
+const AuthProjectSettingsIndexRoute = AuthProjectSettingsIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthProjectSettingsRoute,
+} as any);
+
+const AuthProjectSettingsSprintsRoute = AuthProjectSettingsSprintsImport.update({
+  id: '/sprints',
+  path: '/sprints',
+  getParentRoute: () => AuthProjectSettingsRoute,
+} as any);
+
+const AuthProjectSettingsLabelsRoute = AuthProjectSettingsLabelsImport.update({
+  id: '/labels',
+  path: '/labels',
+  getParentRoute: () => AuthProjectSettingsRoute,
 } as any);
 
 const AuthProjectBoardTaskIdRoute = AuthProjectBoardTaskIdImport.update({
@@ -185,6 +206,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProjectBoardTaskIdImport;
       parentRoute: typeof AuthProjectBoardImport;
     };
+    '/_auth/$project/settings/labels': {
+      id: '/_auth/$project/settings/labels';
+      path: '/labels';
+      fullPath: '/$project/settings/labels';
+      preLoaderRoute: typeof AuthProjectSettingsLabelsImport;
+      parentRoute: typeof AuthProjectSettingsImport;
+    };
+    '/_auth/$project/settings/sprints': {
+      id: '/_auth/$project/settings/sprints';
+      path: '/sprints';
+      fullPath: '/$project/settings/sprints';
+      preLoaderRoute: typeof AuthProjectSettingsSprintsImport;
+      parentRoute: typeof AuthProjectSettingsImport;
+    };
+    '/_auth/$project/settings/': {
+      id: '/_auth/$project/settings/';
+      path: '/';
+      fullPath: '/$project/settings/';
+      preLoaderRoute: typeof AuthProjectSettingsIndexImport;
+      parentRoute: typeof AuthProjectSettingsImport;
+    };
   }
 }
 
@@ -202,15 +244,31 @@ const AuthProjectBoardRouteWithChildren = AuthProjectBoardRoute._addFileChildren
   AuthProjectBoardRouteChildren
 );
 
+interface AuthProjectSettingsRouteChildren {
+  AuthProjectSettingsLabelsRoute: typeof AuthProjectSettingsLabelsRoute;
+  AuthProjectSettingsSprintsRoute: typeof AuthProjectSettingsSprintsRoute;
+  AuthProjectSettingsIndexRoute: typeof AuthProjectSettingsIndexRoute;
+}
+
+const AuthProjectSettingsRouteChildren: AuthProjectSettingsRouteChildren = {
+  AuthProjectSettingsLabelsRoute: AuthProjectSettingsLabelsRoute,
+  AuthProjectSettingsSprintsRoute: AuthProjectSettingsSprintsRoute,
+  AuthProjectSettingsIndexRoute: AuthProjectSettingsIndexRoute,
+};
+
+const AuthProjectSettingsRouteWithChildren = AuthProjectSettingsRoute._addFileChildren(
+  AuthProjectSettingsRouteChildren
+);
+
 interface AuthProjectRouteChildren {
   AuthProjectBoardRoute: typeof AuthProjectBoardRouteWithChildren;
-  AuthProjectSettingsRoute: typeof AuthProjectSettingsRoute;
+  AuthProjectSettingsRoute: typeof AuthProjectSettingsRouteWithChildren;
   AuthProjectIndexRoute: typeof AuthProjectIndexRoute;
 }
 
 const AuthProjectRouteChildren: AuthProjectRouteChildren = {
   AuthProjectBoardRoute: AuthProjectBoardRouteWithChildren,
-  AuthProjectSettingsRoute: AuthProjectSettingsRoute,
+  AuthProjectSettingsRoute: AuthProjectSettingsRouteWithChildren,
   AuthProjectIndexRoute: AuthProjectIndexRoute,
 };
 
@@ -248,11 +306,14 @@ export interface FileRoutesByFullPath {
   '/$project': typeof AuthProjectRouteWithChildren;
   '/account': typeof AuthAccountRouteWithChildren;
   '/$project/board': typeof AuthProjectBoardRouteWithChildren;
-  '/$project/settings': typeof AuthProjectSettingsRoute;
+  '/$project/settings': typeof AuthProjectSettingsRouteWithChildren;
   '/account/settings': typeof AuthAccountSettingsRoute;
   '/$project/': typeof AuthProjectIndexRoute;
   '/account/': typeof AuthAccountIndexRoute;
   '/$project/board/$taskId': typeof AuthProjectBoardTaskIdRoute;
+  '/$project/settings/labels': typeof AuthProjectSettingsLabelsRoute;
+  '/$project/settings/sprints': typeof AuthProjectSettingsSprintsRoute;
+  '/$project/settings/': typeof AuthProjectSettingsIndexRoute;
 }
 
 export interface FileRoutesByTo {
@@ -261,11 +322,13 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute;
   '/signup': typeof SignupRoute;
   '/$project/board': typeof AuthProjectBoardRouteWithChildren;
-  '/$project/settings': typeof AuthProjectSettingsRoute;
   '/account/settings': typeof AuthAccountSettingsRoute;
   '/$project': typeof AuthProjectIndexRoute;
   '/account': typeof AuthAccountIndexRoute;
   '/$project/board/$taskId': typeof AuthProjectBoardTaskIdRoute;
+  '/$project/settings/labels': typeof AuthProjectSettingsLabelsRoute;
+  '/$project/settings/sprints': typeof AuthProjectSettingsSprintsRoute;
+  '/$project/settings': typeof AuthProjectSettingsIndexRoute;
 }
 
 export interface FileRoutesById {
@@ -277,11 +340,14 @@ export interface FileRoutesById {
   '/_auth/$project': typeof AuthProjectRouteWithChildren;
   '/_auth/account': typeof AuthAccountRouteWithChildren;
   '/_auth/$project/board': typeof AuthProjectBoardRouteWithChildren;
-  '/_auth/$project/settings': typeof AuthProjectSettingsRoute;
+  '/_auth/$project/settings': typeof AuthProjectSettingsRouteWithChildren;
   '/_auth/account/settings': typeof AuthAccountSettingsRoute;
   '/_auth/$project/': typeof AuthProjectIndexRoute;
   '/_auth/account/': typeof AuthAccountIndexRoute;
   '/_auth/$project/board/$taskId': typeof AuthProjectBoardTaskIdRoute;
+  '/_auth/$project/settings/labels': typeof AuthProjectSettingsLabelsRoute;
+  '/_auth/$project/settings/sprints': typeof AuthProjectSettingsSprintsRoute;
+  '/_auth/$project/settings/': typeof AuthProjectSettingsIndexRoute;
 }
 
 export interface FileRouteTypes {
@@ -298,7 +364,10 @@ export interface FileRouteTypes {
     | '/account/settings'
     | '/$project/'
     | '/account/'
-    | '/$project/board/$taskId';
+    | '/$project/board/$taskId'
+    | '/$project/settings/labels'
+    | '/$project/settings/sprints'
+    | '/$project/settings/';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
@@ -306,11 +375,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/$project/board'
-    | '/$project/settings'
     | '/account/settings'
     | '/$project'
     | '/account'
-    | '/$project/board/$taskId';
+    | '/$project/board/$taskId'
+    | '/$project/settings/labels'
+    | '/$project/settings/sprints'
+    | '/$project/settings';
   id:
     | '__root__'
     | '/'
@@ -324,7 +395,10 @@ export interface FileRouteTypes {
     | '/_auth/account/settings'
     | '/_auth/$project/'
     | '/_auth/account/'
-    | '/_auth/$project/board/$taskId';
+    | '/_auth/$project/board/$taskId'
+    | '/_auth/$project/settings/labels'
+    | '/_auth/$project/settings/sprints'
+    | '/_auth/$project/settings/';
   fileRoutesById: FileRoutesById;
 }
 
@@ -400,7 +474,12 @@ export const routeTree = rootRoute
     },
     "/_auth/$project/settings": {
       "filePath": "_auth.$project.settings.tsx",
-      "parent": "/_auth/$project"
+      "parent": "/_auth/$project",
+      "children": [
+        "/_auth/$project/settings/labels",
+        "/_auth/$project/settings/sprints",
+        "/_auth/$project/settings/"
+      ]
     },
     "/_auth/account/settings": {
       "filePath": "_auth.account.settings.tsx",
@@ -417,6 +496,18 @@ export const routeTree = rootRoute
     "/_auth/$project/board/$taskId": {
       "filePath": "_auth.$project.board.$taskId.tsx",
       "parent": "/_auth/$project/board"
+    },
+    "/_auth/$project/settings/labels": {
+      "filePath": "_auth.$project.settings.labels.tsx",
+      "parent": "/_auth/$project/settings"
+    },
+    "/_auth/$project/settings/sprints": {
+      "filePath": "_auth.$project.settings.sprints.tsx",
+      "parent": "/_auth/$project/settings"
+    },
+    "/_auth/$project/settings/": {
+      "filePath": "_auth.$project.settings.index.tsx",
+      "parent": "/_auth/$project/settings"
     }
   }
 }

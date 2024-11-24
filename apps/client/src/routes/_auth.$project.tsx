@@ -32,12 +32,7 @@ function ProjectLayout() {
             </Link>
           </li>
           <li>
-            <Link
-              to="/$project/settings"
-              params={{ project }}
-              activeOptions={{ exact: true }}
-              className="[&.active]:font-semibold"
-            >
+            <Link to="/$project/settings" params={{ project }} className="[&.active]:font-semibold">
               Settings
             </Link>
           </li>

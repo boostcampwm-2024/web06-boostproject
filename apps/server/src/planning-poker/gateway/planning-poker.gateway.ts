@@ -76,18 +76,17 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const { projectId } = payload;
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    const cardDetails = Array.from(projectCards.entries())
-      .filter(([userId, data]) => {
-        return data.card !== '';
-      })
-      .map(([userId, data]) => ({
-        userId,
-        card: data.card,
-      }));
-
-    if (cardDetails.length <= 0) {
+    const hasNonEmptyCards = Array.from(projectCards.entries()).some(
+      ([userId, data]) => data.card !== ''
+    );
+    if (!hasNonEmptyCards) {
       return;
     }
+
+    const cardDetails = Array.from(projectCards.entries()).map(([userId, data]) => ({
+      userId,
+      card: data.card,
+    }));
 
     this.server.to(projectId).emit('card_revealed', cardDetails);
   }

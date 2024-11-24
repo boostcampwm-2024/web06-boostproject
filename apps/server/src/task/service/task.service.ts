@@ -27,6 +27,8 @@ import { Sprint } from '@/project/entity/sprint.entity';
 import { Label } from '@/project/entity/label.entity';
 import { TaskLabel } from '@/task/domain/task-label.entity';
 import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
+import { TaskAssignee } from '@/task/domain/task-assignee.entity';
+import { AssigneeDetailsResponse } from '../dto/assignee-details-response.dto';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -249,6 +251,47 @@ export class TaskService {
       await queryRunner.release();
     }
     return { taskId, labels: labels.map((label) => new LabelDetailsResponse(label)) };
+  }
+
+  async updateAssignees(userId: number, taskId: number, assigneeIds: number[]) {
+    const task = await this.findTaskOrThrow(taskId);
+    await this.validateUserRole(userId, task.section.project.id);
+    let records = [];
+    if (assigneeIds.length !== 0) {
+      records = await this.contributorRepository
+        .createQueryBuilder('c')
+        .leftJoin('account', 'a', 'c.userId = a.id')
+        .where('c.projectId = :projectId', { projectId: task.section.project.id })
+        .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
+        .andWhere('c.userId IN (:...userIds)', { userIds: assigneeIds })
+        .addSelect(['a.username'])
+        .getRawMany();
+    }
+    if (records.length !== assigneeIds.length) {
+      throw new NotFoundException('Assignees not found');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.delete(TaskAssignee, { taskId });
+      for (let i = 0; i < assigneeIds.length; i += 1) {
+        await queryRunner.manager.save(TaskAssignee, { taskId, accountId: assigneeIds[i] });
+      }
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+    return {
+      taskId,
+      assignees: records.map(
+        (record) => new AssigneeDetailsResponse(record.c_userId, record.a_username, '')
+      ),
+    };
   }
 
   private async validateUserRole(userId: number, projectId: number) {

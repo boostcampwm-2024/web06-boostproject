@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, UseGuards } from '@nestjs/common';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 import { LabelService } from '@/project/service/label.service';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
@@ -12,7 +12,6 @@ export class LabelController {
   constructor(private labelService: LabelService) {}
 
   @Patch(':id')
-  @HttpCode(200)
   async update(
     @AuthUser() user: Account,
     @Param('id') id: number,
@@ -26,7 +25,6 @@ export class LabelController {
   }
 
   @Delete(':id')
-  @HttpCode(200)
   async delete(@AuthUser() user: Account, @Param('id') id: number) {
     await this.labelService.delete(user.id, id);
     return new BaseResponse(200, '라벨 삭제 완료했습니다.', {});

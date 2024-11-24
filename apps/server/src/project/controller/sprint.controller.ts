@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, UseGuards } from '@nestjs/common';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 import { SprintService } from '@/project/service/sprint.service';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
@@ -12,7 +12,6 @@ export class SprintController {
   constructor(private sprintService: SprintService) {}
 
   @Patch(':id')
-  @HttpCode(200)
   async update(
     @AuthUser() user: Account,
     @Param('id') id: number,
@@ -26,7 +25,6 @@ export class SprintController {
   }
 
   @Delete(':id')
-  @HttpCode(200)
   async delete(@AuthUser() user: Account, @Param('id') id: number) {
     await this.sprintService.delete(user.id, id);
     return new BaseResponse(200, '스프린트 삭제 완료했습니다.', {});

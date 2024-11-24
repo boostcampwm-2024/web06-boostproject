@@ -9,10 +9,16 @@ import { Task } from '@/task/domain/task.entity';
 import { ProjectsController } from '@/project/controller/projects.controller';
 import { Section } from '@/task/domain/section.entity';
 import { TaskModule } from '@/task/task.module';
+import { Sprint } from '@/project/entity/sprint.entity';
+import { SprintController } from '@/project/controller/sprint.controller';
+import { SprintService } from '@/project/service/sprint.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Project, Contributor, Account, Task, Section]), TaskModule],
-  controllers: [ProjectController, ProjectsController],
-  providers: [ProjectService],
+  imports: [
+    TypeOrmModule.forFeature([Project, Contributor, Account, Task, Section, Sprint]),
+    TaskModule,
+  ],
+  controllers: [ProjectController, ProjectsController, SprintController],
+  providers: [ProjectService, SprintService],
 })
 export class ProjectModule {}

@@ -23,6 +23,7 @@ import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
 import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
 import { UpdateTaskDetailsResponse } from '@/task/dto/update-task-details-response.dto';
+import { Sprint } from '@/project/entity/sprint.entity';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -39,6 +40,8 @@ export class TaskService {
     private sectionRepository: Repository<Section>,
     @InjectRepository(Contributor)
     private contributorRepository: Repository<Contributor>,
+    @InjectRepository(Sprint)
+    private sprintRepository: Repository<Sprint>,
     private broadcastService: BroadcastService,
     private eventEmitter: EventEmitter2
   ) {
@@ -181,7 +184,7 @@ export class TaskService {
   async updateDetails(userId: number, taskId: number, body: UpdateTaskDetailsRequest) {
     const task = await this.findTaskOrThrow(taskId);
     await this.validateUserRole(userId, task.section.project.id);
-    // required sprint id check
+    await this.validateSprint(body.sprintId, task.section.project.id);
     task.updateDetails(body);
     this.taskRepository.save(task);
     return new UpdateTaskDetailsResponse(task.id, body);
@@ -217,6 +220,19 @@ export class TaskService {
     const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
     if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
       throw new ForbiddenException('Permission denied');
+    }
+  }
+
+  private async validateSprint(sprintId: number, projectId: number) {
+    if (!sprintId) {
+      return;
+    }
+    const sprint = await this.sprintRepository.findOneBy({ id: sprintId });
+    if (!sprint) {
+      throw new NotFoundException('Sprint not found');
+    }
+    if (sprint.projectId !== projectId) {
+      throw new BadRequestException('Invalid sprint id');
     }
   }
 

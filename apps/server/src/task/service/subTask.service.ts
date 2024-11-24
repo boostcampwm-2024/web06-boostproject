@@ -29,23 +29,17 @@ export class SubTaskService {
     return new CreateSubTaskResponse(subTask);
   }
 
-  async update(
-    userId: number,
-    subTaskId: number,
-    taskId: number,
-    content: string,
-    completed: boolean
-  ) {
-    await this.validateUserRole(userId, taskId);
+  async update(userId: number, subTaskId: number, content: string, completed: boolean) {
     const subTask = await this.findSubTaskOrThrow(subTaskId);
+    await this.validateUserRole(userId, subTask.taskId);
     subTask.update(content, completed);
     await this.subTaskRepository.save(subTask);
     return new CreateSubTaskResponse(subTask);
   }
 
-  async delete(userId: number, subTaskId: number, taskId: number) {
-    await this.validateUserRole(userId, taskId);
+  async delete(userId: number, subTaskId: number) {
     const subTask = await this.findSubTaskOrThrow(subTaskId);
+    await this.validateUserRole(userId, subTask.taskId);
     await this.subTaskRepository.delete(subTask.id);
   }
 

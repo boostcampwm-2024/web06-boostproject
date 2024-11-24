@@ -21,6 +21,8 @@ import { Contributor } from '@/project/entity/contributor.entity';
 import { BroadcastService } from '@/task/service/broadcast.service';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
+import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
+import { UpdateTaskDetailsResponse } from '@/task/dto/update-task-details-response.dto';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -57,10 +59,7 @@ export class TaskService {
 
   async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
     const { taskId } = taskEvent;
-    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
-    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.validateUserRole(userId, projectId);
     const currentEvents = this.operations.get(taskId) || [];
     this.operations.set(taskId, [...currentEvents, taskEvent]);
     this.eventEmitter.emit('operationAdded', userId, projectId, taskId);
@@ -112,10 +111,7 @@ export class TaskService {
   }
 
   async create(userId: number, projectId: number, taskEvent: TaskEvent) {
-    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
-    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.validateUserRole(userId, projectId);
     if (!taskEvent.sectionId) {
       throw new BadRequestException('Required section id');
     }
@@ -133,10 +129,7 @@ export class TaskService {
   }
 
   async getAll(userId: number, projectId: number) {
-    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
-    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.validateUserRole(userId, projectId);
     const sections = await this.sectionRepository.find({
       where: { project: { id: projectId } },
       order: { id: 'ASC' },
@@ -163,10 +156,7 @@ export class TaskService {
   }
 
   async move(userId: number, projectId: number, taskEvent: TaskEvent) {
-    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
-    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.validateUserRole(userId, projectId);
     if (!taskEvent.taskId || !taskEvent.sectionId || !taskEvent.position) {
       throw new BadRequestException('Required section id');
     }
@@ -188,23 +178,23 @@ export class TaskService {
     return new MoveTaskResponse(task);
   }
 
+  async updateDetails(userId: number, taskId: number, body: UpdateTaskDetailsRequest) {
+    const task = await this.findTaskOrThrow(taskId);
+    await this.validateUserRole(userId, task.section.project.id);
+    // required sprint id check
+    task.updateDetails(body);
+    this.taskRepository.save(task);
+    return new UpdateTaskDetailsResponse(task.id, body);
+  }
+
   async get(userId: number, taskId: number) {
     const task = await this.findTaskOrThrow(taskId);
-    const contributor = await this.contributorRepository.findOneBy({
-      userId,
-      projectId: task.section.project.id,
-    });
-    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.validateUserRole(userId, task.section.project.id);
     return new TaskResponse(task);
   }
 
   async delete(userId: number, projectId: number, taskEvent: TaskEvent) {
-    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
-    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
-      throw new ForbiddenException('Permission denied');
-    }
+    await this.validateUserRole(userId, projectId);
     if (!taskEvent.taskId) {
       throw new BadRequestException('Required section id');
     }
@@ -221,6 +211,13 @@ export class TaskService {
       TaskEventResponse.of(taskEvent.taskId, 'CARD')
     );
     return new DeleteTaskResponse(taskEvent.taskId);
+  }
+
+  private async validateUserRole(userId: number, projectId: number) {
+    const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
+    if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
+      throw new ForbiddenException('Permission denied');
+    }
   }
 
   private async findTaskOrThrow(id: number) {

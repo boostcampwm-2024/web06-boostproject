@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Sprint } from '@/project/entity/sprint.entity';
 import { Contributor } from '@/project/entity/contributor.entity';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
@@ -20,7 +20,8 @@ export class SprintService {
     @InjectRepository(Contributor)
     private contributorRepository: Repository<Contributor>,
     @InjectRepository(Task)
-    private taskRepository: Repository<Task>
+    private taskRepository: Repository<Task>,
+    private dataSource: DataSource
   ) {}
 
   async create(
@@ -32,6 +33,7 @@ export class SprintService {
   ) {
     await this.validateUserRole(userId, projectId);
     this.validateDuration(startDate, endDate);
+    await this.validateDuplication(projectId, title, null);
     const sprint = await this.sprintRepository.save({
       projectId,
       title,
@@ -51,6 +53,7 @@ export class SprintService {
     const sprint = await this.findSprintOrThrow(sprintId);
     await this.validateUserRole(userId, sprint.projectId);
     this.validateDuration(startDate, endDate);
+    await this.validateDuplication(sprint.projectId, title, sprintId);
     sprint.update(title, startDate, endDate);
     await this.sprintRepository.save(sprint);
     return new SprintDetailsResponse(sprint);
@@ -59,8 +62,20 @@ export class SprintService {
   async delete(userId: number, sprintId: number) {
     const sprint = await this.findSprintOrThrow(sprintId);
     await this.validateUserRole(userId, sprint.projectId);
-    await this.taskRepository.update({ sprintId }, { sprintId: null });
-    await this.sprintRepository.delete(sprint.id);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.update(Task, { sprintId }, { sprintId: null });
+      await queryRunner.manager.delete(Sprint, { id: sprint.id });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async getAll(userId: number, projectId: number) {
@@ -81,6 +96,19 @@ export class SprintService {
     const contributor = await this.contributorRepository.findOneBy({ projectId, userId });
     if (!contributor || contributor.status !== ContributorStatus.ACCEPTED) {
       throw new ForbiddenException('Permission denied');
+    }
+  }
+
+  private async validateDuplication(projectId: number, title: string, id: number) {
+    const duplication = await this.sprintRepository
+      .createQueryBuilder('sprint')
+      .where('sprint.projectId = :projectId', { projectId })
+      .andWhere('sprint.title = :title', { title })
+      .andWhere('(:id IS NULL OR sprint.id != :id)', { id })
+      .getRawOne();
+
+    if (duplication) {
+      throw new BadRequestException('Already used sprint name');
     }
   }
 

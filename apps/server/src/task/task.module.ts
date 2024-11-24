@@ -12,9 +12,22 @@ import { SubTask } from '@/task/domain/subTask.entity';
 import { SubTaskService } from '@/task/service/subTask.service';
 import { SubTaskController } from '@/task/controller/subTask.controller';
 import { Sprint } from '@/project/entity/sprint.entity';
+import { TaskLabel } from '@/task/domain/task-label.entity';
+import { Label } from '@/project/entity/label.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, Section, Project, Contributor, SubTask, Sprint])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Task,
+      Section,
+      Project,
+      Contributor,
+      SubTask,
+      Sprint,
+      Label,
+      TaskLabel,
+    ]),
+  ],
   controllers: [TaskController, EventController, SubTaskController],
   providers: [TaskService, BroadcastService, SubTaskService],
   exports: [TaskService],

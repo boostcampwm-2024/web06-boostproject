@@ -106,7 +106,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   private broadcastToOthers(client: Socket, event: string, data?: any) {
     const room = Array.from(client.rooms).find((r) => r !== client.id);
     if (room) {
-      this.server.to(room).emit(event, data);
+      client.to(room).emit(event, data);
     }
   }
 }

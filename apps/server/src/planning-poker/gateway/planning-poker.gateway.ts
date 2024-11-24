@@ -32,8 +32,8 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
       username: data.username,
     }));
 
-    client.emit('user_updated', userDetails);
-    this.server.to(projectId).emit('user_joined', { userId: id, username });
+    client.emit('users_fetched', userDetails);
+    this.broadcastToOthers(client, 'user_joined', { userId: id, username });
   }
 
   handleDisconnect(client: Socket) {
@@ -71,6 +71,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     this.broadcastToOthers(client, 'card_selected', { userId });
   }
 
+  // TO DO: 1명이라도 선택한 카드가 있을 때만 리벨 카드 가능하도록 수정
   @SubscribeMessage('reveal_card')
   handleRevealCard(client: Socket, payload: { projectId: string }) {
     const { projectId } = payload;

@@ -13,7 +13,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
-  selectedCards: Map<string, Map<number, string>> = new Map();
+  selectedCards: Map<string, Map<number, { username: string; card: string }>> = new Map();
 
   handleConnection(client: Socket) {
     const projectId = client.handshake.auth.projectId;
@@ -22,10 +22,18 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     if (!this.selectedCards.has(projectId)) {
       this.selectedCards.set(projectId, new Map());
     }
-    this.selectedCards.get(projectId).set(id, '');
+    this.selectedCards.get(projectId).set(id, { username, card: '' });
 
     client.join(projectId);
-    this.server.to(projectId).emit('user_joined', { id, username });
+
+    const projectCards = this.getProjectCardsOrThrow(projectId);
+    const userDetails = Array.from(projectCards.entries()).map(([userId, data]) => ({
+      userId,
+      username: data.username,
+    }));
+
+    client.emit('user_updated', userDetails);
+    this.server.to(projectId).emit('user_joined', { userId: id, username });
   }
 
   handleDisconnect(client: Socket) {
@@ -56,9 +64,9 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const { projectId, card } = payload;
     const userId = client.data.user.id;
 
-    const projectCardMap = this.getProjectCardsOrThrow(projectId);
+    const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    projectCardMap.set(userId, card);
+    projectCards.get(userId).card = card;
 
     this.broadcastToOthers(client, 'card_selected', { userId });
   }
@@ -81,8 +89,8 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const { projectId } = payload;
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    projectCards.forEach((_, userId) => {
-      projectCards.set(userId, '');
+    projectCards.forEach((userDetail, userId) => {
+      projectCards.set(userId, { ...userDetail, card: '' });
     });
 
     this.broadcastToOthers(client, 'card_reset');

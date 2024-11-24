@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  HttpCode,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
@@ -20,15 +10,6 @@ import { UpdateSubTaskRequest } from '@/task/dto/update-subTask-request.dto';
 @Controller('subtask')
 export class SubTaskController {
   constructor(private subTaskService: SubTaskService) {}
-
-  @Post()
-  async create(@AuthUser() user: Account, @Query('taskId') taskId: number) {
-    return new BaseResponse(
-      201,
-      '서브 태스크 생성 완료했습니다.',
-      await this.subTaskService.create(user.id, taskId)
-    );
-  }
 
   @Patch(':id')
   @HttpCode(200)

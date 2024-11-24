@@ -132,7 +132,6 @@ export class ProjectController {
   }
 
   @Get(':id/sprints')
-  @HttpCode(200)
   async getSprints(@AuthUser() user: Account, @Param('id') id: number) {
     return new BaseResponse(
       200,
@@ -155,7 +154,6 @@ export class ProjectController {
   }
 
   @Get(':id/labels')
-  @HttpCode(200)
   async getLabels(@AuthUser() user: Account, @Param('id') id: number) {
     return new BaseResponse(
       200,

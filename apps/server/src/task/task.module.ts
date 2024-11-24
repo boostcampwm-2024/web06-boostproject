@@ -14,6 +14,7 @@ import { SubTaskController } from '@/task/controller/subTask.controller';
 import { Sprint } from '@/project/entity/sprint.entity';
 import { TaskLabel } from '@/task/domain/task-label.entity';
 import { Label } from '@/project/entity/label.entity';
+import { TaskAssignee } from '@/task/domain/task-assignee.entity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { Label } from '@/project/entity/label.entity';
       Sprint,
       Label,
       TaskLabel,
+      TaskAssignee,
     ]),
   ],
   controllers: [TaskController, EventController, SubTaskController],

@@ -10,6 +10,7 @@ import { SubTask } from '@/task/domain/subTask.entity';
 import { Sprint } from '@/project/entity/sprint.entity';
 import { Label } from '@/project/entity/label.entity';
 import { TaskLabel } from '@/task/domain/task-label.entity';
+import { TaskAssignee } from '@/task/domain/task-assignee.entity';
 
 @Injectable()
 export class TypeormConfig implements TypeOrmOptionsFactory {
@@ -23,7 +24,18 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('DATABASE_USER'),
       password: this.configService.get<string>('DATABASE_PASSWORD'),
       database: this.configService.get<string>('DATABASE_NAME'),
-      entities: [Task, Section, Account, Project, Contributor, SubTask, Sprint, Label, TaskLabel],
+      entities: [
+        Task,
+        Section,
+        Account,
+        Project,
+        Contributor,
+        SubTask,
+        Sprint,
+        Label,
+        TaskLabel,
+        TaskAssignee,
+      ],
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,

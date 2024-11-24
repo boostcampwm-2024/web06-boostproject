@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { TaskService } from '@/task/service/task.service';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
@@ -19,6 +8,7 @@ import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request
 import { SubTaskService } from '@/task/service/subTask.service';
 import { CreateSubTaskRequest } from '@/task/dto/create-subTask-request.dto';
 import { UpdateLabelsRequest } from '@/task/dto/update-labels-request.dto';
+import { UpdateAssigneesRequest } from '@/task/dto/update-assignees-request.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('task')
@@ -29,20 +19,29 @@ export class TaskController {
   ) {}
 
   @Get()
+<<<<<<< HEAD
   @ResponseMessage('태스크 목록이 정상적으로 조회되었습니다.')
   @HttpCode(200)
+=======
+>>>>>>> 110fae3 (feat: 태스크 담당자 설정 기능 구현)
   async getAll(@AuthUser() user: Account, @Query('projectId') projectId: number) {
     return await this.taskService.getAll(user.id, projectId);
   }
 
   @Get(':id')
+<<<<<<< HEAD
   @ResponseMessage('태스크가 정상적으로 조회되었습니다.')
+=======
+>>>>>>> 110fae3 (feat: 태스크 담당자 설정 기능 구현)
   async get(@AuthUser() user: Account, @Param('id') id: number) {
     return await this.taskService.get(user.id, id);
   }
 
   @Patch(':id')
+<<<<<<< HEAD
   @ResponseMessage('태스크 상세 정보 수정 완료했습니다.')
+=======
+>>>>>>> 110fae3 (feat: 태스크 담당자 설정 기능 구현)
   async updateDetails(
     @AuthUser() user: Account,
     @Param('id') id: number,
@@ -71,6 +70,19 @@ export class TaskController {
       200,
       '태스크 라벨 수정 완료했습니다.',
       await this.taskService.updateLabels(user.id, id, body.labels)
+    );
+  }
+
+  @Put(':id/assignees')
+  async updateAssignees(
+    @AuthUser() user: Account,
+    @Param('id') id: number,
+    @Body() body: UpdateAssigneesRequest
+  ) {
+    return new BaseResponse(
+      200,
+      '태스크 담당자 수정 완료했습니다.',
+      await this.taskService.updateAssignees(user.id, id, body.assignees)
     );
   }
 }

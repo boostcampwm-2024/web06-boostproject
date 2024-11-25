@@ -403,7 +403,6 @@ export default function KanbanBoard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      ;
     </div>
   );
 }

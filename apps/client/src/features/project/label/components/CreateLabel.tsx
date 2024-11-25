@@ -10,9 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card.tsx';
+
 import { ColorInput } from '@/features/project/label/components/ColorInput.tsx';
 import { generateRandomColor } from '@/features/project/label/generateRandomColor.ts';
-import { formSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
+import { labelFormSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
 
 interface CreateLabelProps {
   onCreate: (data: LabelFormValues) => void;
@@ -20,7 +21,7 @@ interface CreateLabelProps {
 
 export function CreateLabel({ onCreate }: CreateLabelProps) {
   const createForm = useForm<LabelFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(labelFormSchema),
     defaultValues: {
       name: '',
       description: '',

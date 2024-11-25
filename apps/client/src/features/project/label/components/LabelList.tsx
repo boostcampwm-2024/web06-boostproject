@@ -14,7 +14,7 @@ import {
 import { ColorInput } from '@/features/project/label/components/ColorInput.tsx';
 import { Label } from '@/details/types.tsx';
 import { generateRandomColor } from '@/features/project/label/generateRandomColor.ts';
-import { formSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
+import { labelFormSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
 
 interface LabelListProps {
   labels: Label[];
@@ -26,7 +26,7 @@ export function LabelList({ labels, onUpdate, onDelete }: LabelListProps) {
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const editForm = useForm<LabelFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(labelFormSchema),
   });
 
   const startEditing = (label: Label) => {

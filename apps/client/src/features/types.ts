@@ -4,6 +4,13 @@ export interface BaseResponse<T = void> {
   result: T extends void ? never : T;
 }
 
+export type User = {
+  id: number;
+  username: string;
+  role: string;
+  avatar?: string; // or imageUrl
+};
+
 export type Sprint = {
   id: number;
   name: string;
@@ -18,8 +25,4 @@ export type Label = {
   color: string;
 };
 
-export type Assignee = {
-  id: number;
-  username: string;
-  avatar: string; // or imageUrl
-};
+export type Assignee = User;

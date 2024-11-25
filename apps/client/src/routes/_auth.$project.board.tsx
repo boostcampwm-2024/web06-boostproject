@@ -1,16 +1,14 @@
-import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
 import Board from '@/pages/Board.tsx';
 import { TasksResponse } from '@/components/KanbanBoard.tsx';
+import { axiosInstance } from '@/lib/axios.ts';
 
 export const Route = createFileRoute('/_auth/$project/board')({
-  loader: ({ context: { auth, queryClient }, params: { project: projectId } }) => {
+  loader: ({ context: { queryClient }, params: { project: projectId } }) => {
     queryClient.ensureQueryData({
       queryKey: ['tasks', projectId],
       queryFn: async () => {
-        const response = await axios.get<TasksResponse>(`/api/task?projectId=${projectId}`, {
-          headers: { Authorization: `Bearer ${auth.accessToken}` },
-        });
+        const response = await axiosInstance.get<TasksResponse>(`/task?projectId=${projectId}`);
 
         return response.data.result;
       },

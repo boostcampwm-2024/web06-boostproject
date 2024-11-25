@@ -1,4 +1,4 @@
-import { BaseResponse } from '@/features/types.ts';
+import { BaseResponse, Label } from '@/features/types.ts';
 
 export type User = {
   id: number;
@@ -13,13 +13,6 @@ export type Member = Omit<User, 'avatar'> & {
 export type Assignee = User;
 
 export type GetMembersResult = BaseResponse<User[]>;
-
-export type Label = {
-  id: number;
-  name: string;
-  description: string;
-  color: string;
-};
 
 export interface GetLabelsResult {
   labels: Label[];

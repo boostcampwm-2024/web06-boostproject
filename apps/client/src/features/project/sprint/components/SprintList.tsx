@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { sprintFormSchema, SprintFormValues } from '@/features/project/sprint/sprintSchema.ts';
-import { Sprint } from '@/details/types.tsx';
 import { getStatusColor } from '@/features/project/sprint/getStatusColor.ts';
 import { getSprintStatus } from '@/features/project/sprint/getSprintStatus.ts';
+import { Sprint } from '@/features/types.ts';
 
 interface ProjectSprintManagerProps {
   sprints: Sprint[];

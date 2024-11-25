@@ -10,7 +10,7 @@ export const Route = createFileRoute('/_auth/$project/settings/')({
       queryFn: async () => {
         try {
           const members = await axiosInstance.get<GetProjectMembersResponseDTO>(
-            `/api/project/${project}/members`
+            `/project/${project}/members`
           );
           return members.data.result;
         } catch {

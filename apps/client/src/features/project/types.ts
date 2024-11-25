@@ -1,10 +1,8 @@
 import { BaseResponse, Label, User } from '@/features/types.ts';
 
-export type GetMembersResult = BaseResponse<User[]>;
+export type GetMembersResponse = BaseResponse<User[]>;
 
-export interface GetLabelsResult {
-  labels: Label[];
-}
+export type GetLabelsResponse = BaseResponse<Label[]>;
 
 export interface CreateLabelDto {
   name: string;

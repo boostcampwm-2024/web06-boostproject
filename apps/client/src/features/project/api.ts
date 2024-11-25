@@ -13,18 +13,14 @@ import {
 export const projectAPI = {
   // members
   getMembers: async (projectId: number) => {
-    const { data } = await axiosInstance.get<BaseResponse<GetMembersResult>>(
-      `/project/${projectId}/members`
-    );
+    const { data } = await axiosInstance.get<GetMembersResult>(`/project/${projectId}/members`);
 
     return data;
   },
 
   // labels
   getLabels: async (projectId: number) => {
-    const { data } = await axiosInstance.get<BaseResponse<GetLabelsResult>>(
-      `/project/${projectId}/labels`
-    );
+    const { data } = await axiosInstance.get<GetLabelsResult>(`/project/${projectId}/labels`);
 
     return data;
   },

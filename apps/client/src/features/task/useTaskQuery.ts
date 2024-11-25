@@ -9,5 +9,6 @@ export const useTaskQuery = (taskId: number) => {
 
       return result;
     },
+    retry: 0,
   });
 };

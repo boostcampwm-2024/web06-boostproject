@@ -5,15 +5,17 @@ import { projectAPI } from '@/features/project/api.ts';
 export const useSprintMutations = (projectId: number) => {
   const queryClient = useQueryClient();
 
+  const invalidateSprints = () => {
+    queryClient.invalidateQueries({
+      queryKey: ['sprints', projectId],
+    });
+  };
+
   return {
     create: useMutation({
       mutationFn: (createSprintDto: CreateSprintDto) =>
         projectAPI.createSprint(projectId, createSprintDto),
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['sprints', projectId],
-        });
-      },
+      onSuccess: invalidateSprints,
     }),
 
     update: useMutation({
@@ -24,20 +26,12 @@ export const useSprintMutations = (projectId: number) => {
         sprintId: number;
         updateSprintDto: UpdateSprintDto;
       }) => projectAPI.updateSprint(sprintId, updateSprintDto),
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['sprints', projectId],
-        });
-      },
+      onSuccess: invalidateSprints,
     }),
 
     delete: useMutation({
       mutationFn: (sprintId: number) => projectAPI.deleteSprint(sprintId),
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['sprints', projectId],
-        });
-      },
+      onSuccess: invalidateSprints,
     }),
   };
 };

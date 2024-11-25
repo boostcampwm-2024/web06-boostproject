@@ -13,24 +13,32 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
-  selectedCards: Map<string, Map<number, { username: string; card: string }>> = new Map();
+  selectedCards: Map<
+    string,
+    { isRevealed: boolean; users: Map<number, { username: string; card: string }> }
+  > = new Map();
 
   handleConnection(client: Socket) {
     const projectId = client.handshake.auth.projectId;
     const { id, username } = client.data.user;
 
     if (!this.selectedCards.has(projectId)) {
-      this.selectedCards.set(projectId, new Map());
+      this.selectedCards.set(projectId, { isRevealed: false, users: new Map() });
     }
-    this.selectedCards.get(projectId).set(id, { username, card: '' });
+    this.selectedCards.get(projectId).users.set(id, { username, card: '' });
 
     client.join(projectId);
 
     const projectCards = this.getProjectCardsOrThrow(projectId);
-    const userDetails = Array.from(projectCards.entries()).map(([userId, data]) => ({
-      userId,
-      username: data.username,
-    }));
+
+    const userDetails = {
+      isRevealed: projectCards.isRevealed,
+      users: Array.from(projectCards.users.entries()).map(([userId, { username, card }]) => ({
+        userId,
+        username,
+        card: projectCards.isRevealed ? card : card === '' ? '' : 'SELECTED',
+      })),
+    };
 
     client.emit('users_fetched', userDetails);
     this.broadcastToOthers(client, 'user_joined', { userId: id, username });
@@ -39,7 +47,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   handleDisconnect(client: Socket) {
     const userId = client.data.user.id;
     const projectId = Array.from(this.selectedCards.entries()).find(([_, projectCards]) =>
-      projectCards.has(userId)
+      projectCards.users.has(userId)
     )?.[0];
 
     if (!projectId) {
@@ -49,7 +57,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     this.server.to(projectId).emit('user_left', { userId });
 
     this.selectedCards.forEach((projectCards) => {
-      projectCards.delete(userId);
+      projectCards.users.delete(userId);
     });
   }
 
@@ -60,7 +68,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
 
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    projectCards.get(userId).card = card;
+    projectCards.users.get(userId).card = card;
 
     this.broadcastToOthers(client, 'card_selected', { userId });
   }
@@ -70,14 +78,16 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const { projectId } = payload;
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    const hasNonEmptyCards = Array.from(projectCards.entries()).some(
+    const hasNonEmptyCards = Array.from(projectCards.users.entries()).some(
       ([userId, data]) => data.card !== ''
     );
     if (!hasNonEmptyCards) {
       return;
     }
 
-    const cardDetails = Array.from(projectCards.entries()).map(([userId, data]) => ({
+    projectCards.isRevealed = true;
+
+    const cardDetails = Array.from(projectCards.users.entries()).map(([userId, data]) => ({
       userId,
       card: data.card,
     }));
@@ -90,8 +100,8 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const { projectId } = payload;
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
-    projectCards.forEach((userDetail, userId) => {
-      projectCards.set(userId, { ...userDetail, card: '' });
+    projectCards.users.forEach((userDetail, userId) => {
+      projectCards.users.set(userId, { ...userDetail, card: '' });
     });
 
     this.broadcastToOthers(client, 'card_reset');

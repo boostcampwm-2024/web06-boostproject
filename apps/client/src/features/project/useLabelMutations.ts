@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CreateLabelDto, UpdateLabelDto } from '@/features/project/types.ts';
 import { projectAPI } from '@/features/project/api.ts';
+import { CreateLabelDto, UpdateLabelDto } from '@/features/project/types.ts';
 
 export const useLabelMutations = (projectId: number) => {
   const queryCleint = useQueryClient();

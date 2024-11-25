@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CreateSprintDto, UpdateSprintDto } from '@/features/project/types.ts';
 import { projectAPI } from '@/features/project/api.ts';
+import { CreateSprintDto, UpdateSprintDto } from '@/features/project/types.ts';
 
 export const useSprintMutations = (projectId: number) => {
   const queryClient = useQueryClient();

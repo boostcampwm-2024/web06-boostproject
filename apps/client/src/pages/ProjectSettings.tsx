@@ -5,11 +5,11 @@ import { z } from 'zod';
 import { UserPlus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@/contexts/authContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { GetProjectMembersResponseDTO, InviteProjectMemberRequestDTO } from '@/types/project';
+import { axiosInstance } from '@/lib/axios.ts';
 
 const formSchema = z.object({
   username: z
@@ -19,7 +19,6 @@ const formSchema = z.object({
 });
 
 function ProjectSettings() {
-  const auth = useAuth();
   const queryClient = useQueryClient();
   const { project } = useParams({ from: '/_auth/$project/settings' });
 
@@ -27,14 +26,8 @@ function ProjectSettings() {
     queryKey: ['project', project, 'members'],
     queryFn: async () => {
       try {
-        const members = await axios.get<GetProjectMembersResponseDTO>(
-          `/api/project/${project}/members`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${auth.accessToken}`,
-            },
-          }
+        const members = await axiosInstance.get<GetProjectMembersResponseDTO>(
+          `/project/${project}/members`
         );
         return members.data.result;
       } catch {
@@ -45,12 +38,7 @@ function ProjectSettings() {
 
   const { isPending, mutate } = useMutation({
     mutationFn: async (data: InviteProjectMemberRequestDTO) => {
-      await axios.post(`/api/project/${project}/invite`, data, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      });
+      await axios.post(`/project/${project}/invite`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', project, 'members'] });

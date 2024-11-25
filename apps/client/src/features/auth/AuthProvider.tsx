@@ -1,6 +1,5 @@
 import { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
 
 import { ENV } from '@/config/env';
 import {
@@ -44,7 +43,6 @@ const getStoredState = () => {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>(getStoredState());
 
   useEffect(() => {
@@ -56,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return authAPI.register(registerRequestDto);
     },
     onSuccess: () => {
-      navigate({ to: '/login' });
+      window.location.href = '/login';
     },
   });
 
@@ -83,16 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.clear();
     },
   });
-
-  useEffect(() => {
-    if (authState.isAuthenticated) {
-      navigate({ to: '/account' });
-    }
-
-    if (!authState.isAuthenticated) {
-      navigate({ to: '/login' });
-    }
-  }, [authState.isAuthenticated, navigate]);
 
   const value = useMemo(
     () => ({

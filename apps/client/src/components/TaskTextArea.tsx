@@ -1,8 +1,7 @@
 import { ChangeEvent, CompositionEvent, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { useParams } from '@tanstack/react-router';
-import { useAuth } from '@/contexts/authContext.tsx';
+import { axiosInstance } from '@/lib/axios.ts';
 
 type TextDiff = {
   position: number;
@@ -21,7 +20,6 @@ export default function TaskTextArea({
   const [isComposing, setIsComposing] = useState(false);
   const prevTitleRef = useRef(initialTitle);
   const { project: projectId } = useParams({ from: '/_auth/$project/board' });
-  const { accessToken } = useAuth();
 
   useEffect(() => {
     if (initialTitle !== prevTitleRef.current) {
@@ -33,16 +31,14 @@ export default function TaskTextArea({
   const { data: updatedTitle } = useQuery({
     queryKey: ['task-detail', taskId],
     queryFn: async () => {
-      const response = await axios.get<{
+      const response = await axiosInstance.get<{
         status: number;
         message: string;
         result: {
           id: number;
           title: string;
         };
-      }>(`/api/task/${taskId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      }>(`/task/${taskId}`);
 
       return response.data.result.title;
     },
@@ -68,9 +64,7 @@ export default function TaskTextArea({
         },
       };
 
-      return axios.post(`/api/project/${projectId}/update`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      return axiosInstance.post(`/project/${projectId}/update`, payload);
     },
   });
 

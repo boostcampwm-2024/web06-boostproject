@@ -9,9 +9,8 @@ export const Route = createFileRoute('/_auth/account/settings')({
       queryKey: ['project', 'invitations'],
       queryFn: async () => {
         try {
-          const invitations = await axiosInstance.get<GetProjectInvitationsResponseDTO>(
-            '/api/project/invitations'
-          );
+          const invitations =
+            await axiosInstance.get<GetProjectInvitationsResponseDTO>('/project/invitations');
           return invitations.data.result;
         } catch {
           throw new Error('Failed to fetch invitations');

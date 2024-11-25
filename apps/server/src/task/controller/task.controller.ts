@@ -9,6 +9,7 @@ import { SubTaskService } from '@/task/service/subTask.service';
 import { CreateSubTaskRequest } from '@/task/dto/create-subTask-request.dto';
 import { UpdateLabelsRequest } from '@/task/dto/update-labels-request.dto';
 import { UpdateAssigneesRequest } from '@/task/dto/update-assignees-request.dto';
+import { ResponseStatus } from '@/common/decorator/response-status.decorator';
 
 @UseGuards(AccessTokenGuard)
 @Controller('task')
@@ -41,6 +42,7 @@ export class TaskController {
   }
 
   @Post(':id/subtask')
+  @ResponseStatus(201)
   @ResponseMessage('서브 태스크 생성 완료했습니다.')
   async create(
     @AuthUser() user: Account,

@@ -23,6 +23,7 @@ import { SprintService } from '@/project/service/sprint.service';
 import { SprintDetailsRequest } from '@/project/dto/sprint-details-request.dto';
 import { LabelService } from '@/project/service/label.service';
 import { LabelDetailsRequest } from '@/project/dto/label-details-request.dto';
+import { ResponseStatus } from '@/common/decorator/response-status.decorator';
 
 @UseGuards(AccessTokenGuard)
 @Controller('project')
@@ -53,6 +54,7 @@ export class ProjectController {
   }
 
   @Post()
+  @ResponseStatus(201)
   @ResponseMessage('프로젝트 생성이 성공했습니다.')
   async create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
     return this.projectService.create(user.id, body.title);
@@ -133,6 +135,7 @@ export class ProjectController {
   }
 
   @Post(':id/label')
+  @ResponseStatus(201)
   @ResponseMessage('라벨 생성 완료했습니다.')
   async createLabel(
     @AuthUser() user: Account,

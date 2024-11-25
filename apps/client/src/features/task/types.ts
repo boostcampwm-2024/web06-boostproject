@@ -3,9 +3,9 @@ import { Assignee, Label, Sprint } from '@/features/types.ts';
 
 export interface UpdateTaskDto {
   description?: string;
-  priority?: number;
-  sprintId?: number;
-  estimate?: number;
+  priority?: number | null;
+  sprintId?: number | null;
+  estimate?: number | null;
 }
 
 export interface DetailedTask {

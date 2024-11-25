@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 import Board from '@/pages/Board.tsx';
 import { TasksResponse } from '@/components/KanbanBoard.tsx';
 import { axiosInstance } from '@/lib/axios.ts';
@@ -17,5 +17,10 @@ export const Route = createFileRoute('/_auth/$project/board')({
   onError: (error) => {
     console.error(error);
   },
-  component: Board,
+  component: () => (
+    <>
+      <Board />
+      <Outlet />
+    </>
+  ),
 });

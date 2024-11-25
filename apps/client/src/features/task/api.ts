@@ -15,17 +15,17 @@ export const taskAPI = {
     return data;
   },
 
-  updateAssignees: async (taskId: number, userIds: number[] = []) => {
+  updateAssignees: async (taskId: number, assignees: number[] = []) => {
     const { data } = await axiosInstance.put<BaseResponse>(`/task/${taskId}/assignees`, {
-      userIds,
+      assignees,
     });
 
     return data;
   },
 
-  updateLabels: async (taskId: number, labelIds: number[] = []) => {
+  updateLabels: async (taskId: number, labels: number[] = []) => {
     const { data } = await axiosInstance.put<BaseResponse>(`/task/${taskId}/labels`, {
-      labelIds,
+      labels,
     });
 
     return data;

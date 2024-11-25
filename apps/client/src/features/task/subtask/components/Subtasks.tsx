@@ -33,8 +33,8 @@ export function Subtasks({ initialSubtasks = [] }: SubtasksProps) {
   });
 
   const deleteMutation = deleteSubtask({
-    onSuccess: (deletedSubtask: Subtask) => {
-      setSubtasks((prev) => prev.filter((subtask) => subtask.id !== deletedSubtask.id));
+    onSuccess: (_, subtaskId) => {
+      setSubtasks((prev) => prev.filter((subtask) => subtask.id !== subtaskId));
     },
   });
 

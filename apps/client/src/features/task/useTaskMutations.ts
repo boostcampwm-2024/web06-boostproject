@@ -17,27 +17,27 @@ export const useTaskMutations = (taskId: number) => {
     }),
 
     updatePriority: useMutation({
-      mutationFn: (priority?: number) => taskAPI.update(taskId, { priority }),
+      mutationFn: (priority?: number) => taskAPI.update(taskId, { priority: priority ?? null }),
       onSuccess: invalidateTask,
     }),
 
     updateSprint: useMutation({
-      mutationFn: (sprintId?: number) => taskAPI.update(taskId, { sprintId }),
+      mutationFn: (sprintId?: number) => taskAPI.update(taskId, { sprintId: sprintId ?? null }),
       onSuccess: invalidateTask,
     }),
 
     updateEstimate: useMutation({
-      mutationFn: (estimate?: number) => taskAPI.update(taskId, { estimate }),
+      mutationFn: (estimate?: number) => taskAPI.update(taskId, { estimate: estimate ?? null }),
       onSuccess: invalidateTask,
     }),
 
     updateAssignees: useMutation({
-      mutationFn: (userIds?: number[]) => taskAPI.updateAssignees(taskId, userIds),
+      mutationFn: (assignees?: number[]) => taskAPI.updateAssignees(taskId, assignees),
       onSuccess: invalidateTask,
     }),
 
     updateLabels: useMutation({
-      mutationFn: (labelIds?: number[]) => taskAPI.updateLabels(taskId, labelIds),
+      mutationFn: (labels?: number[]) => taskAPI.updateLabels(taskId, labels),
       onSuccess: invalidateTask,
     }),
   };

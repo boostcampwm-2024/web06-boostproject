@@ -31,6 +31,12 @@ export class TaskController {
     return this.taskService.get(user.id, id);
   }
 
+  @Get(':id/detail')
+  @ResponseMessage('태스크 상세 정보 조회 완료했습니다.')
+  async getTaskDetail(@AuthUser() user: Account, @Param('id') id: number) {
+    return this.taskService.getTaskDetail(user.id, id);
+  }
+
   @Patch(':id')
   @ResponseMessage('태스크 상세 정보 수정 완료했습니다.')
   async updateDetails(

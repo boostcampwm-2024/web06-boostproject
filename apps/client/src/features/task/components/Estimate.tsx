@@ -52,6 +52,7 @@ export default function Estimate({ initialEstimate }: EstimateProps) {
                 onChange={(e) => handleEstimateChange(Number(e.target.value))}
                 min={0}
                 step={1}
+                max={99}
               />
             </div>
           </PopoverContent>

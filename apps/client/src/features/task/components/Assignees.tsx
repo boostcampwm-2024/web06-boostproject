@@ -8,17 +8,17 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Assignee } from '@/features/types';
 import { useTaskMutations } from '@/features/task/useTaskMutations';
+import { useUsersQuery } from '@/features/project/useUsersQuery.ts';
 
 interface AssigneesProps {
   initialAssignees: Assignee[];
 }
 
 export default function Assignees({ initialAssignees }: AssigneesProps) {
-  const { taskId } = useLoaderData({
+  const { taskId, projectId } = useLoaderData({
     from: '/_auth/$project/board/$taskId',
   });
-  // const { data: members = [] } = useProjectMembersQuery(projectId);
-  const members: Assignee[] = [];
+  const { data: members = [] } = useUsersQuery(projectId);
   const { updateAssignees } = useTaskMutations(taskId);
 
   const [selectedAssignees, setSelectedAssignees] = useState<Assignee[]>(initialAssignees);

@@ -33,24 +33,13 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-const REFRESH_MAX_RETRY_COUNT = 3;
-
 /* eslint no-underscore-dangle: 0 */
 axiosInstance.interceptors.response.use(
   (response) => Promise.resolve(response),
   async (error) => {
-    if (error.response?.status !== 401) {
+    if (error.response?.status !== 401 || error.config.url === '/auth/refresh') {
       return Promise.reject(error);
     }
-
-    const originalReq = error.config;
-
-    if (originalReq._retry >= REFRESH_MAX_RETRY_COUNT) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      return Promise.reject(error);
-    }
-
-    originalReq._retry = (originalReq._retry || 0) + 1;
 
     try {
       const response = await axiosInstance.post('/auth/refresh');
@@ -63,7 +52,7 @@ axiosInstance.interceptors.response.use(
 
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authStorage));
 
-      const newConfig = { ...originalReq };
+      const newConfig = { ...error.config };
       newConfig.headers.Authorization = `Bearer ${accessToken}`;
 
       return axiosInstance(newConfig);

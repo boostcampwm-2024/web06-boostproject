@@ -1,6 +1,7 @@
-type Label = {
+export type Label = {
   id: number;
   name: string;
+  description: string;
   color: string;
 };
 
@@ -10,11 +11,13 @@ export interface GetLabelsResult {
 
 export interface CreateLabelDto {
   name: string;
+  description: string;
   color: string;
 }
 
 export interface UpdateLabelDto {
   name?: string;
+  description?: string;
   color?: string;
 }
 
@@ -39,10 +42,4 @@ export interface UpdateSprintDto {
   name?: string;
   startDate?: string;
   endDate?: string;
-}
-
-export interface BaseResponse<T = void> {
-  status: number;
-  message: string;
-  result: T extends void ? never : T;
 }

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import ProjectLabelsSettings from '@/pages/ProjectLabelsSettings.tsx';
+import LabelsSettings from '@/pages/LabelsSettings.tsx';
 
 export const Route = createFileRoute('/_auth/$project/settings/labels')({
   beforeLoad: ({ params }) => {
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/_auth/$project/settings/labels')({
   ),
   component: () => (
     <Suspense fallback={<div>Loading labels...</div>}>
-      <ProjectLabelsSettings />
+      <LabelsSettings />
     </Suspense>
   ),
 });

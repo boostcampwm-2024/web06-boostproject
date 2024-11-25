@@ -1,3 +1,5 @@
+import { BaseResponse } from '@/features/types.ts';
+
 export type Subtask = {
   id: number;
   content: string;
@@ -5,13 +7,7 @@ export type Subtask = {
 };
 
 // create
-export interface CreateSubtaskResult {
-  subtask: {
-    id: number;
-    content: string;
-    completed: boolean;
-  };
-}
+export type CreateSubtaskResponse = BaseResponse<Subtask>;
 
 // update
 export interface UpdateSubtaskDto {
@@ -19,13 +15,7 @@ export interface UpdateSubtaskDto {
   completed?: boolean;
 }
 
-export interface UpdateSubtaskResult {
-  subtask: {
-    id: number;
-    content: string;
-    completed: boolean;
-  };
-}
+export type UpdateSubtaskResponse = BaseResponse<Subtask>;
 
 // delete
 export interface DeleteSubtaskResult {

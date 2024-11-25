@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const sprintFormSchema = z.object({
-  name: z.string().min(1, 'Sprint name is required'),
+  name: z.string().min(1, 'Sprint name is required').max(10, 'Sprint name is too long'),
   dateRange: z
     .object({
       from: z.date(),

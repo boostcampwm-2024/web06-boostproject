@@ -1,6 +1,7 @@
 import { MutationOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { subtaskAPI } from '@/features/task/subtask/api';
 import { Subtask, UpdateSubtaskDto } from '@/features/task/subtask/types';
+import { BaseResponse } from '@/features/types.ts';
 
 export const useSubtaskMutations = (taskId: number) => {
   const queryClient = useQueryClient();
@@ -8,7 +9,6 @@ export const useSubtaskMutations = (taskId: number) => {
   const invalidateTask = () => {
     queryClient.invalidateQueries({
       queryKey: ['task', taskId],
-      refetchType: 'none',
     });
   };
 
@@ -16,10 +16,9 @@ export const useSubtaskMutations = (taskId: number) => {
     create: (options?: MutationOptions<Subtask, Error, void>) =>
       useMutation({
         mutationFn: async () => {
-          const data = await subtaskAPI.create(taskId);
-          const { subtask } = data.result;
+          const { result } = await subtaskAPI.create(taskId);
 
-          return subtask;
+          return result;
         },
         onSuccess: (data, variables, context) => {
           invalidateTask();
@@ -48,10 +47,9 @@ export const useSubtaskMutations = (taskId: number) => {
           subtaskId: number;
           updateSubtaskDto: UpdateSubtaskDto;
         }) => {
-          const data = await subtaskAPI.update(subtaskId, updateSubtaskDto);
-          const { subtask } = data.result;
+          const { result } = await subtaskAPI.update(subtaskId, updateSubtaskDto);
 
-          return subtask;
+          return result;
         },
         onSuccess: (data, variables, context) => {
           invalidateTask();
@@ -62,13 +60,12 @@ export const useSubtaskMutations = (taskId: number) => {
         },
       }),
 
-    delete: (options?: MutationOptions<Subtask, Error, number>) =>
+    delete: (options?: MutationOptions<BaseResponse, Error, number>) =>
       useMutation({
         mutationFn: async (subtaskId: number) => {
-          const data = await subtaskAPI.delete(subtaskId);
-          const { subtask } = data.result;
+          const response = await subtaskAPI.delete(subtaskId);
 
-          return subtask;
+          return response;
         },
         onSuccess: (data, variables, context) => {
           invalidateTask();

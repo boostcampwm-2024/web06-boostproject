@@ -18,9 +18,10 @@ import Estimate from '@/features/task/components/Estimate.tsx';
 
 export function TaskDetail() {
   const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
-  const navigate = useNavigate({ from: '/$project/board/$taskId' });
+  const navigate = useNavigate({
+    from: '/$project/board/$taskId',
+  });
   const [isClosing, setIsClosing] = useState(false);
-
   const { data: task } = useTaskQuery(taskId);
 
   if (!task) {
@@ -33,7 +34,7 @@ export function TaskDetail() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, []);
+  }, [isClosing]);
 
   const handleClose = useCallback(async () => {
     setIsClosing(true);
@@ -43,7 +44,7 @@ export function TaskDetail() {
   }, [navigate]);
 
   return (
-    <AnimatePresence mode="wait" onExitComplete={() => setIsClosing(false)}>
+    <AnimatePresence key={taskId} mode="wait" onExitComplete={() => setIsClosing(false)}>
       {!isClosing && (
         <>
           <motion.div
@@ -71,7 +72,7 @@ export function TaskDetail() {
             <Card className="h-full rounded-none border-none">
               <CardHeader className="bg-blue sticky top-0 z-40 h-[100px] backdrop-blur">
                 <div className="flex h-full items-center justify-between">
-                  <h2 className="text-3xl font-semibold">Make Project Bigger</h2>
+                  <h2 className="text-3xl font-semibold">{task.title}</h2>
                   <Button variant="ghost" size="icon" onClick={handleClose}>
                     <X className="h-4 w-4" />
                   </Button>
@@ -79,7 +80,7 @@ export function TaskDetail() {
               </CardHeader>
               <CardContent className="mt-4 grid grid-cols-3 gap-6">
                 <div className="col-span-2 space-y-6 pr-4">
-                  <TaskDescription initialDescription="" />
+                  <TaskDescription initialDescription={task.description} />
                   <Subtasks initialSubtasks={task.subtasks} />
                 </div>
 

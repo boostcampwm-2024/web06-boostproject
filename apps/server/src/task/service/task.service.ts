@@ -316,7 +316,9 @@ export class TaskService {
     await this.validateUserRole(userId, task.section.project.id);
 
     const result = new TaskDetailsResponse(task);
-    const sprint = await this.sprintRepository.findOneBy({ id: task.sprintId });
+    const sprint = task.sprintId
+      ? await this.sprintRepository.findOneBy({ id: task.sprintId })
+      : null;
     result.setSprint(sprint ? new SprintDetailsResponse(sprint) : null);
 
     const taskAssigneeRecords = await this.taskAssigneeRepository

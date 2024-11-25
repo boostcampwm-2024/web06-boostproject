@@ -22,6 +22,8 @@ export function TaskDescription({ initialDescription = '' }: TaskDescriptionProp
 
   const handleSave = () => {
     updateDescription.mutate(description);
+    prevDescriptionRef.current = description;
+    setIsEdit(false);
   };
 
   const handleCancel = () => {

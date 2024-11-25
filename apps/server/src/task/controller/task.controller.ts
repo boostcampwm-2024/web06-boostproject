@@ -19,35 +19,25 @@ export class TaskController {
   ) {}
 
   @Get()
-<<<<<<< HEAD
   @ResponseMessage('태스크 목록이 정상적으로 조회되었습니다.')
-  @HttpCode(200)
-=======
->>>>>>> 110fae3 (feat: 태스크 담당자 설정 기능 구현)
   async getAll(@AuthUser() user: Account, @Query('projectId') projectId: number) {
-    return await this.taskService.getAll(user.id, projectId);
+    return this.taskService.getAll(user.id, projectId);
   }
 
   @Get(':id')
-<<<<<<< HEAD
   @ResponseMessage('태스크가 정상적으로 조회되었습니다.')
-=======
->>>>>>> 110fae3 (feat: 태스크 담당자 설정 기능 구현)
   async get(@AuthUser() user: Account, @Param('id') id: number) {
-    return await this.taskService.get(user.id, id);
+    return this.taskService.get(user.id, id);
   }
 
   @Patch(':id')
-<<<<<<< HEAD
   @ResponseMessage('태스크 상세 정보 수정 완료했습니다.')
-=======
->>>>>>> 110fae3 (feat: 태스크 담당자 설정 기능 구현)
   async updateDetails(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: UpdateTaskDetailsRequest
   ) {
-    return await this.taskService.updateDetails(user.id, id, body);
+    return this.taskService.updateDetails(user.id, id, body);
   }
 
   @Post(':id/subtask')
@@ -57,41 +47,26 @@ export class TaskController {
     @Param('id') id: number,
     @Body() body: CreateSubTaskRequest
   ) {
-    return await this.subTaskService.create(user.id, id, body.content, body.completed);
+    return this.subTaskService.create(user.id, id, body.content, body.completed);
   }
 
   @Put(':id/labels')
+  @ResponseMessage('태스크 라벨 수정 완료했습니다.')
   async updateLabels(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: UpdateLabelsRequest
   ) {
-    return new BaseResponse(
-      200,
-      '태스크 라벨 수정 완료했습니다.',
-      await this.taskService.updateLabels(user.id, id, body.labels)
-    );
+    return this.taskService.updateLabels(user.id, id, body.labels);
   }
 
   @Put(':id/assignees')
+  @ResponseMessage('태스크 담당자 수정 완료했습니다.')
   async updateAssignees(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: UpdateAssigneesRequest
   ) {
-    return new BaseResponse(
-      200,
-      '태스크 담당자 수정 완료했습니다.',
-      await this.taskService.updateAssignees(user.id, id, body.assignees)
-    );
-  }
-
-  @Get(':id/detail')
-  async getTaskDetail(@AuthUser() user: Account, @Param('id') id: number) {
-    return new BaseResponse(
-      200,
-      '태스크 상세 정보 조회 완료했습니다.',
-      await this.taskService.getTaskDetail(user.id, id)
-    );
+    return this.taskService.updateAssignees(user.id, id, body.assignees);
   }
 }

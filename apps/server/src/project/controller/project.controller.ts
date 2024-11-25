@@ -3,11 +3,9 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Param,
   Patch,
   Post,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ProjectService } from '@/project/service/project.service';
@@ -21,7 +19,6 @@ import { TaskEvent } from '@/task/dto/task-event.dto';
 import { TaskService } from '@/task/service/task.service';
 import { EventType } from '@/task/enum/eventType.enum';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
-import { BaseResponse } from '@/common/BaseResponse';
 import { SprintService } from '@/project/service/sprint.service';
 import { SprintDetailsRequest } from '@/project/dto/sprint-details-request.dto';
 import { LabelService } from '@/project/service/label.service';
@@ -40,25 +37,25 @@ export class ProjectController {
   @Get('invitations')
   @ResponseMessage('프로젝트 멤버 초대 목록 조회에 성공했습니다.')
   async getInvitations(@AuthUser() user: Account) {
-    return await this.projectService.getInvitations(user.id);
+    return this.projectService.getInvitations(user.id);
   }
 
   @Get(':id')
   @ResponseMessage('프로젝트 상세 조회에 성공했습니다.')
   async getProject(@AuthUser() user: Account, @Param('id') projectId: number) {
-    return await this.projectService.getProject(user.id, projectId);
+    return this.projectService.getProject(user.id, projectId);
   }
 
   @Get(':id/members')
   @ResponseMessage('프로젝트 멤버 목록 조회에 성공했습니다.')
   async getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
-    return await this.projectService.getContributors(user.id, projectId);
+    return this.projectService.getContributors(user.id, projectId);
   }
 
   @Post()
   @ResponseMessage('프로젝트 생성이 성공했습니다.')
   async create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
-    return await this.projectService.create(user.id, body.title);
+    return this.projectService.create(user.id, body.title);
   }
 
   @Post(':id/invite')
@@ -119,48 +116,36 @@ export class ProjectController {
   }
 
   @Post(':id/sprint')
+  @ResponseMessage('스프린트 생성 완료했습니다.')
   async createSprint(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: SprintDetailsRequest
   ) {
     body.validate();
-    return new BaseResponse(
-      201,
-      '스프린트 생성 완료했습니다.',
-      await this.sprintService.create(user.id, id, body.name, body.startDate, body.endDate)
-    );
+    return this.sprintService.create(user.id, id, body.name, body.startDate, body.endDate);
   }
 
   @Get(':id/sprints')
+  @ResponseMessage('스프린트 목록 조회에 성공했습니다.')
   async getSprints(@AuthUser() user: Account, @Param('id') id: number) {
-    return new BaseResponse(
-      200,
-      '스프린트 목록 조회에 성공했습니다.',
-      await this.sprintService.getAll(user.id, id)
-    );
+    return this.sprintService.getAll(user.id, id);
   }
 
   @Post(':id/label')
+  @ResponseMessage('라벨 생성 완료했습니다.')
   async createLabel(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: LabelDetailsRequest
   ) {
     body.validate();
-    return new BaseResponse(
-      201,
-      '라벨 생성 완료했습니다.',
-      await this.labelService.create(user.id, id, body.name, body.description, body.color)
-    );
+    return this.labelService.create(user.id, id, body.name, body.description, body.color);
   }
 
   @Get(':id/labels')
+  @ResponseMessage('라벨 목록 조회에 성공했습니다.')
   async getLabels(@AuthUser() user: Account, @Param('id') id: number) {
-    return new BaseResponse(
-      200,
-      '라벨 목록 조회에 성공했습니다.',
-      await this.labelService.getAll(user.id, id)
-    );
+    return this.labelService.getAll(user.id, id);
   }
 }

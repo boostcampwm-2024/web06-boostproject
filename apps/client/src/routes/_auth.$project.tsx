@@ -22,12 +22,7 @@ function ProjectLayout() {
             </Link>
           </li>
           <li>
-            <Link
-              to="/$project/board"
-              params={{ project }}
-              activeOptions={{ exact: true }}
-              className="[&.active]:font-semibold"
-            >
+            <Link to="/$project/board" params={{ project }} className="[&.active]:font-semibold">
               Board
             </Link>
           </li>

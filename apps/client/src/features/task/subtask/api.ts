@@ -1,18 +1,26 @@
 import { axiosInstance } from '@/lib/axios.ts';
 import { BaseResponse } from '@/features/types.ts';
-import { UpdateSubtaskDto } from '@/features/task/subtask/types.ts';
+import {
+  CreateSubtaskResult,
+  DeleteSubtaskResult,
+  UpdateSubtaskDto,
+  UpdateSubtaskResult,
+} from '@/features/task/subtask/types.ts';
 
 export const subtaskAPI = {
   create: async (taskId: number) => {
-    const { data } = await axiosInstance.post<BaseResponse>(`/task/${taskId}/subtask`, {
-      title: '새로운 하위 태스크',
-    });
+    const { data } = await axiosInstance.post<BaseResponse<CreateSubtaskResult>>(
+      `/task/${taskId}/subtask`,
+      {
+        title: 'New Subtask',
+      }
+    );
 
     return data;
   },
 
   update: async (subtaskId: number, updateSubtaskDto: UpdateSubtaskDto) => {
-    const { data } = await axiosInstance.patch<BaseResponse>(
+    const { data } = await axiosInstance.patch<BaseResponse<UpdateSubtaskResult>>(
       `/subtask/${subtaskId}`,
       updateSubtaskDto
     );
@@ -21,7 +29,9 @@ export const subtaskAPI = {
   },
 
   delete: async (subtaskId: number) => {
-    const { data } = await axiosInstance.delete<BaseResponse>(`/subtask/${subtaskId}`);
+    const { data } = await axiosInstance.delete<BaseResponse<DeleteSubtaskResult>>(
+      `/subtask/${subtaskId}`
+    );
 
     return data;
   },

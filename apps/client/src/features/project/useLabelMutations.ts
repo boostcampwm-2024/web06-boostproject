@@ -5,15 +5,17 @@ import { projectAPI } from '@/features/project/api.ts';
 export const useLabelMutations = (projectId: number) => {
   const queryCleint = useQueryClient();
 
+  const invalidateLabels = () => {
+    queryCleint.invalidateQueries({
+      queryKey: ['labels', projectId],
+    });
+  };
+
   return {
     create: useMutation({
       mutationFn: (createLabelDto: CreateLabelDto) =>
         projectAPI.createLabel(projectId, createLabelDto),
-      onSuccess: () => {
-        queryCleint.invalidateQueries({
-          queryKey: ['labels', projectId],
-        });
-      },
+      onSuccess: invalidateLabels,
     }),
 
     update: useMutation({
@@ -24,20 +26,12 @@ export const useLabelMutations = (projectId: number) => {
         labelId: number;
         updateLabelDto: UpdateLabelDto;
       }) => projectAPI.updateLabel(labelId, updateLabelDto),
-      onSuccess: () => {
-        queryCleint.invalidateQueries({
-          queryKey: ['labels', projectId],
-        });
-      },
+      onSuccess: invalidateLabels,
     }),
 
     delete: useMutation({
       mutationFn: (labelId: number) => projectAPI.deleteLabel(labelId),
-      onSuccess: () => {
-        queryCleint.invalidateQueries({
-          queryKey: ['labels', projectId],
-        });
-      },
+      onSuccess: invalidateLabels,
     }),
   };
 };

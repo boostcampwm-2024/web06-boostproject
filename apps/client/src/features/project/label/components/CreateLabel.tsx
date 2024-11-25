@@ -33,6 +33,15 @@ export function CreateLabel({ onCreate }: CreateLabelProps) {
     createForm.setValue('color', generateRandomColor(), { shouldValidate: true });
   };
 
+  const handleSubmit = (data: LabelFormValues) => {
+    onCreate(data);
+    createForm.reset({
+      name: '',
+      description: '',
+      color: generateRandomColor(),
+    });
+  };
+
   return (
     <Card className="bg-white">
       <CardHeader>
@@ -40,7 +49,7 @@ export function CreateLabel({ onCreate }: CreateLabelProps) {
         <CardDescription>Add a new label to your project.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={createForm.handleSubmit(onCreate)} className="space-y-4">
+        <form onSubmit={createForm.handleSubmit(handleSubmit)} className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">

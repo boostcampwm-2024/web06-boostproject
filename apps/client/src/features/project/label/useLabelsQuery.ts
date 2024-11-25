@@ -5,10 +5,9 @@ export const useLabelsQuery = (projectId: number) => {
   return useQuery({
     queryKey: ['labels', projectId],
     queryFn: async () => {
-      const data = await projectAPI.getLabels(projectId);
-      const { labels } = data.result;
+      const { result } = await projectAPI.getLabels(projectId);
 
-      return labels;
+      return result;
     },
     throwOnError: true,
   });

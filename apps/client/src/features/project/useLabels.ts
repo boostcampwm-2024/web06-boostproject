@@ -3,7 +3,7 @@ import { projectAPI } from '@/features/project/api.ts';
 
 export const useLabels = (projectId: number) => {
   return useQuery({
-    queryKey: ['labels'],
+    queryKey: ['labels', projectId],
     queryFn: () => projectAPI.getLabels(projectId),
   });
 };

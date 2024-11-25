@@ -66,7 +66,7 @@ export default function KanbanBoard() {
   const { data: sections } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: async () => {
-      const response = await axiosInstance.get<TasksResponse>(`/api/task?projectId=${projectId}`);
+      const response = await axiosInstance.get<TasksResponse>(`/task?projectId=${projectId}`);
 
       return response.data.result;
     },

@@ -92,6 +92,7 @@ export class ProjectService {
           id,
           username,
           role,
+          avatar: '',
         };
       }
     );

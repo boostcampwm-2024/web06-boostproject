@@ -1,20 +1,15 @@
-import axios from 'axios';
 import { createFileRoute } from '@tanstack/react-router';
 import { GetProjectsResponseDTO } from '@/types/project';
 import AccountOverview from '@/pages/AccountOverview';
+import { axiosInstance } from '@/lib/axios.ts';
 
 export const Route = createFileRoute('/_auth/account/')({
-  loader: ({ context: { auth, queryClient } }) => {
+  loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData({
       queryKey: ['projects'],
       queryFn: async () => {
         try {
-          const projects = await axios.get<GetProjectsResponseDTO>('/api/projects', {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${auth.accessToken}`,
-            },
-          });
+          const projects = await axiosInstance.get<GetProjectsResponseDTO>('/projects');
           return projects.data.result;
         } catch {
           throw new Error('Failed to fetch projects');

@@ -1,42 +1,26 @@
-import axios, { AxiosError } from 'axios';
-import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import SignupForm, { SignupFormData } from '@/auth/SignupForm.tsx';
 import Footer from '@/components/Footer.tsx';
+import { useAuth } from '@/features/auth/useAuth.ts';
 
 function Signup() {
   const navigate = useNavigate({ from: '/signup' });
+  const { registerMutation } = useAuth();
 
-  const { isPending, mutate } = useMutation({
-    mutationFn: ({ username, password }: { username: string; password: string }) =>
-      axios.post('/api/auth/signup', { username, password }),
-    onSuccess: async (response) => {
-      const { username } = response.data;
+  const { mutateAsync: signup, isPending } = registerMutation;
 
-      alert(`회원가입 성공 ${username}님 환영합니다!`);
-
-      await navigate({ to: '/login' });
-    },
-    onError: (error) => {
-      const axiosError = error as AxiosError<{ message: string }>;
-
-      if (axiosError.response && axiosError.response.data.message === 'Already used email') {
-        alert('이미 사용중인 아이디입니다.');
-        return;
-      }
-
-      alert('알 수 없는 오류가 발생했습니다.');
-    },
-  });
-
-  const handleSubmit = (signupFormData: SignupFormData) => {
-    mutate({
+  const handleSubmit = async (signupFormData: SignupFormData) => {
+    await signup({
       username: signupFormData.username,
       password: signupFormData.password,
     });
+
+    setTimeout(() => {
+      navigate({ to: '/login' });
+    }, 100);
   };
 
   return (

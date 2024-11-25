@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import { z } from 'zod';
@@ -38,7 +37,7 @@ function ProjectSettings() {
 
   const { isPending, mutate } = useMutation({
     mutationFn: async (data: InviteProjectMemberRequestDTO) => {
-      await axios.post(`/project/${project}/invite`, data);
+      await axiosInstance.post(`/project/${project}/invite`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', project, 'members'] });

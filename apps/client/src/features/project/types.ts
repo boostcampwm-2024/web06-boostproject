@@ -23,9 +23,7 @@ type Sprint = {
   endDate: string;
 };
 
-export interface GetSprintsResult {
-  sprints: Sprint[];
-}
+export type GetSprintsResponse = BaseResponse<Sprint[]>;
 
 export interface CreateSprintDto {
   name: string;

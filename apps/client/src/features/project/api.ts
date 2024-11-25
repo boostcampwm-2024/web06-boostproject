@@ -3,9 +3,9 @@ import { BaseResponse } from '@/features/types.ts';
 import {
   CreateLabelDto,
   CreateSprintDto,
-  GetLabelsResult,
-  GetMembersResult,
-  GetSprintsResult,
+  GetLabelsResponse,
+  GetMembersResponse,
+  GetSprintsResponse,
   UpdateLabelDto,
   UpdateSprintDto,
 } from '@/features/project/types.ts';
@@ -13,14 +13,14 @@ import {
 export const projectAPI = {
   // members
   getMembers: async (projectId: number) => {
-    const { data } = await axiosInstance.get<GetMembersResult>(`/project/${projectId}/members`);
+    const { data } = await axiosInstance.get<GetMembersResponse>(`/project/${projectId}/members`);
 
     return data;
   },
 
   // labels
   getLabels: async (projectId: number) => {
-    const { data } = await axiosInstance.get<GetLabelsResult>(`/project/${projectId}/labels`);
+    const { data } = await axiosInstance.get<GetLabelsResponse>(`/project/${projectId}/labels`);
 
     return data;
   },
@@ -48,9 +48,7 @@ export const projectAPI = {
 
   // sprints
   getSprints: async (projectId: number) => {
-    const { data } = await axiosInstance.get<BaseResponse<GetSprintsResult>>(
-      `/project/${projectId}/sprints`
-    );
+    const { data } = await axiosInstance.get<GetSprintsResponse>(`/project/${projectId}/sprints`);
 
     return data;
   },

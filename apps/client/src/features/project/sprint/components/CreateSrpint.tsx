@@ -23,6 +23,17 @@ export function CreateSrpint({ onCreate }: CreateProjectSprintProps) {
     },
   });
 
+  const handleSubmit = (data: SprintFormValues) => {
+    onCreate(data);
+    createForm.reset({
+      name: '',
+      dateRange: {
+        from: new Date(),
+        to: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+  };
+
   return (
     <Card className="bg-white">
       <CardHeader>
@@ -30,7 +41,7 @@ export function CreateSrpint({ onCreate }: CreateProjectSprintProps) {
         <CardDescription>Add a new sprint to your project.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={createForm.handleSubmit(onCreate)} className="space-y-4">
+        <form onSubmit={createForm.handleSubmit(handleSubmit)} className="space-y-4">
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">

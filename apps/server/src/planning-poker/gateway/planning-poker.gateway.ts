@@ -56,9 +56,12 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
 
     this.server.to(projectId).emit('user_left', { userId });
 
-    this.selectedCards.forEach((projectCards) => {
-      projectCards.users.delete(userId);
-    });
+    this.getProjectCardsOrThrow(projectId).users.delete(userId);
+
+    const roomSize = this.server.sockets.adapter.rooms.get(projectId)?.size || 0;
+    if (roomSize === 0) {
+      this.selectedCards.delete(projectId);
+    }
   }
 
   @SubscribeMessage('select_card')
@@ -103,6 +106,8 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     projectCards.users.forEach((userDetail, userId) => {
       projectCards.users.set(userId, { ...userDetail, card: '' });
     });
+
+    projectCards.isRevealed = false;
 
     this.broadcastToOthers(client, 'card_reset');
   }

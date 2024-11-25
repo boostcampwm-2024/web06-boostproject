@@ -1,6 +1,6 @@
 import { axiosInstance } from '@/lib/axios.ts';
 import { BaseResponse } from '@/features/types.ts';
-import { UpdateSubtaskDto } from '@/features/subtask/types.ts';
+import { UpdateSubtaskDto } from '@/features/task/subtask/types.ts';
 
 export const subtaskAPI = {
   create: async (taskId: number) => {

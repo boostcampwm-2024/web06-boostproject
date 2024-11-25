@@ -5,10 +5,11 @@ export const useSprintsQuery = (projectId: number) => {
   return useQuery({
     queryKey: ['sprints', projectId],
     queryFn: async () => {
-      const data = await projectAPI.getSprints(projectId);
-      const { sprints } = data.result;
+      const { result } = await projectAPI.getSprints(projectId);
 
-      return sprints;
+      return result.sort((a, b) => {
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      });
     },
     throwOnError: true,
   });

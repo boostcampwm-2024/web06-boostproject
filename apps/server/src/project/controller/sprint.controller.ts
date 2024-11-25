@@ -17,6 +17,7 @@ export class SprintController {
     @Param('id') id: number,
     @Body() body: SprintDetailsRequest
   ) {
+    body.validateDuration();
     return new BaseResponse(
       200,
       '스프린트 상세 정보 수정 완료했습니다.',

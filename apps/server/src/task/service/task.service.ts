@@ -202,10 +202,14 @@ export class TaskService {
   async updateDetails(userId: number, taskId: number, body: UpdateTaskDetailsRequest) {
     const task = await this.findTaskOrThrow(taskId);
     await this.validateUserRole(userId, task.section.project.id);
-    await this.validateSprint(body.sprintId, task.section.project.id);
+    const sprint = await this.findSprintOrNull(body.sprintId, task.section.project.id);
     task.updateDetails(body);
     this.taskRepository.save(task);
-    return new UpdateTaskDetailsResponse(task.id, body);
+    return new UpdateTaskDetailsResponse(
+      task.id,
+      body,
+      sprint ? new SprintDetailsResponse(sprint) : undefined
+    );
   }
 
   async get(userId: number, taskId: number) {
@@ -236,11 +240,9 @@ export class TaskService {
 
   async updateLabels(userId: number, taskId: number, labelIds: number[]) {
     const task = await this.findTaskOrThrow(taskId);
-    await this.validateUserRole(userId, task.section.project.id);
-    const labels = await this.labelRepository.findBy({
-      projectId: task.section.project.id,
-      id: In(labelIds),
-    });
+    const projectId = task.section.project.id;
+    await this.validateUserRole(userId, projectId);
+    const labels = await this.labelRepository.findBy({ projectId, id: In(labelIds) });
     if (labelIds.length !== labels.length) {
       throw new NotFoundException('Label not found');
     }
@@ -251,7 +253,7 @@ export class TaskService {
     try {
       await queryRunner.manager.delete(TaskLabel, { taskId });
       for (let i = 0; i < labelIds.length; i += 1) {
-        await queryRunner.manager.save(TaskLabel, { taskId, labelId: labelIds[i] });
+        await queryRunner.manager.save(TaskLabel, { projectId, taskId, labelId: labelIds[i] });
       }
       await queryRunner.commitTransaction();
     } catch (error) {
@@ -265,13 +267,14 @@ export class TaskService {
 
   async updateAssignees(userId: number, taskId: number, assigneeIds: number[]) {
     const task = await this.findTaskOrThrow(taskId);
-    await this.validateUserRole(userId, task.section.project.id);
+    const projectId = task.section.project.id;
+    await this.validateUserRole(userId, projectId);
     let records = [];
     if (assigneeIds.length !== 0) {
       records = await this.contributorRepository
         .createQueryBuilder('c')
         .leftJoin('account', 'a', 'c.userId = a.id')
-        .where('c.projectId = :projectId', { projectId: task.section.project.id })
+        .where('c.projectId = :projectId', { projectId })
         .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
         .andWhere('c.userId IN (:...userIds)', { userIds: assigneeIds })
         .addSelect(['a.username'])
@@ -287,7 +290,11 @@ export class TaskService {
     try {
       await queryRunner.manager.delete(TaskAssignee, { taskId });
       for (let i = 0; i < assigneeIds.length; i += 1) {
-        await queryRunner.manager.save(TaskAssignee, { taskId, accountId: assigneeIds[i] });
+        await queryRunner.manager.save(TaskAssignee, {
+          projectId,
+          taskId,
+          accountId: assigneeIds[i],
+        });
       }
       await queryRunner.commitTransaction();
     } catch (error) {
@@ -343,9 +350,9 @@ export class TaskService {
     }
   }
 
-  private async validateSprint(sprintId: number, projectId: number) {
+  private async findSprintOrNull(sprintId: number, projectId: number) {
     if (!sprintId) {
-      return;
+      return null;
     }
     const sprint = await this.sprintRepository.findOneBy({ id: sprintId });
     if (!sprint) {
@@ -354,6 +361,7 @@ export class TaskService {
     if (sprint.projectId !== projectId) {
       throw new BadRequestException('Invalid sprint id');
     }
+    return sprint;
   }
 
   private async findTaskOrThrow(id: number) {

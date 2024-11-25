@@ -1,17 +1,33 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { BadRequestException } from '@nestjs/common';
+import { IsOptional, IsString, Matches } from 'class-validator';
 
 export class SprintDetailsRequest {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   startDate: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   endDate: string;
+
+  validate() {
+    if (!this.name || !this.startDate || !this.endDate) {
+      throw new BadRequestException('Required all fields');
+    }
+  }
+
+  validateDuration() {
+    if (!this.startDate && !this.endDate) {
+      return;
+    }
+    if (!this.startDate || !this.endDate) {
+      throw new BadRequestException('Required start date or end date');
+    }
+  }
 }

@@ -77,6 +77,9 @@ export class LabelService {
   }
 
   private async validateDuplication(projectId: number, title: string, id: number) {
+    if (!title) {
+      return;
+    }
     const duplication = await this.labelRepository
       .createQueryBuilder('label')
       .where('label.projectId = :projectId', { projectId })

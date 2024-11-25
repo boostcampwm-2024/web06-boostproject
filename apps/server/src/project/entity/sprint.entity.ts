@@ -19,8 +19,12 @@ export class Sprint extends EntityTimestamp {
   endDate: Date;
 
   update(title: string, startDate: string, endDate: string) {
-    this.title = title;
-    this.startDate = new Date(startDate);
-    this.endDate = new Date(endDate);
+    if (title) {
+      this.title = title;
+    }
+    if (startDate && endDate) {
+      this.startDate = new Date(startDate);
+      this.endDate = new Date(endDate);
+    }
   }
 }

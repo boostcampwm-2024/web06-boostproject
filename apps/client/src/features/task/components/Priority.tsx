@@ -1,9 +1,11 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Settings, Star, X } from 'lucide-react';
+import { useLoaderData } from '@tanstack/react-router';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useTaskMutations } from '@/features/task/useTaskMutations';
 
 const priorityLevels = [
   { level: 5, label: 'P5' },
@@ -14,8 +16,7 @@ const priorityLevels = [
 ];
 
 interface PriorityProps {
-  priority: number | null;
-  setPriority: Dispatch<SetStateAction<number | null>>;
+  initialPriority: number | null;
 }
 
 function PriorityStars({ count }: { count: number }) {
@@ -28,12 +29,24 @@ function PriorityStars({ count }: { count: number }) {
   );
 }
 
-export default function Priority({ priority, setPriority }: PriorityProps) {
+export default function Priority({ initialPriority }: PriorityProps) {
+  const { taskId } = useLoaderData({
+    from: '/_auth/$project/board/$taskId',
+  });
+  const { updatePriority } = useTaskMutations(taskId);
+
+  const [priority, setPriority] = useState<number | null>(initialPriority);
   const [isOpen, setIsOpen] = useState(false);
 
   const togglePriority = (level: number) => {
-    setPriority((prev) => (prev === level ? null : level));
-    setIsOpen(false);
+    if (priority === level) {
+      setPriority(null);
+      updatePriority.mutate(undefined);
+      return;
+    }
+
+    setPriority(level);
+    updatePriority.mutate(level);
   };
 
   return (

@@ -1,10 +1,10 @@
 import { axiosInstance } from '@/lib/axios.ts';
 import { BaseResponse } from '@/features/types.ts';
-import { UpdateTaskDto } from '@/features/task/types.ts';
+import { DetailedTask, UpdateTaskDto } from '@/features/task/types.ts';
 
 export const taskAPI = {
   getDetail: async (taskId: number) => {
-    const { data } = await axiosInstance.get<BaseResponse>(`/task/${taskId}/detail`);
+    const { data } = await axiosInstance.get<BaseResponse<DetailedTask>>(`/task/${taskId}/detail`);
 
     return data;
   },
@@ -15,7 +15,7 @@ export const taskAPI = {
     return data;
   },
 
-  updateAssignees: async (taskId: number, userIds: number[]) => {
+  updateAssignees: async (taskId: number, userIds: number[] = []) => {
     const { data } = await axiosInstance.put<BaseResponse>(`/task/${taskId}/assignees`, {
       userIds,
     });
@@ -23,7 +23,7 @@ export const taskAPI = {
     return data;
   },
 
-  updateLabels: async (taskId: number, labelIds: number[]) => {
+  updateLabels: async (taskId: number, labelIds: number[] = []) => {
     const { data } = await axiosInstance.put<BaseResponse>(`/task/${taskId}/labels`, {
       labelIds,
     });

@@ -12,32 +12,32 @@ export const useTaskMutations = (taskId: number) => {
 
   return {
     updateDescription: useMutation({
-      mutationFn: (description: string) => taskAPI.update(taskId, { description }),
+      mutationFn: (description?: string) => taskAPI.update(taskId, { description }),
       onSuccess: invalidateTask,
     }),
 
     updatePriority: useMutation({
-      mutationFn: (priority: number) => taskAPI.update(taskId, { priority }),
+      mutationFn: (priority?: number) => taskAPI.update(taskId, { priority }),
       onSuccess: invalidateTask,
     }),
 
     updateSprint: useMutation({
-      mutationFn: (sprintId: number) => taskAPI.update(taskId, { sprintId }),
+      mutationFn: (sprintId?: number) => taskAPI.update(taskId, { sprintId }),
       onSuccess: invalidateTask,
     }),
 
     updateEstimate: useMutation({
-      mutationFn: (estimate: number) => taskAPI.update(taskId, { estimate }),
+      mutationFn: (estimate?: number) => taskAPI.update(taskId, { estimate }),
       onSuccess: invalidateTask,
     }),
 
     updateAssignees: useMutation({
-      mutationFn: (userIds: number[]) => taskAPI.updateAssignees(taskId, userIds),
+      mutationFn: (userIds?: number[]) => taskAPI.updateAssignees(taskId, userIds),
       onSuccess: invalidateTask,
     }),
 
     updateLabels: useMutation({
-      mutationFn: (labelIds: number[]) => taskAPI.updateLabels(taskId, labelIds),
+      mutationFn: (labelIds?: number[]) => taskAPI.updateLabels(taskId, labelIds),
       onSuccess: invalidateTask,
     }),
   };

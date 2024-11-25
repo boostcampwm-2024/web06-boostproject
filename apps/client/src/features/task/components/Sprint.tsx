@@ -1,18 +1,26 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Settings, Calendar, Search, X } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Sprint as TSprint } from '@/details/types.tsx';
+import { useLoaderData } from '@tanstack/react-router';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { Input } from '@/components/ui/input.tsx';
 import { cn } from '@/lib/utils.ts';
+import { Sprint as TSprint } from '@/features/types.tsx';
+import { useTaskMutations } from '@/features/task/useTaskMutations.ts';
+import { useSprintsQuery } from '@/features/project/sprint/useSprintsQuery.ts';
 
 interface SprintProps {
-  sprints: TSprint[];
-  selectedSprint: TSprint | null;
-  setSelectedSprint: Dispatch<SetStateAction<TSprint | null>>;
+  initialSprint: TSprint | null;
 }
 
-export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: SprintProps) {
+export default function Sprint({ initialSprint }: SprintProps) {
+  const { taskId, projectId } = useLoaderData({
+    from: '/_auth/$project/board/$taskId',
+  });
+  const { data: sprints = [] } = useSprintsQuery(projectId);
+  const { updateSprint } = useTaskMutations(taskId);
+
+  const [selectedSprint, setSelectedSprint] = useState(initialSprint);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -21,8 +29,14 @@ export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: S
   );
 
   const toggleSprint = (sprint: TSprint) => {
-    setSelectedSprint((prev) => (prev?.id === sprint.id ? null : sprint));
-    setIsOpen(false);
+    if (selectedSprint?.id === sprint.id) {
+      setSelectedSprint(null);
+      updateSprint.mutate(undefined);
+      return;
+    }
+
+    setSelectedSprint(sprint);
+    updateSprint.mutate(sprint.id);
   };
 
   return (
@@ -56,7 +70,7 @@ export default function Sprint({ sprints, selectedSprint, setSelectedSprint }: S
               </div>
             </div>
             <div className="max-h-60 overflow-y-auto py-1">
-              {filteredSprints.map((sprint) => (
+              {filteredSprints.map((sprint: TSprint) => (
                 <button
                   type="button"
                   key={sprint.id}

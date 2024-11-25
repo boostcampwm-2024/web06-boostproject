@@ -1,19 +1,31 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useLoaderData, useNavigate } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { TrashIcon } from '@radix-ui/react-icons';
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
 
-import DetailSidebar from '@/details/SidebarInfo.tsx';
-import { SubtaskComponent } from '@/features/task/subtask/components/Subtasks.tsx';
-import { Subtask } from '@/features/task/subtask/types.ts';
 import { TaskDescription } from '@/features/task/components/TaskDescription.tsx';
+import { Subtasks } from '@/features/task/subtask/components/Subtasks.tsx';
+import { useTaskQuery } from '@/features/task/useTaskQuery.ts';
+import Assignees from '@/features/task/components/Assignees.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
+import Labels from '@/features/task/components/Labels.tsx';
+import Priority from '@/features/task/components/Priority.tsx';
+import Sprint from '@/features/task/components/Sprint.tsx';
+import Estimate from '@/features/task/components/Estimate.tsx';
 
 export function TaskDetail() {
+  const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
   const navigate = useNavigate({ from: '/$project/board/$taskId' });
   const [isClosing, setIsClosing] = useState(false);
-  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+
+  const { data: task } = useTaskQuery(taskId);
+
+  if (!task) {
+    return <div>no task detail</div>;
+  }
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -29,49 +41,6 @@ export function TaskDetail() {
       navigate({ to: '/$project/board' });
     }, 300);
   }, [navigate]);
-
-  const handleAddSubtask = () => {
-    const newId = Math.max(...subtasks.map((task) => task.id), 0) + 1;
-    const newSubtask = {
-      id: newId,
-      content: 'New Subtask',
-      completed: false,
-      isNew: true,
-    };
-    setSubtasks((prev) => [...prev, newSubtask]);
-  };
-
-  const handleToggleSubtask = (id: number) => {
-    setSubtasks((prevSubtasks) =>
-      prevSubtasks.map((subtask) =>
-        subtask.id === id ? { ...subtask, completed: !subtask.completed } : subtask
-      )
-    );
-  };
-
-  const handleUpdateSubtask = (id: number, newContent: string) => {
-    if (newContent.trim() === '') {
-      handleDeleteSubtask(id);
-      return;
-    }
-    setSubtasks((prevSubtasks) =>
-      prevSubtasks.map((subtask) =>
-        subtask.id === id ? { ...subtask, content: newContent, isNew: false } : subtask
-      )
-    );
-  };
-
-  const handleDeleteSubtask = (id: number) => {
-    setSubtasks((prevSubtasks) => prevSubtasks.filter((subtask) => subtask.id !== id));
-  };
-
-  const subtasksRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (subtasksRef.current) {
-      subtasksRef.current.scrollTop = subtasksRef.current.scrollHeight;
-    }
-  }, [subtasks.length]); // subtasks 길이가 변경될 때만 실행
 
   return (
     <AnimatePresence mode="wait" onExitComplete={() => setIsClosing(false)}>
@@ -111,32 +80,41 @@ export function TaskDetail() {
               <CardContent className="mt-4 grid grid-cols-3 gap-6">
                 <div className="col-span-2 space-y-6 pr-4">
                   <TaskDescription initialDescription="" />
+                  <Subtasks initialSubtasks={task.subtasks} />
+                </div>
+
+                <div className="space-y-5 pb-4">
+                  <Suspense fallback={<div>loading assignees</div>}>
+                    <Assignees initialAssignees={task.assignees} />
+                  </Suspense>
+                  <Separator className="rounded-full bg-gray-300" />
+
+                  <Suspense fallback={<div>loading labels</div>}>
+                    <Labels initialLabels={task.labels} />
+                  </Suspense>
+                  <Separator className="rounded-full bg-gray-300" />
+
+                  <Priority initialPriority={task.priority} />
+                  <Separator className="rounded-full bg-gray-300" />
+
+                  <Suspense fallback={<div>loading sprints</div>}>
+                    <Sprint initialSprint={task.sprint} />
+                  </Suspense>
+                  <Separator className="rounded-full bg-gray-300" />
+
+                  <Estimate initialEstimate={task.estimate} />
+                  <Separator className="rounded-full bg-gray-300" />
 
                   <div>
-                    <h3 className="mb-2 text-lg font-medium">Subtasks</h3>
-                    <div className="max-h-96 space-y-0.5 overflow-y-auto" ref={subtasksRef}>
-                      {subtasks.map((subtask) => (
-                        <SubtaskComponent
-                          key={subtask.id}
-                          subtask={subtask}
-                          onToggle={handleToggleSubtask}
-                          onUpdate={handleUpdateSubtask}
-                          onDelete={handleDeleteSubtask}
-                        />
-                      ))}
-                    </div>
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleAddSubtask}
-                      className="mt-2 w-full text-xs"
+                      variant="ghost"
+                      className="m-0 p-0 px-2 font-medium text-gray-500 hover:text-red-600"
                     >
-                      + Add New Subtask
+                      <TrashIcon className="h-5 w-5" />
+                      <span className="text-xs">Delete task</span>
                     </Button>
                   </div>
                 </div>
-
-                <DetailSidebar />
               </CardContent>
             </Card>
           </motion.div>

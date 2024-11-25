@@ -4,12 +4,22 @@ import {
   CreateLabelDto,
   CreateSprintDto,
   GetLabelsResult,
+  GetMembersResult,
   GetSprintsResult,
   UpdateLabelDto,
   UpdateSprintDto,
 } from '@/features/project/types.ts';
 
 export const projectAPI = {
+  // members
+  getMembers: async (projectId: number) => {
+    const { data } = await axiosInstance.get<BaseResponse<GetMembersResult>>(
+      `/project/${projectId}/members`
+    );
+
+    return data;
+  },
+
   // labels
   getLabels: async (projectId: number) => {
     const { data } = await axiosInstance.get<BaseResponse<GetLabelsResult>>(

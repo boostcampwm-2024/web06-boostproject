@@ -13,6 +13,6 @@ export class ProjectsController {
   @Get()
   @ResponseMessage('프로젝트 목록 조회에 성공했습니다.')
   async getProjects(@AuthUser() user: Account) {
-    return await this.projectService.getUserProjects(user.id);
+    return this.projectService.getUserProjects(user.id);
   }
 }

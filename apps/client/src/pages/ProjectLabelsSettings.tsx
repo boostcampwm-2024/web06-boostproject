@@ -33,16 +33,7 @@ interface LabelFormValues {
 
 export default function ProjectLabelsSettings() {
   const { projectId } = useLoaderData({ from: '/_auth/$project/settings/labels' });
-  const {
-    data: labels = [
-      {
-        id: 1,
-        name: 'Bug',
-        description: 'Something is broken',
-        color: '#FF0000',
-      },
-    ],
-  } = useLabelsQuery(projectId);
+  const { data: labels = [] } = useLabelsQuery(projectId);
   const {
     create: createMutation,
     update: updateMutation,

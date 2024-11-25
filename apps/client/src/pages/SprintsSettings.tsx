@@ -5,7 +5,7 @@ import { SprintList } from '@/features/project/sprint/components/SprintList.tsx'
 import { CreateSrpint } from '@/features/project/sprint/components/CreateSrpint.tsx';
 import { SprintFormValues } from '@/features/project/sprint/sprintSchema.ts';
 
-export default function ProjectSprintSettingsPage() {
+export default function SprintsSettings() {
   const { projectId } = useLoaderData({ from: '/_auth/$project/settings/sprints' });
   const { data: sprints = [] } = useSprintsQuery(projectId);
   const {

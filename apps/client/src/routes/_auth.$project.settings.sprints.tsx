@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import ProjectSprintsSettings from '@/pages/ProjectSprintsSettings.tsx';
+import ProjectSprintsSettings from '@/pages/SprintsSettings.tsx';
 
 export const Route = createFileRoute('/_auth/$project/settings/sprints')({
   beforeLoad: ({ params }) => {

@@ -1,13 +1,10 @@
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import axios from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from '@tanstack/react-router';
+import { useLoaderData } from '@tanstack/react-router';
 import { Pencil, Plus, X, Shuffle } from 'lucide-react';
 import { Input } from '@/components/ui/input.tsx';
-import { useAuth } from '@/contexts/authContext.tsx';
 import {
   Card,
   CardContent,
@@ -17,69 +14,48 @@ import {
 } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Label } from '@/details/types.tsx';
+import { generateRandomColor } from '@/pages/generateRandomColor.ts';
+import { ColorInput } from '@/pages/ColorInput.tsx';
+import { useLabelsQuery } from '@/features/project/useLabelsQuery.ts';
+import { useLabelMutations } from '@/features/project/useLabelMutations.ts';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Label name is required'),
+  description: z.string().min(1, 'Label description is required'),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Must be a valid hex color'),
 });
 
-const generateRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i += 1) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
-
-interface ColorInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
-}
-
-function ColorInput({ value, onChange, className = '' }: ColorInputProps) {
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
-
-  return (
-    <div className={`border-input relative h-10 w-full rounded-md border ${className}`}>
-      <input
-        type="color"
-        value={value}
-        onChange={handleChange}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-      />
-      <div className="flex h-full items-center px-3 text-sm">{value}</div>
-      <div
-        className="absolute right-0 top-0 h-full w-10 rounded-r-md"
-        style={{ backgroundColor: value }}
-      />
-    </div>
-  );
-}
-
 interface LabelFormValues {
   name: string;
+  description: string;
   color: string;
 }
 
 export default function ProjectLabelsSettings() {
-  const auth = useAuth();
-  const { project } = useParams({ from: '/_auth/$project/settings' });
-  const queryClient = useQueryClient();
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const { projectId } = useLoaderData({ from: '/_auth/$project/settings/labels' });
+  const {
+    data: labels = [
+      {
+        id: 1,
+        name: 'Bug',
+        description: 'Something is broken',
+        color: '#FF0000',
+      },
+    ],
+  } = useLabelsQuery(projectId);
+  const {
+    create: createMutation,
+    update: updateMutation,
+    delete: deleteMutation,
+  } = useLabelMutations(projectId);
 
-  const labels = [
-    { id: 1, name: 'Bug', color: '#f44336' },
-    { id: 2, name: 'Feature', color: '#4caf50' },
-  ];
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const createForm = useForm<LabelFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      description: '',
       color: generateRandomColor(),
     },
   });
@@ -88,45 +64,11 @@ export default function ProjectLabelsSettings() {
     resolver: zodResolver(formSchema),
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (data: LabelFormValues) => {
-      await axios.post(`/api/project/${project}/labels`, data, {
-        headers: { Authorization: `Bearer ${auth.accessToken}` },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', project, 'labels'] });
-      createForm.reset({ name: '', color: '#000000' });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, ...data }: { id: number } & LabelFormValues) => {
-      await axios.put(`/api/project/${project}/labels/${id}`, data, {
-        headers: { Authorization: `Bearer ${auth.accessToken}` },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', project, 'labels'] });
-      setEditingId(null);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await axios.delete(`/api/project/${project}/labels/${id}`, {
-        headers: { Authorization: `Bearer ${auth.accessToken}` },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', project, 'labels'] });
-    },
-  });
-
   const startEditing = (label: Label) => {
     setEditingId(label.id);
     editForm.reset({
       name: label.name,
+      description: label.description,
       color: label.color,
     });
   };
@@ -151,41 +93,66 @@ export default function ProjectLabelsSettings() {
               >
                 {editingId === label.id ? (
                   <form
-                    className="flex w-full items-center gap-4"
+                    className="flex w-full flex-col gap-4"
                     onSubmit={editForm.handleSubmit((data) =>
-                      updateMutation.mutate({ ...data, id: label.id })
+                      updateMutation.mutate({
+                        labelId: label.id,
+                        updateLabelDto: {
+                          name: data.name,
+                          description: data.description,
+                          color: data.color,
+                        },
+                      })
                     )}
                   >
-                    <Input {...editForm.register('name')} className="flex-1" />
-                    <div className="flex min-w-[200px] gap-2">
-                      <ColorInput
-                        value={editForm.watch('color')}
-                        onChange={(value) => editForm.setValue('color', value)}
-                        className="flex-1"
+                    <div className="flex items-center gap-4">
+                      <Input
+                        {...editForm.register('name')}
+                        className="h-10 flex-1"
+                        placeholder="Name"
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleRandomColor(editForm)}
-                        className="h-10 w-10 flex-shrink-0"
-                      >
-                        <Shuffle className="h-4 w-4" />
-                      </Button>
+                      <div className="flex min-w-[200px] gap-2">
+                        <ColorInput
+                          value={editForm.watch('color')}
+                          onChange={(value) => editForm.setValue('color', value)}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleRandomColor(editForm)}
+                          className="h-10 w-10 flex-shrink-0"
+                        >
+                          <Shuffle className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button type="submit" size="sm">
-                        Save
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setEditingId(null)}
-                      >
-                        Cancel
-                      </Button>
+                    <div className="flex gap-4">
+                      <Input
+                        {...editForm.register('description')}
+                        className="flex-1"
+                        placeholder="Description"
+                      />
+                      <div className="flex gap-2">
+                        <Button type="submit" size="sm">
+                          Save
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingId(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
                     </div>
+                    {editForm.formState.errors.description && (
+                      <p className="text-sm text-red-500">
+                        {editForm.formState.errors.description.message}
+                      </p>
+                    )}
                   </form>
                 ) : (
                   <>
@@ -193,7 +160,8 @@ export default function ProjectLabelsSettings() {
                       <div className="h-6 w-6 rounded" style={{ backgroundColor: label.color }} />
                       <div>
                         <p className="font-medium">{label.name}</p>
-                        <p className="text-sm text-gray-500">{label.color}</p>
+                        <p className="text-sm text-gray-500">{label.description}</p>
+                        <p className="text-sm text-gray-400">{label.color}</p>
                       </div>
                     </div>
                     <div className="flex space-x-2">
@@ -233,7 +201,7 @@ export default function ProjectLabelsSettings() {
                   <Input
                     {...createForm.register('name')}
                     placeholder="Label name"
-                    className="mt-1"
+                    className="mt-1 h-10"
                     id="name"
                     name="name"
                   />
@@ -267,13 +235,29 @@ export default function ProjectLabelsSettings() {
                     <Shuffle className="h-4 w-4" />
                   </Button>
                 </div>
-
                 {createForm.formState.errors.color && (
                   <p className="mt-1 text-sm text-red-500">
                     {createForm.formState.errors.color.message}
                   </p>
                 )}
               </div>
+            </div>
+            <div className="flex-1">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+                <Input
+                  {...createForm.register('description')}
+                  placeholder="Label description"
+                  className="mt-1"
+                  id="description"
+                  name="description"
+                />
+              </label>
+              {createForm.formState.errors.description && (
+                <p className="mt-1 text-sm text-red-500">
+                  {createForm.formState.errors.description.message}
+                </p>
+              )}
             </div>
             <Button type="submit" className="w-full bg-black hover:bg-black/80">
               <Plus className="mr-2 h-4 w-4" />

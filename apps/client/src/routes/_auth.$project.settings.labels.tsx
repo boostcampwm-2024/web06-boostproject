@@ -1,6 +1,29 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { Suspense } from 'react';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import ProjectLabelsSettings from '@/pages/ProjectLabelsSettings.tsx';
 
 export const Route = createFileRoute('/_auth/$project/settings/labels')({
-  component: ProjectLabelsSettings,
+  beforeLoad: ({ params }) => {
+    const projectId = Number(params.project);
+    if (Number.isNaN(projectId)) {
+      throw redirect({
+        to: '/account',
+      });
+    }
+  },
+  loader: ({ params }) => {
+    const projectId = Number(params.project);
+    return { projectId };
+  },
+  errorComponent: ({ error }) => (
+    <div>
+      <h2>Error Loading Labels</h2>
+      <p>{error.message || 'Failed to load labels'}</p>
+    </div>
+  ),
+  component: () => (
+    <Suspense fallback={<div>Loading labels...</div>}>
+      <ProjectLabelsSettings />
+    </Suspense>
+  ),
 });

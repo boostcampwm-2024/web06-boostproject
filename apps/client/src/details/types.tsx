@@ -7,6 +7,7 @@ export type Assignee = {
 export type Label = {
   id: number;
   name: string;
+  description: string;
   color: string;
 };
 

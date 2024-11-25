@@ -124,6 +124,7 @@ export class ProjectController {
     @Param('id') id: number,
     @Body() body: SprintDetailsRequest
   ) {
+    body.validate();
     return new BaseResponse(
       201,
       '스프린트 생성 완료했습니다.',
@@ -146,6 +147,7 @@ export class ProjectController {
     @Param('id') id: number,
     @Body() body: LabelDetailsRequest
   ) {
+    body.validate();
     return new BaseResponse(
       201,
       '라벨 생성 완료했습니다.',

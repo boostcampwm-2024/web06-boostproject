@@ -1,11 +1,16 @@
+import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto';
 import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
 
 export class UpdateTaskDetailsResponse {
-  constructor(taskId: number, request: UpdateTaskDetailsRequest) {
+  constructor(
+    taskId: number,
+    request: UpdateTaskDetailsRequest,
+    sprintDetails: SprintDetailsResponse
+  ) {
     this.taskId = taskId;
     this.description = request.description;
     this.priority = request.priority;
-    this.sprintId = request.sprintId;
+    this.sprint = request.sprintId === null ? null : sprintDetails;
     this.estimate = request.estimate;
   }
 
@@ -15,7 +20,7 @@ export class UpdateTaskDetailsResponse {
 
   priority: number;
 
-  sprintId: number;
+  sprint: SprintDetailsResponse;
 
   estimate: number;
 }

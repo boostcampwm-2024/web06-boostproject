@@ -7,6 +7,9 @@ export class TaskLabel extends EntityTimestamp {
   id: number;
 
   @Column()
+  projectId: number;
+
+  @Column()
   taskId: number;
 
   @Column()

@@ -85,6 +85,9 @@ export class SprintService {
   }
 
   private validateDuration(startDate: string, endDate: string) {
+    if (!startDate && !endDate) {
+      return;
+    }
     const startedAt = new Date(startDate);
     const endedAt = new Date(endDate);
     if (endedAt < startedAt) {
@@ -100,6 +103,9 @@ export class SprintService {
   }
 
   private async validateDuplication(projectId: number, title: string, id: number) {
+    if (!title) {
+      return;
+    }
     const duplication = await this.sprintRepository
       .createQueryBuilder('sprint')
       .where('sprint.projectId = :projectId', { projectId })

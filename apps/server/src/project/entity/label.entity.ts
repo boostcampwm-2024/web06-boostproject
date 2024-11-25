@@ -19,8 +19,14 @@ export class Label extends EntityTimestamp {
   color: string;
 
   update(title: string, description: string, color: string) {
-    this.title = title;
-    this.description = description;
-    this.color = color;
+    if (title) {
+      this.title = title;
+    }
+    if (description) {
+      this.description = description;
+    }
+    if (color) {
+      this.color = color;
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Suspense } from 'react';
 import { TaskDetail } from '@/pages/TaskDetail.tsx';
 
 export const Route = createFileRoute('/_auth/$project/board/$taskId')({
@@ -28,5 +29,9 @@ export const Route = createFileRoute('/_auth/$project/board/$taskId')({
       <p>{error.message || 'Failed to load Task Detail'}</p>
     </div>
   ),
-  component: TaskDetail,
+  component: () => (
+    <Suspense fallback={<div>Loading task details...</div>}>
+      <TaskDetail />
+    </Suspense>
+  ),
 });

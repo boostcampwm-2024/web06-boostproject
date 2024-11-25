@@ -1,3 +1,19 @@
+import { BaseResponse } from '@/features/types.ts';
+
+export type User = {
+  id: number;
+  username: string;
+  avatar: string;
+};
+
+export type Member = Omit<User, 'avatar'> & {
+  role: string;
+};
+
+export type Assignee = User;
+
+export type GetMembersResult = BaseResponse<User[]>;
+
 export type Label = {
   id: number;
   name: string;

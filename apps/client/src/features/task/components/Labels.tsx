@@ -1,19 +1,28 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Search, Settings, Tag, X } from 'lucide-react';
+import { useLoaderData } from '@tanstack/react-router';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/details/types.tsx';
-import { cn } from '@/lib/utils.ts';
+
+import { cn } from '@/lib/utils';
+import { useLabelsQuery } from '@/features/project/label/useLabelsQuery';
+import { useTaskMutations } from '@/features/task/useTaskMutations';
+import { Label } from '@/features/types.ts';
 
 interface LabelsProps {
-  labels: Label[];
-  selectedLabels: number[];
-  setSelectedLabels: Dispatch<SetStateAction<number[]>>;
+  initialLabels: Label[];
 }
 
-export default function Labels({ labels, selectedLabels, setSelectedLabels }: LabelsProps) {
+export default function Labels({ initialLabels }: LabelsProps) {
+  const { taskId, projectId } = useLoaderData({
+    from: '/_auth/$project/board/$taskId',
+  });
+  const { data: labels = [] } = useLabelsQuery(projectId);
+  const { updateLabels } = useTaskMutations(taskId);
+
+  const [selectedLabels, setSelectedLabels] = useState<Label[]>(initialLabels);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -22,9 +31,13 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
   );
 
   const toggleLabel = (label: Label) => {
-    setSelectedLabels((prev) =>
-      prev.includes(label.id) ? prev.filter((id) => id !== label.id) : [...prev, label.id]
-    );
+    const isSelected = selectedLabels.some((l) => l.id === label.id);
+    const newLabels = isSelected
+      ? selectedLabels.filter((l) => l.id !== label.id)
+      : [...selectedLabels, label];
+
+    setSelectedLabels(newLabels);
+    updateLabels.mutate(newLabels.map((l) => l.id));
   };
 
   return (
@@ -65,12 +78,13 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
                   onClick={() => toggleLabel(label)}
                   className={cn(
                     'flex w-full cursor-pointer items-center gap-1 px-4 py-2 text-sm',
-                    selectedLabels.includes(label.id) && 'bg-blue-100'
+                    selectedLabels.some((l) => l.id === label.id) && 'bg-blue-100'
                   )}
                 >
                   <Badge style={{ backgroundColor: label.color }}>{label.name}</Badge>
-                  <div className="flex-1" />
-                  {selectedLabels.includes(label.id) && <X className="h-4 w-4 text-blue-600" />}
+                  {selectedLabels.some((l) => l.id === label.id) && (
+                    <X className="h-4 w-4 text-blue-600" />
+                  )}
                 </button>
               ))}
             </div>
@@ -79,18 +93,15 @@ export default function Labels({ labels, selectedLabels, setSelectedLabels }: La
       </div>
 
       <div className="flex flex-wrap gap-1">
-        {selectedLabels.length > 0 &&
-          selectedLabels.map((id) => {
-            const label = labels.find((l) => l.id === id);
-            if (!label) return null;
-            return (
-              <Badge key={id} style={{ backgroundColor: label.color }}>
-                {label.name}
-              </Badge>
-            );
-          })}
-
-        {selectedLabels.length === 0 && <p className="text-xs text-gray-600">No labels</p>}
+        {selectedLabels.length > 0 ? (
+          selectedLabels.map((label) => (
+            <Badge key={label.id} style={{ backgroundColor: label.color }}>
+              {label.name}
+            </Badge>
+          ))
+        ) : (
+          <p className="text-xs text-gray-600">No labels</p>
+        )}
       </div>
     </div>
   );

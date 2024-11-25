@@ -1,20 +1,29 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Settings, Hash } from 'lucide-react';
+import { useLoaderData } from '@tanstack/react-router';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTaskMutations } from '@/features/task/useTaskMutations';
 
 interface EstimateProps {
-  estimate: number | null;
-  setEstimate: Dispatch<SetStateAction<number | null>>;
+  initialEstimate: number | null;
 }
 
-export default function Estimate({ estimate = 0, setEstimate }: EstimateProps) {
+export default function Estimate({ initialEstimate }: EstimateProps) {
+  const { taskId } = useLoaderData({
+    from: '/_auth/$project/board/$taskId',
+  });
+  const { updateEstimate } = useTaskMutations(taskId);
+
+  const [estimate, setEstimate] = useState<number | null>(initialEstimate);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleEstimateChange = (value: number) => {
-    setEstimate(value);
+    if (value < 0) return;
+    setEstimate(value || null);
+    updateEstimate.mutate(value || undefined);
   };
 
   return (
@@ -36,7 +45,7 @@ export default function Estimate({ estimate = 0, setEstimate }: EstimateProps) {
           </PopoverTrigger>
           <PopoverContent className="bg-surface" align="end">
             <div className="space-y-2">
-              <Label>포인트</Label>
+              <Label>Points</Label>
               <Input
                 type="number"
                 value={estimate ?? ''}
@@ -53,7 +62,7 @@ export default function Estimate({ estimate = 0, setEstimate }: EstimateProps) {
         {estimate !== null ? (
           <p className="text-sm">{estimate} points</p>
         ) : (
-          <p className="text-sm text-gray-600">No estimate</p>
+          <p className="text-xs text-gray-600">No estimate</p>
         )}
       </div>
     </div>

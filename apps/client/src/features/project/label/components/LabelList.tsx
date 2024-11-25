@@ -12,9 +12,9 @@ import {
   CardTitle,
 } from '@/components/ui/card.tsx';
 import { ColorInput } from '@/features/project/label/components/ColorInput.tsx';
-import { Label } from '@/details/types.tsx';
 import { generateRandomColor } from '@/features/project/label/generateRandomColor.ts';
 import { labelFormSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
+import { Label } from '@/features/types.ts';
 
 interface LabelListProps {
   labels: Label[];

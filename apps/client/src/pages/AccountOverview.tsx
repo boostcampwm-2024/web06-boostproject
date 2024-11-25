@@ -1,27 +1,20 @@
-import axios from 'axios';
 import { useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/authContext';
 import TabView from '@/components/TabView';
 import ProjectCard from '@/components/ProjectCard';
 import CreateProjectDialog from '@/components/dialog/CreateProjectDialog';
 import { CreateProjectRequestDTO, GetProjectsResponseDTO } from '@/types/project';
+import { axiosInstance } from '@/lib/axios.ts';
 
 function AccountOverview() {
-  const auth = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: projects } = useSuspenseQuery({
     queryKey: ['projects'],
     queryFn: async () => {
       try {
-        const projects = await axios.get<GetProjectsResponseDTO>('/api/projects', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-        });
+        const projects = await axiosInstance.get<GetProjectsResponseDTO>('/projects');
         return projects.data.result;
       } catch {
         throw new Error('Failed to fetch projects');
@@ -30,12 +23,7 @@ function AccountOverview() {
   });
   const { isPending, mutate } = useMutation({
     mutationFn: async (data: CreateProjectRequestDTO) => {
-      await axios.post('/api/project', data, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      });
+      await axiosInstance.post('/project', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });

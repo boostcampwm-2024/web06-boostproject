@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { io, Socket } from 'socket.io-client';
-import { useAuth } from '@/contexts/authContext';
 import { Harmony } from './logo';
 import { Button } from './ui/button';
+import { useAuth } from '@/features/auth/useAuth.ts';
 
 const CARDS = ['☕️', '8', '4', '2', '1'];
 

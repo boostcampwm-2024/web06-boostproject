@@ -1,55 +1,28 @@
-import axios from 'axios';
-import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
 import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
-import { useAuth } from '@/contexts/authContext';
 import Footer from '@/components/Footer.tsx';
 import LoginForm, { LoginFormData } from '@/auth/LoginForm.tsx';
-
-const login = async ({ username, password }: { username: string; password: string }) => {
-  const response = await axios.post('/api/auth/signin', { username, password });
-
-  const accessTokenWithBearer = response.headers.authorization;
-  const accessToken = accessTokenWithBearer.split(' ')[1];
-
-  const refreshToken = response.headers['x-refresh-token'];
-  localStorage.setItem('refreshToken', refreshToken);
-
-  return {
-    username: response.data.username,
-    accessToken,
-  };
-};
+import { useAuth } from '@/features/auth/useAuth.ts';
 
 function Login() {
-  const auth = useAuth();
-  const navigate = useNavigate({ from: '/login' });
-
-  const { isPending, mutate } = useMutation({
-    mutationFn: login,
-    onSuccess: async (response) => {
-      const { username, accessToken } = response;
-
-      await auth.login(username, accessToken);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-
-      await navigate({ to: '/account' });
-    },
-    onError: (error) => {
-      console.error('Login failed:', error);
-      alert('로그인 실패');
-    },
+  const navigate = useNavigate({
+    from: '/login',
   });
+  const { loginMutation } = useAuth();
 
-  const handleSubmit = (loginFormData: LoginFormData) => {
-    mutate({
+  const { mutateAsync: login, isPending } = loginMutation;
+
+  const handleSubmit = async (loginFormData: LoginFormData) => {
+    await login({
       username: loginFormData.username,
       password: loginFormData.password,
     });
+
+    setTimeout(() => {
+      navigate({ to: '/account' });
+    }, 100);
   };
 
   return (

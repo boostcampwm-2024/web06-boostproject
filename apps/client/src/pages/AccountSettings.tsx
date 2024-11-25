@@ -1,31 +1,22 @@
-import axios from 'axios';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Check, Inbox, X } from 'lucide-react';
 import TabView from '@/components/TabView';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/authContext';
 import { Button } from '@/components/ui/button';
 import {
   GetProjectInvitationsResponseDTO,
   HandleProjectInvitationRequestDTO,
 } from '@/types/project';
+import { axiosInstance } from '@/lib/axios.ts';
 
 function AccountSettings() {
-  const auth = useAuth();
   const queryClient = useQueryClient();
   const { data: invitations } = useSuspenseQuery({
     queryKey: ['project', 'invitations'],
     queryFn: async () => {
       try {
-        const invitations = await axios.get<GetProjectInvitationsResponseDTO>(
-          '/api/project/invitations',
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${auth.accessToken}`,
-            },
-          }
-        );
+        const invitations =
+          await axiosInstance.get<GetProjectInvitationsResponseDTO>('/project/invitations');
         return invitations.data.result;
       } catch {
         throw new Error('Failed to fetch invitations');
@@ -40,12 +31,7 @@ function AccountSettings() {
       projectId: number;
       payload: HandleProjectInvitationRequestDTO;
     }) => {
-      await axios.patch(`/api/project/${projectId}/invite`, payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      });
+      await axiosInstance.patch(`/project/${projectId}/invite`, payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', 'invitations'] });

@@ -1,13 +1,11 @@
 import { Link, useParams } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LexoRank } from 'lexorank';
 import { HamburgerMenuIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { DragEvent, useState } from 'react';
 import { PanelLeftOpen } from 'lucide-react';
 
-import { useAuth } from '@/contexts/authContext.tsx';
 import {
   Section,
   SectionContent,
@@ -31,6 +29,7 @@ import {
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
 import Tag from '@/components/Tag.tsx';
 import TaskTextArea from '@/components/TaskTextArea.tsx';
+import { axiosInstance } from '@/lib/axios.ts';
 
 export interface Event {
   taskId: number;
@@ -61,16 +60,13 @@ export type EventResponse = BaseResponse<Event>;
 
 export default function KanbanBoard() {
   const { project: projectId } = useParams({ from: '/_auth/$project/board' });
-  const { accessToken } = useAuth();
   const queryClient = useQueryClient();
 
   // load tasks
   const { data: sections } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: async () => {
-      const response = await axios.get<TasksResponse>(`/api/task?projectId=${projectId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axiosInstance.get<TasksResponse>(`/api/task?projectId=${projectId}`);
 
       return response.data.result;
     },
@@ -133,9 +129,7 @@ export default function KanbanBoard() {
         position,
       };
 
-      return axios.post(`/api/project/${projectId}/update`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      return axiosInstance.post(`/project/${projectId}/update`, payload);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -254,9 +248,7 @@ export default function KanbanBoard() {
         position,
       };
 
-      return axios.post(`/api/project/${projectId}/update`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      return axiosInstance.post(`/project/${projectId}/update`, payload);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({

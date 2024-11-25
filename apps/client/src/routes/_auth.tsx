@@ -1,13 +1,5 @@
-import axios from 'axios';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import {
-  Link,
-  Outlet,
-  createFileRoute,
-  redirect,
-  useParams,
-  useRouter,
-} from '@tanstack/react-router';
+import { Link, Outlet, createFileRoute, redirect, useParams } from '@tanstack/react-router';
 import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
 import { Harmony } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
@@ -17,8 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/contexts/authContext';
-import { sleep } from '@/utils/sleep';
+import { axiosInstance } from '@/lib/axios.ts';
+import { useAuth } from '@/features/auth/useAuth.ts';
 
 type Project = {
   id: number;
@@ -41,17 +33,12 @@ export const Route = createFileRoute('/_auth')({
       });
     }
   },
-  loader: ({ context: { auth, queryClient } }) => {
+  loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData({
       queryKey: ['projects'],
       queryFn: async () => {
         try {
-          const projects = await axios.get<ProjectResponse>('/api/projects', {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${auth.accessToken}`,
-            },
-          });
+          const projects = await axiosInstance.get<ProjectResponse>('/projects');
           return projects.data.result;
         } catch {
           throw new Error('Failed to fetch projects');
@@ -64,20 +51,13 @@ export const Route = createFileRoute('/_auth')({
 });
 
 function AuthLayout() {
-  const router = useRouter();
   const navigate = Route.useNavigate();
-  const auth = useAuth();
   const params = useParams({ strict: false });
   const { data: projects } = useSuspenseQuery({
     queryKey: ['projects'],
     queryFn: async () => {
       try {
-        const projects = await axios.get<ProjectResponse>('/api/projects', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-        });
+        const projects = await axiosInstance.get<ProjectResponse>('/projects');
         return projects.data.result;
       } catch {
         throw new Error('Failed to fetch projects');
@@ -85,15 +65,15 @@ function AuthLayout() {
     },
   });
 
+  const { logoutMutation } = useAuth();
+  const { mutateAsync: logout } = logoutMutation;
+
   const handleLogout = async () => {
-    try {
-      await auth.logout();
-      await router.invalidate();
-      await sleep(1); // 상태 업데이트를 위한 임시 방편
-      await navigate({ to: '/' });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    await logout();
+
+    setTimeout(() => {
+      navigate({ to: '/login' });
+    }, 100);
   };
 
   return (

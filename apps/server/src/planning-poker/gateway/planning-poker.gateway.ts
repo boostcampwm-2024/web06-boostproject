@@ -7,9 +7,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { UserService } from '@/account/user.service';
 
 @WebSocketGateway()
 export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly userService: UserService) {}
+
   @WebSocketServer()
   server: Server;
 
@@ -18,9 +21,10 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     { isRevealed: boolean; users: Map<number, { username: string; card: string }> }
   > = new Map();
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     const { projectId } = client.handshake.auth;
     const { id, username } = client.data.user;
+    const { profileImage } = await this.userService.getOne(id);
 
     if (!this.selectedCards.has(projectId)) {
       this.selectedCards.set(projectId, { isRevealed: false, users: new Map() });
@@ -29,19 +33,38 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
 
     client.join(projectId);
 
-    const projectCards = this.getProjectCardsOrThrow(projectId);
-
-    const userDetails = {
-      isRevealed: projectCards.isRevealed,
-      users: Array.from(projectCards.users.entries()).map(([userId, { username, card }]) => ({
-        userId,
-        username,
-        card: projectCards.isRevealed ? card : card === '' ? '' : 'SELECTED',
-      })),
-    };
+    const userDetails = await this.getUserDetails(projectId);
 
     client.emit('users_fetched', userDetails);
-    this.broadcastToOthers(client, 'user_joined', { userId: id, username });
+    this.broadcastToOthers(client, 'user_joined', { userId: id, username, profileImage });
+  }
+
+  private async getUserDetails(projectId: string) {
+    const getCardStatus = (card: string, isRevealed: boolean) => {
+      if (isRevealed) {
+        return card;
+      }
+      return card === '' ? '' : 'SELECTED';
+    };
+
+    const projectCards = this.getProjectCardsOrThrow(projectId);
+
+    const users = await Promise.all(
+      Array.from(projectCards.users.entries()).map(async ([userId, { username, card }]) => {
+        const user = await this.userService.getOne(userId);
+        return {
+          userId,
+          username,
+          card: getCardStatus(card, projectCards.isRevealed),
+          profileImage: user.profileImage,
+        };
+      })
+    );
+
+    return {
+      isRevealed: projectCards.isRevealed,
+      users,
+    };
   }
 
   handleDisconnect(client: Socket) {

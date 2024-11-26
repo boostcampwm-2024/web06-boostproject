@@ -6,7 +6,8 @@ export class TaskResponse {
   constructor(
     task: Task,
     assigneeDetails: AssigneeDetailsResponse[],
-    labelDetails: LabelDetailsResponse[]
+    labelDetails: LabelDetailsResponse[],
+    statistic: any
   ) {
     this.id = task.id;
     this.title = task.title;
@@ -15,6 +16,7 @@ export class TaskResponse {
     this.position = task.position;
     this.assignees = assigneeDetails;
     this.labels = labelDetails;
+    this.statistic = statistic;
   }
 
   id: number;
@@ -30,4 +32,6 @@ export class TaskResponse {
   assignees: AssigneeDetailsResponse[];
 
   labels: LabelDetailsResponse[];
+
+  statistic: any;
 }

@@ -2,8 +2,7 @@ import { useLoaderData } from '@tanstack/react-router';
 import { useSprintsQuery } from '@/features/project/sprint/useSprintsQuery';
 import { useSprintMutations } from '@/features/project/sprint/useSprintMutations';
 import { SprintList } from '@/features/project/sprint/components/SprintList.tsx';
-import { CreateSrpint } from '@/features/project/sprint/components/CreateSrpint.tsx';
-import { SprintFormValues } from '@/features/project/sprint/sprintSchema.ts';
+import { CreateSprint } from '@/features/project/sprint/components/CreateSprint.tsx';
 
 export default function SprintsSettings() {
   const { projectId } = useLoaderData({ from: '/_auth/$project/settings/sprints' });
@@ -32,15 +31,8 @@ export default function SprintsSettings() {
         }
         onDelete={(sprintId) => deleteMutation.mutate(sprintId)}
       />
-      <CreateSrpint
-        onCreate={(data: SprintFormValues) =>
-          createMutation.mutate({
-            name: data.name,
-            startDate: dateToYYYYMMDD(data.dateRange.from),
-            endDate: dateToYYYYMMDD(data.dateRange.to),
-          })
-        }
-      />
+
+      <CreateSprint createMutation={createMutation} />
     </div>
   );
 }

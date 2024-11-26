@@ -6,7 +6,9 @@ import { CreateLabel } from '@/features/project/label/components/CreateLabel.tsx
 
 export default function LabelsSettings() {
   const { projectId } = useLoaderData({ from: '/_auth/$project/settings/labels' });
+
   const { data: labels = [] } = useLabelsQuery(projectId);
+
   const {
     create: createMutation,
     update: updateMutation,
@@ -15,17 +17,7 @@ export default function LabelsSettings() {
 
   return (
     <div className="space-y-6">
-      <LabelList
-        labels={labels}
-        onUpdate={(labelId, data) =>
-          updateMutation.mutate({
-            labelId,
-            updateLabelDto: data,
-          })
-        }
-        onDelete={(labelId) => deleteMutation.mutate(labelId)}
-      />
-
+      <LabelList labels={labels} updateMutation={updateMutation} deleteMutation={deleteMutation} />
       <CreateLabel createMutation={createMutation} />
     </div>
   );

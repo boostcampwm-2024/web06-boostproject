@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Pencil, X, Shuffle } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AxiosError } from 'axios';
+import { UseMutationResult } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -14,32 +16,98 @@ import {
 import { ColorInput } from '@/features/project/label/components/ColorInput.tsx';
 import { generateRandomColor } from '@/features/project/label/generateRandomColor.ts';
 import { labelFormSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
-import { Label } from '@/features/types.ts';
+import { BaseResponse, Label } from '@/features/types.ts';
+import { UpdateLabelDto } from '@/features/project/types.ts';
 
 interface LabelListProps {
   labels: Label[];
-  onUpdate: (labelId: number, data: Partial<Label>) => void;
-  onDelete: (labelId: number) => void;
+  updateMutation: UseMutationResult<
+    BaseResponse,
+    AxiosError,
+    {
+      labelId: number;
+      updateLabelDto: UpdateLabelDto;
+    }
+  >;
+  deleteMutation: UseMutationResult<BaseResponse, AxiosError, number>;
 }
 
-export function LabelList({ labels, onUpdate, onDelete }: LabelListProps) {
+export function LabelList({ labels, updateMutation, deleteMutation }: LabelListProps) {
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const editForm = useForm<LabelFormValues>({
+  const { mutate: updateLabel } = updateMutation;
+
+  const { mutate: deleteLabel } = deleteMutation;
+
+  const {
+    handleSubmit,
+    register,
+    watch,
+    setValue,
+    setError,
+    reset,
+    formState: { errors },
+  } = useForm<LabelFormValues>({
     resolver: zodResolver(labelFormSchema),
   });
 
   const startEditing = (label: Label) => {
     setEditingId(label.id);
-    editForm.reset({
+    reset({
       name: label.name,
       description: label.description,
       color: label.color,
     });
   };
 
+  const onUpdate = (labelId: number, data: LabelFormValues) => {
+    updateLabel(
+      {
+        labelId,
+        updateLabelDto: {
+          name: data.name.trim(),
+          description: data.description.trim(),
+          color: data.color,
+        },
+      },
+      {
+        onSuccess: onUpdateSuccess,
+        onError: onUpdateError,
+      }
+    );
+  };
+
+  const onDelete = (labelId: number) => {
+    deleteLabel(labelId, {
+      onSuccess: onDeleteSuccess,
+      onError: onDeleteError,
+    });
+  };
+
+  const onUpdateSuccess = () => {
+    setEditingId(null);
+  };
+
+  const onUpdateError = (error: AxiosError) => {
+    if (error?.response?.status === 400) {
+      setError('name', {
+        message: 'Label with this name already exists',
+      });
+    }
+
+    // TODO: 서버 에러 처리
+  };
+
+  const onDeleteSuccess = () => {
+    // TODO: 토스트 보여주기
+  };
+
+  const onDeleteError = () => {
+    // TODO: 서버 에러 처리
+  };
+
   const handleRandomColor = () => {
-    editForm.setValue('color', generateRandomColor(), { shouldValidate: true });
+    setValue('color', generateRandomColor(), { shouldValidate: true });
   };
 
   return (
@@ -58,21 +126,29 @@ export function LabelList({ labels, onUpdate, onDelete }: LabelListProps) {
               {editingId === label.id ? (
                 <form
                   className="flex w-full flex-col gap-4"
-                  onSubmit={editForm.handleSubmit((data) => {
+                  onSubmit={handleSubmit((data) => {
                     onUpdate(label.id, data);
-                    setEditingId(null);
                   })}
                 >
-                  <div className="flex items-center gap-4">
-                    <Input
-                      {...editForm.register('name')}
-                      className="h-10 flex-1"
-                      placeholder="Name"
-                    />
+                  <div className="flex items-end gap-4">
+                    <div className="flex-1">
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                        Name
+                        <Input
+                          {...register('name')}
+                          placeholder="Label name"
+                          className="mt-1 h-10"
+                          id="name"
+                        />
+                      </label>
+                      {errors.name && (
+                        <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+                      )}
+                    </div>
                     <div className="flex min-w-[200px] gap-2">
                       <ColorInput
-                        value={editForm.watch('color')}
-                        onChange={(value) => editForm.setValue('color', value)}
+                        value={watch('color')}
+                        onChange={(value) => setValue('color', value)}
                         className="flex-1"
                       />
                       <Button
@@ -88,7 +164,7 @@ export function LabelList({ labels, onUpdate, onDelete }: LabelListProps) {
                   </div>
                   <div className="flex gap-4">
                     <Input
-                      {...editForm.register('description')}
+                      {...register('description')}
                       className="flex-1"
                       placeholder="Description"
                     />

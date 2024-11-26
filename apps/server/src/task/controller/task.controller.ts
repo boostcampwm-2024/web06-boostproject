@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { TaskService } from '@/task/service/task.service';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
@@ -76,5 +87,11 @@ export class TaskController {
     @Body() body: UpdateAssigneesRequest
   ) {
     return this.taskService.updateAssignees(user.id, id, body.assignees);
+  }
+
+  @Delete(':id')
+  @ResponseMessage('태스크 삭제 완료했습니다.')
+  async delete(@AuthUser() user: Account, @Param('id') id: number) {
+    return this.taskService.deleteWithoutEvent(user.id, id);
   }
 }

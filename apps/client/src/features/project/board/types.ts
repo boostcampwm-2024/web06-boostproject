@@ -47,6 +47,8 @@ export type Event = {
   };
 };
 
+export type EventResponse = BaseResponse<Event[]>;
+
 export interface UpdateTitleDto {
   event: 'INSERT_TITLE' | 'DELETE_TITLE';
   taskId: number;

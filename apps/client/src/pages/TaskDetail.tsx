@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button.tsx';
 
 import { TaskDescription } from '@/features/task/components/TaskDescription.tsx';
 import { Subtasks } from '@/features/task/subtask/components/Subtasks.tsx';
-import { useSuspenseTaskQuery } from '@/features/task/useTaskQuery.ts';
+import { useSuspenseTaskQuery } from '@/features/task/useSuspenseTaskQuery.ts';
 import Assignees from '@/features/task/components/Assignees.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import Labels from '@/features/task/components/Labels.tsx';

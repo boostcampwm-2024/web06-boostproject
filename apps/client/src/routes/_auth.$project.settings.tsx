@@ -17,14 +17,14 @@ function ProjectSettingsLayout() {
   return (
     <div className="flex h-[calc(100vh-100px)] flex-col">
       <div className="w-full border-b">
-        <div className="mx-auto max-w-screen-lg">
+        <div className="mx-auto max-w-[1280px]">
           <div className="px-6 py-8">
             <h1 className="text-3xl">Settings</h1>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto flex min-h-0 w-full max-w-screen-lg flex-1">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1280px] flex-1">
         <div className="w-64 flex-shrink-0 border-r">
           <div className="px-6 py-6">
             <div className="w-full space-y-1">

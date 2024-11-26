@@ -10,6 +10,7 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { sprintFormSchema, SprintFormValues } from '@/features/project/sprint/sprintSchema.ts';
 import { BaseResponse } from '@/features/types.ts';
 import { CreateSprintDto } from '@/features/project/types.ts';
+import { useToast } from '@/lib/useToast.tsx';
 
 interface CreateProjectSprintProps {
   createMutation: UseMutationResult<BaseResponse, AxiosError, CreateSprintDto>;
@@ -18,12 +19,16 @@ interface CreateProjectSprintProps {
 const 일주일 = 7 * 24 * 60 * 60 * 1000;
 
 export function CreateSprint({ createMutation }: CreateProjectSprintProps) {
+  const toast = useToast();
+
   const { mutate } = createMutation;
+
   const {
     register,
     handleSubmit,
     control,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<SprintFormValues>({
     resolver: zodResolver(sprintFormSchema),
@@ -43,8 +48,17 @@ export function CreateSprint({ createMutation }: CreateProjectSprintProps) {
         startDate: data.dateRange.from.toISOString().split('T')[0],
         endDate: data.dateRange.to.toISOString().split('T')[0],
       },
-      { onError }
+      { onSuccess, onError }
     );
+  };
+
+  const onSuccess = () => {
+    toast.success('Sprint created successfully');
+    setValue('name', '');
+    setValue('dateRange', {
+      from: new Date(),
+      to: new Date(new Date().getTime() + 일주일),
+    });
   };
 
   const onError = (error: AxiosError) => {
@@ -54,7 +68,7 @@ export function CreateSprint({ createMutation }: CreateProjectSprintProps) {
       });
     }
 
-    // TODO: 서버 에러 처리
+    toast.error('Failed to create sprint');
   };
 
   return (

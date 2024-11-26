@@ -58,7 +58,7 @@ export function DateRangePicker({ className, date, onChange }: DateRangePickerPr
           <Button
             id="date"
             variant="outline"
-            className={cn('w-[300px] justify-start text-left font-normal', !dateState && '')}
+            className={cn('max-w-xs justify-start text-left font-normal', !dateState && '')}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {getDateRangeText()}

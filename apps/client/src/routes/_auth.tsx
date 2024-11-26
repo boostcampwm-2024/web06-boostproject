@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link, Outlet, createFileRoute, redirect, useParams } from '@tanstack/react-router';
 import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
+import { SlashIcon } from '@radix-ui/react-icons';
 import { Harmony } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import {
@@ -77,6 +78,8 @@ function AuthLayout() {
     }, 100);
   };
 
+  const currentProject = projects.find((project) => project.id === Number(params.project));
+
   return (
     <div>
       <Topbar
@@ -85,8 +88,9 @@ function AuthLayout() {
             <Link to={params.project === undefined ? '/account' : '/$project'}>
               <Harmony />
             </Link>
+            <SlashIcon />
             <div className="flex items-center gap-2">
-              <h2>{params.project ?? 'My Account'}</h2>
+              <h2>{(params.project && currentProject?.title) ?? 'My Account'}</h2>
               <DropdownMenu>
                 <DropdownMenuTrigger className="h-8">
                   <ChevronsUpDownIcon className="h-4 w-4" />

@@ -15,6 +15,7 @@ import { AllExceptionsFilter } from '@/common/allException.filter';
 import { AccountModule } from '@/account/account.module';
 import { ProjectModule } from '@/project/project.module';
 import { PlanningPokerModule } from './planning-poker/planning-poker.module';
+import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PlanningPokerModule } from './planning-poker/planning-poker.module';
     AccountModule,
     ProjectModule,
     PlanningPokerModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [

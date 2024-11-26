@@ -88,7 +88,7 @@ export function CreateSprint({ createMutation }: CreateProjectSprintProps) {
               {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block w-fit text-sm font-medium text-gray-700">
                 Duration
                 <div className="mt-1">
                   <Controller

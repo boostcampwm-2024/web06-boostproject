@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -114,7 +115,7 @@ export class SprintService {
       .getRawOne();
 
     if (duplication) {
-      throw new BadRequestException('Already used sprint name');
+      throw new ConflictException('Already used sprint name');
     }
   }
 

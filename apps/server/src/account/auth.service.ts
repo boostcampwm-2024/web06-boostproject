@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -18,7 +18,7 @@ export class AuthService {
   async signUp(username: string, password: string) {
     const account = await this.accountRepository.findOneBy({ username });
     if (account) {
-      throw new BadRequestException('Already used username');
+      throw new ConflictException('Already used username');
     }
     const hash = await bcrypt.hash(password, 10);
     const user = await this.accountRepository.save({ username, password: hash });

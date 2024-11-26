@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -153,26 +154,33 @@ export class ProjectService {
 
   async invite(userId: number, projectId: number, username: string) {
     const userContributor = await this.contributorRepository.findOneBy({ userId, projectId });
-    if (!userContributor) {
-      throw new NotFoundException('Does not found user contributor or project');
-    }
-    if (userContributor.role !== ProjectRole.ADMIN) {
+    if (!userContributor || userContributor.role !== ProjectRole.ADMIN) {
       throw new ForbiddenException('Permission denied');
     }
     const invitee = await this.accountRepository.findOneBy({ username });
     if (!invitee) {
       throw new NotFoundException('Does not found username');
     }
-    if (await this.contributorRepository.existsBy({ projectId, userId: invitee.id })) {
-      throw new BadRequestException('Already existed invitation');
-    }
-    await this.contributorRepository.save({
+    const contributor = await this.contributorRepository.findOneBy({
       projectId,
       userId: invitee.id,
-      inviterId: userId,
-      status: ContributorStatus.PENDING,
-      role: ProjectRole.GUEST,
     });
+    if (contributor && contributor.status !== ContributorStatus.REJECTED) {
+      throw new ConflictException('Already existed invitation');
+    }
+    if (contributor && contributor.status === ContributorStatus.REJECTED) {
+      contributor.status = ContributorStatus.PENDING;
+      await this.contributorRepository.save(contributor);
+    }
+    if (!contributor) {
+      await this.contributorRepository.save({
+        projectId,
+        userId: invitee.id,
+        inviterId: userId,
+        status: ContributorStatus.PENDING,
+        role: ProjectRole.GUEST,
+      });
+    }
   }
 
   async updateInvitation(
@@ -188,7 +196,7 @@ export class ProjectService {
     if (contributor.userId !== userId) {
       throw new ForbiddenException('Permission denied');
     }
-    if (contributor.status !== ContributorStatus.PENDING) {
+    if (contributor.status === ContributorStatus.ACCEPTED) {
       throw new BadRequestException('Already update invitation');
     }
     contributor.status = status;

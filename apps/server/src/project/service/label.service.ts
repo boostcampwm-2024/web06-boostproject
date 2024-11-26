@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -88,7 +88,7 @@ export class LabelService {
       .getRawOne();
 
     if (duplication) {
-      throw new BadRequestException('Already used label name');
+      throw new ConflictException('Already used label name');
     }
   }
 

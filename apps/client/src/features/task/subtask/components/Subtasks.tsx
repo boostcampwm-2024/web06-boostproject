@@ -78,9 +78,9 @@ export function Subtasks({ initialSubtasks = [] }: SubtasksProps) {
   }, [subtasks.length]);
 
   return (
-    <div>
+    <div className="max-h-[calc(50vh-58px)]">
       <h3 className="mb-2 text-lg font-medium">Subtasks</h3>
-      <div className="max-h-96 space-y-0.5 overflow-y-auto" ref={subtasksRef}>
+      <div className="max-h-[calc(50vh-166px)] space-y-0.5 overflow-y-auto" ref={subtasksRef}>
         {subtasks.map((subtask) => (
           <SubtaskItem
             key={subtask.id}

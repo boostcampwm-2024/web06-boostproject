@@ -162,6 +162,9 @@ export class TaskService {
       select: ['id', 'title', 'description', 'position', 'section'],
     });
 
+    const taskAssigneeRecords = await this.findTaskAssigneeRecordsByProject(projectId);
+    const labelRecords = await this.findTaskLabelRecordsByProject(projectId);
+
     const taskBySection = [];
     sections.forEach((section) => {
       taskBySection.push({
@@ -169,7 +172,17 @@ export class TaskService {
         name: section.name,
         tasks: tasks
           .filter((task) => task.section.id === section.id)
-          .map((task) => new TaskResponse(task)),
+          .map((task) => {
+            return new TaskResponse(
+              task,
+              taskAssigneeRecords
+                .filter((record) => record.taskId === task.id)
+                .map((record) => new AssigneeDetailsResponse(record.id, record.username, '')),
+              labelRecords
+                .filter((record) => record.taskId === task.id)
+                .map((record) => new LabelDetailsResponse(record as Label))
+            );
+          }),
       });
     });
 
@@ -215,7 +228,15 @@ export class TaskService {
   async get(userId: number, taskId: number) {
     const task = await this.findTaskOrThrow(taskId);
     await this.validateUserRole(userId, task.section.project.id);
-    return new TaskResponse(task);
+    const taskAssigneeRecords = await this.findTaskAssigneeRecordsByTask(taskId);
+    const labels = await this.findTaskLabelsByTask(taskId);
+    return new TaskResponse(
+      task,
+      taskAssigneeRecords.map(
+        (record) => new AssigneeDetailsResponse(record.id, record.username, '')
+      ),
+      labels.map((label) => new LabelDetailsResponse(label))
+    );
   }
 
   async delete(userId: number, projectId: number, taskEvent: TaskEvent) {
@@ -344,23 +365,14 @@ export class TaskService {
       : null;
     result.setSprint(sprint ? new SprintDetailsResponse(sprint) : null);
 
-    const taskAssigneeRecords = await this.taskAssigneeRepository
-      .createQueryBuilder('ta')
-      .leftJoin('account', 'a', 'ta.accountId = a.id')
-      .where('ta.taskId = :taskId', { taskId })
-      .addSelect(['a.username'])
-      .getRawMany();
+    const taskAssigneeRecords = await this.findTaskAssigneeRecordsByTask(taskId);
     result.setAssignees(
       taskAssigneeRecords.map(
-        (record) => new AssigneeDetailsResponse(record.ta_accountId, record.a_username, '')
+        (record) => new AssigneeDetailsResponse(record.id, record.username, '')
       )
     );
 
-    const labels = await this.labelRepository
-      .createQueryBuilder('l')
-      .leftJoin('task_label', 'tl', 'l.id = tl.labelId')
-      .where('tl.taskId = :taskId', { taskId })
-      .getMany();
+    const labels = await this.findTaskLabelsByTask(taskId);
     result.setLabels(labels.map((label) => new LabelDetailsResponse(label)));
 
     const subTasks = await this.subTaskRepository.findBy({ taskId });
@@ -439,5 +451,46 @@ export class TaskService {
       throw new NotFoundException('Section not found');
     }
     return section;
+  }
+
+  private async findTaskLabelsByTask(taskId: number) {
+    return this.labelRepository
+      .createQueryBuilder('l')
+      .leftJoin('task_label', 'tl', 'l.id = tl.labelId')
+      .where('tl.taskId = :taskId', { taskId })
+      .getMany();
+  }
+
+  private async findTaskAssigneeRecordsByTask(taskId: number) {
+    return this.taskAssigneeRepository
+      .createQueryBuilder('ta')
+      .leftJoin('account', 'a', 'ta.accountId = a.id')
+      .where('ta.taskId = :taskId', { taskId })
+      .select(['ta.accountId AS id', 'a.username AS username'])
+      .getRawMany();
+  }
+
+  private async findTaskLabelRecordsByProject(projectId: number) {
+    return this.taskLabelRepository
+      .createQueryBuilder('tl')
+      .leftJoin('label', 'l', 'tl.labelId = l.id')
+      .where('tl.projectId = :projectId', { projectId })
+      .select([
+        'tl.taskId AS taskId',
+        'l.id AS id',
+        'l.title AS title',
+        'l.description AS description',
+        'l.color AS color',
+      ])
+      .getRawMany();
+  }
+
+  private async findTaskAssigneeRecordsByProject(projectId: number) {
+    return this.taskAssigneeRepository
+      .createQueryBuilder('ta')
+      .leftJoin('account', 'a', 'ta.accountId = a.id')
+      .where('ta.projectId = :projectId', { projectId })
+      .select(['ta.taskId AS taskId', 'ta.accountId AS id', 'a.username AS username'])
+      .getRawMany();
   }
 }

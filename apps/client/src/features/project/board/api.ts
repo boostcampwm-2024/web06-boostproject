@@ -1,9 +1,5 @@
 import { axiosInstance } from '@/lib/axios.ts';
-import { BaseResponse } from '@/features/types.ts';
-import { Section } from '@/features/project/board/types.ts';
-
-export type TasksResponse = BaseResponse<Section[]>;
-export type EventResponse = BaseResponse<Event>;
+import { EventResponse, TasksResponse } from '@/features/project/board/types.ts';
 
 export const boardAPI = {
   getTasks: async (projectId: number) => {

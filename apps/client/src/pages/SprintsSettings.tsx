@@ -13,25 +13,13 @@ export default function SprintsSettings() {
     delete: deleteMutation,
   } = useSprintMutations(projectId);
 
-  const dateToYYYYMMDD = (date: Date) => date.toISOString().split('T')[0];
-
   return (
     <div className="space-y-6">
       <SprintList
         sprints={sprints}
-        onUpdate={(sprintId, data) =>
-          updateMutation.mutate({
-            sprintId,
-            updateSprintDto: {
-              name: data.name,
-              startDate: dateToYYYYMMDD(data.dateRange.from),
-              endDate: dateToYYYYMMDD(data.dateRange.to),
-            },
-          })
-        }
-        onDelete={(sprintId) => deleteMutation.mutate(sprintId)}
+        updateMutation={updateMutation}
+        deleteMutation={deleteMutation}
       />
-
       <CreateSprint createMutation={createMutation} />
     </div>
   );

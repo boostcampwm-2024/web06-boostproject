@@ -73,10 +73,7 @@ export function LabelList({ labels, updateMutation, deleteMutation }: LabelListP
           color: data.color,
         },
       },
-      {
-        onSuccess: onUpdateSuccess,
-        onError: onUpdateError,
-      }
+      { onSuccess: onUpdateSuccess, onError: onUpdateError }
     );
   };
 

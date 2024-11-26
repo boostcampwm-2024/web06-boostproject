@@ -18,6 +18,7 @@ import { generateRandomColor } from '@/features/project/label/generateRandomColo
 import { labelFormSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
 import { BaseResponse, Label } from '@/features/types.ts';
 import { UpdateLabelDto } from '@/features/project/types.ts';
+import { useToast } from '@/lib/useToast.tsx';
 
 interface LabelListProps {
   labels: Label[];
@@ -33,6 +34,8 @@ interface LabelListProps {
 }
 
 export function LabelList({ labels, updateMutation, deleteMutation }: LabelListProps) {
+  const toast = useToast();
+
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const { mutate: updateLabel } = updateMutation;
@@ -85,25 +88,27 @@ export function LabelList({ labels, updateMutation, deleteMutation }: LabelListP
   };
 
   const onUpdateSuccess = () => {
+    toast.success('Label updated successfully');
     setEditingId(null);
   };
 
   const onUpdateError = (error: AxiosError) => {
-    if (error?.response?.status === 400) {
+    if (error?.response?.status === 409) {
       setError('name', {
         message: 'Label with this name already exists',
       });
+      return;
     }
 
-    // TODO: 서버 에러 처리
+    toast.error('Label update failed');
   };
 
   const onDeleteSuccess = () => {
-    // TODO: 토스트 보여주기
+    toast.success('Label deleted successfully');
   };
 
   const onDeleteError = () => {
-    // TODO: 서버 에러 처리
+    toast.error('Label deletion failed');
   };
 
   const handleRandomColor = () => {
@@ -130,7 +135,7 @@ export function LabelList({ labels, updateMutation, deleteMutation }: LabelListP
                     onUpdate(label.id, data);
                   })}
                 >
-                  <div className="flex items-end gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex-1">
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                         Name
@@ -145,7 +150,7 @@ export function LabelList({ labels, updateMutation, deleteMutation }: LabelListP
                         <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
                       )}
                     </div>
-                    <div className="flex min-w-[200px] gap-2">
+                    <div className="mt-6 flex min-w-[200px] gap-2">
                       <ColorInput
                         value={watch('color')}
                         onChange={(value) => setValue('color', value)}

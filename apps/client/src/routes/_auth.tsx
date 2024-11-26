@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { axiosInstance } from '@/lib/axios.ts';
 import { useAuth } from '@/features/auth/useAuth.ts';
+import { Toaster } from '@/components/ui/sonner.tsx';
 
 type Project = {
   id: number;
@@ -132,6 +133,7 @@ function AuthLayout() {
         }
       />
       <Outlet />
+      <Toaster position="bottom-left" />
     </div>
   );
 }

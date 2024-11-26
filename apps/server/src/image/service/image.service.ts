@@ -6,6 +6,7 @@ import * as dotenv from 'dotenv';
 import { UserService } from '@/account/user.service';
 import { PresignedUrlResponse } from '../dto/presigned-url-response.dto';
 import { AccessUrlResponse } from '../dto/access-url-response.dto';
+import { ConfigService } from '@nestjs/config';
 
 dotenv.config();
 
@@ -13,15 +14,15 @@ dotenv.config();
 export class ImageService {
   private readonly s3Client: S3Client;
   private readonly userService: UserService;
-  private readonly bucketName = process.env.OBJECT_STORAGE_BUCKET_NAME;
+  private readonly bucketName = this.configService.get<string>('OBJECT_STORAGE_BUCKET_NAME');
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     this.s3Client = new S3Client({
-      region: process.env.OBJECT_STORAGE_REGION,
-      endpoint: process.env.OBJECT_STORAGE_ENDPOINT,
+      region: this.configService.get<string>('OBJECT_STORAGE_REGION'),
+      endpoint: this.configService.get<string>('OBJECT_STORAGE_ENDPOINT'),
       credentials: {
-        accessKeyId: process.env.OBJECT_STORAGE_ACCESS_KEY,
-        secretAccessKey: process.env.OBJECT_STORAGE_SECRET_KEY,
+        accessKeyId: this.configService.get<string>('OBJECT_STORAGE_ACCESS_KEY'),
+        secretAccessKey: this.configService.get<string>('OBJECT_STORAGE_SECRET_KEY'),
       },
     });
   }

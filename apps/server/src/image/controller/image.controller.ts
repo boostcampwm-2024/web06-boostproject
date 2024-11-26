@@ -1,10 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ImageService } from '@/image/service/image.service';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 import { FileNameRequest } from '../dto/file-name-request.dto';
 import { Account } from '@/account/entity/account.entity';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
-import { PresignedUrlResponse } from '../dto/presigned-url-response.dto';
 
 @Controller('image')
 export class ImageController {

@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { Suspense } from 'react';
 import { TaskDetail } from '@/pages/TaskDetail.tsx';
+import { taskAPI } from '@/features/task/api.ts';
 
 export const Route = createFileRoute('/_auth/$project/board/$taskId')({
   beforeLoad: ({ params }) => {
@@ -18,9 +19,18 @@ export const Route = createFileRoute('/_auth/$project/board/$taskId')({
       });
     }
   },
-  loader: ({ params }) => {
+  loader: async ({ params, context: { queryClient } }) => {
     const projectId = Number(params.project);
     const taskId = Number(params.taskId);
+
+    await queryClient.ensureQueryData({
+      queryKey: ['task', taskId],
+      queryFn: async () => {
+        const { result } = await taskAPI.getDetail(taskId);
+        return result;
+      },
+    });
+
     return { projectId, taskId };
   },
   errorComponent: ({ error }) => (

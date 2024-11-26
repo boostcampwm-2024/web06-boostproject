@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button.tsx';
 
 import { TaskDescription } from '@/features/task/components/TaskDescription.tsx';
 import { Subtasks } from '@/features/task/subtask/components/Subtasks.tsx';
-import { useTaskQuery } from '@/features/task/useTaskQuery.ts';
+import { useSuspenseTaskQuery } from '@/features/task/useTaskQuery.ts';
 import Assignees from '@/features/task/components/Assignees.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import Labels from '@/features/task/components/Labels.tsx';
@@ -18,23 +18,19 @@ import Estimate from '@/features/task/components/Estimate.tsx';
 
 export function TaskDetail() {
   const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
-  const navigate = useNavigate({
-    from: '/$project/board/$taskId',
-  });
-  const [isClosing, setIsClosing] = useState(false);
-  const { data: task } = useTaskQuery(taskId);
 
-  if (!task) {
-    return <div>no task detail</div>;
-  }
+  const navigate = useNavigate({ from: '/$project/board/$taskId' });
+
+  const [isClosing, setIsClosing] = useState(false);
+
+  const { data: task } = useSuspenseTaskQuery(taskId);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isClosing]);
+  }, []);
 
   const handleClose = useCallback(async () => {
     setIsClosing(true);

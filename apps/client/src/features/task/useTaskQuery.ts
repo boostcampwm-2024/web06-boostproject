@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { taskAPI } from '@/features/task/api.ts';
 
-export const useTaskQuery = (taskId: number) => {
-  return useQuery({
+export const useSuspenseTaskQuery = (taskId: number) => {
+  return useSuspenseQuery({
     queryKey: ['task', taskId],
     queryFn: async () => {
       const { result } = await taskAPI.getDetail(taskId);

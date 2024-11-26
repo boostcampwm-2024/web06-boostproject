@@ -13,7 +13,7 @@ export function TaskDescription({ initialDescription = '' }: TaskDescriptionProp
     from: '/_auth/$project/board/$taskId',
   });
   const [isEdit, setIsEdit] = useState(false);
-  const [description, setDescription] = useState(initialDescription);
+  const [description, setDescription] = useState<string>(initialDescription);
   const prevDescriptionRef = useRef(description);
 
   const { updateDescription } = useTaskMutations(taskId);
@@ -32,15 +32,15 @@ export function TaskDescription({ initialDescription = '' }: TaskDescriptionProp
   };
 
   return (
-    <div>
-      <h3 className="mb-2 text-lg font-medium">Description</h3>
+    <div className="max-h-[calc(50vh-58px)]">
+      <h3 className="text-lg font-medium">Description</h3>
       {isEdit ? (
-        <div className="space-y-2">
+        <div className="max-h-[calc(50vh-86px)] space-y-2">
           <Textarea
             value={description}
             placeholder="Description should be here..."
             onChange={(e) => setDescription(e.target.value)}
-            className="min-h-[100px]"
+            className="max-h-[calc(50vh-126px)] min-h-32 w-full overflow-y-auto"
             autoFocus
           />
           <div className="flex justify-end gap-2">
@@ -53,12 +53,12 @@ export function TaskDescription({ initialDescription = '' }: TaskDescriptionProp
           </div>
         </div>
       ) : (
-        <p
-          className="cursor-pointer rounded p-2 text-gray-700 hover:bg-gray-50"
+        <div
+          className="max-h-[calc(50vh-86px)] max-w-full cursor-pointer overflow-y-auto whitespace-pre-wrap break-words rounded p-2 text-gray-700 hover:bg-gray-50"
           onDoubleClick={handleDoubleClick}
         >
           {description.length === 0 ? 'Double click to edit' : description}
-        </p>
+        </div>
       )}
     </div>
   );

@@ -35,27 +35,30 @@ jobs:
             # NVM setup
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            
+
             # Install pnpm pm2
             npm install -g pnpm
             npm install -g pm2
-            
+
             # move to directory and pull latest changes
             cd ../var/www/harmony
             git pull origin dev
-            
+
             # Install dependencies
             pnpm install
-            
+
+            # Delete existing .env
+            rm apps/server/.env
+            rm apps/client/.env
+
             # Add envs
             echo "${{ secrets.SERVER_ENV }}" >> apps/server/.env
             echo "${{ secrets.CLIENT_ENV }}" >> apps/client/.env
-            
+
             # Build
             pnpm build
-            
+
             # Restart pm2
             pm2 restart apps/server/ecosystem.config.js --env production || pm2 start apps/server/ecosystem.config.js --env production
-            
+
             echo "Deployment Success"
-            

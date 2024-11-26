@@ -4,9 +4,11 @@ import { DetailedTask, UpdateTaskDto } from '@/features/task/types.ts';
 
 export const taskAPI = {
   getDetail: async (taskId: number) => {
-    const { data } = await axiosInstance.get<BaseResponse<DetailedTask>>(`/task/${taskId}/detail`);
+    const {
+      data: { result },
+    } = await axiosInstance.get<BaseResponse<DetailedTask>>(`/task/${taskId}/detail`);
 
-    return data;
+    return result;
   },
 
   update: async (taskId: number, updateTaskDto: UpdateTaskDto) => {

@@ -33,6 +33,7 @@ import { TaskDetailsResponse } from '@/task/dto/task-details-response.dto';
 import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto';
 import { SubTask } from '@/task/domain/subTask.entity';
 import { CreateSubTaskResponse } from '@/task/dto/create-subTask-response.dto';
+import { SubTaskStatus } from '@/task/enum/subTaskStatus.enum';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -161,31 +162,63 @@ export class TaskService {
       relations: ['section'],
       select: ['id', 'title', 'description', 'position', 'section'],
     });
+    const taskIds = tasks.map((task) => task.id);
 
+    const subTasks =
+      taskIds.length === 0
+        ? []
+        : await this.subTaskRepository.find({ where: { taskId: In(taskIds) } });
     const taskAssigneeRecords = await this.findTaskAssigneeRecordsByProject(projectId);
     const labelRecords = await this.findTaskLabelRecordsByProject(projectId);
 
-    const taskBySection = [];
-    sections.forEach((section) => {
-      taskBySection.push({
-        id: section.id,
-        name: section.name,
-        tasks: tasks
-          .filter((task) => task.section.id === section.id)
-          .map((task) => {
-            return new TaskResponse(
-              task,
-              taskAssigneeRecords
-                .filter((record) => record.taskId === task.id)
-                .map((record) => new AssigneeDetailsResponse(record.id, record.username, '')),
-              labelRecords
-                .filter((record) => record.taskId === task.id)
-                .map((record) => new LabelDetailsResponse(record as Label))
-            );
-          }),
-      });
-    });
+    const subTaskStatistics = subTasks.reduce(
+      (acc, subTask) => {
+        if (!acc[subTask.taskId]) {
+          acc[subTask.taskId] = { total: 0, done: 0 };
+        }
+        if (subTask.status === SubTaskStatus.COMPLETED) {
+          acc[subTask.taskId].done += 1;
+        }
+        acc[subTask.taskId].total += 1;
+        return acc;
+      },
+      {} as Record<number, { total: number; done: number }>
+    );
 
+    const assigneesByTaskId = taskAssigneeRecords.reduce(
+      (acc, record) => {
+        if (!acc[record.taskId]) {
+          acc[record.taskId] = [];
+        }
+        acc[record.taskId].push(new AssigneeDetailsResponse(record.id, record.username, ''));
+        return acc;
+      },
+      {} as Record<number, AssigneeDetailsResponse[]>
+    );
+
+    const labelsByTaskId = labelRecords.reduce(
+      (acc, record) => {
+        if (!acc[record.taskId]) {
+          acc[record.taskId] = [];
+        }
+        acc[record.taskId].push(new LabelDetailsResponse(record as Label));
+        return acc;
+      },
+      {} as Record<number, LabelDetailsResponse[]>
+    );
+
+    const taskBySection = sections.map((section) => ({
+      id: section.id,
+      name: section.name,
+      tasks: tasks
+        .filter((task) => task.section.id === section.id)
+        .map((task) => {
+          const statistic = subTaskStatistics[task.id] || { total: 0, done: 0 };
+          const assignees = assigneesByTaskId[task.id] || [];
+          const labels = labelsByTaskId[task.id] || [];
+          return new TaskResponse(task, assignees, labels, statistic);
+        }),
+    }));
     return taskBySection;
   }
 
@@ -228,6 +261,7 @@ export class TaskService {
   async get(userId: number, taskId: number) {
     const task = await this.findTaskOrThrow(taskId);
     await this.validateUserRole(userId, task.section.project.id);
+    const subTasks = await this.subTaskRepository.findBy({ taskId });
     const taskAssigneeRecords = await this.findTaskAssigneeRecordsByTask(taskId);
     const labels = await this.findTaskLabelsByTask(taskId);
     return new TaskResponse(
@@ -235,7 +269,11 @@ export class TaskService {
       taskAssigneeRecords.map(
         (record) => new AssigneeDetailsResponse(record.id, record.username, '')
       ),
-      labels.map((label) => new LabelDetailsResponse(label))
+      labels.map((label) => new LabelDetailsResponse(label)),
+      {
+        total: subTasks.length,
+        done: subTasks.filter((subTask) => subTask.status === SubTaskStatus.COMPLETED).length,
+      }
     );
   }
 

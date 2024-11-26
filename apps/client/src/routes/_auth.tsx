@@ -88,7 +88,7 @@ function AuthLayout() {
             <Link to={params.project === undefined ? '/account' : '/$project'}>
               <Harmony />
             </Link>
-            <SlashIcon />
+            <SlashIcon className="h-5 text-gray-300" />
             <div className="flex items-center gap-2">
               <h2>{(params.project && currentProject?.title) ?? 'My Account'}</h2>
               <DropdownMenu>

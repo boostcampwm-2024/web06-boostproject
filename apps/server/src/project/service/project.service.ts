@@ -87,7 +87,6 @@ export class ProjectService {
       .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
       .addSelect(['a.id, a.username, c.role'])
       .orderBy(`CASE WHEN c.role = 'ADMIN' THEN 1 ELSE 2 END`, 'ASC')
-      .addOrderBy('a.username', 'ASC')
       .getRawMany();
 
     const response = records.map(

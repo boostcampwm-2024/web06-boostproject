@@ -151,4 +151,10 @@ export class ProjectController {
   async getLabels(@AuthUser() user: Account, @Param('id') id: number) {
     return this.labelService.getAll(user.id, id);
   }
+
+  @Get(':id/statistic')
+  @ResponseMessage('프로젝트 통계 조회에 성공했습니다.')
+  async getStatistic(@AuthUser() user: Account, @Param('id') id: number) {
+    return this.taskService.getStatistic(user.id, id);
+  }
 }

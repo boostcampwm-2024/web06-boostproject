@@ -221,7 +221,7 @@ export class TaskService {
   async delete(userId: number, projectId: number, taskEvent: TaskEvent) {
     await this.validateUserRole(userId, projectId);
     if (!taskEvent.taskId) {
-      throw new BadRequestException('Required section id');
+      throw new BadRequestException('Required task id');
     }
     const task = await this.findTaskOrThrow(taskEvent.taskId);
     if (!task || task.section.project.id !== projectId) {
@@ -251,6 +251,14 @@ export class TaskService {
       TaskEventResponse.of(taskEvent.taskId, 'CARD')
     );
     return new DeleteTaskResponse(taskEvent.taskId);
+  }
+
+  async deleteWithoutEvent(userId: number, taskId: number) {
+    const task = await this.findTaskOrThrow(taskId);
+    await this.delete(userId, task.section.project.id, {
+      taskId,
+      event: EventType.DELETE_TASK,
+    } as TaskEvent);
   }
 
   async updateLabels(userId: number, taskId: number, labelIds: number[]) {
@@ -358,6 +366,39 @@ export class TaskService {
     const subTasks = await this.subTaskRepository.findBy({ taskId });
     result.setSubtasks(subTasks.map((subTask) => new CreateSubTaskResponse(subTask)));
     return result;
+  }
+
+  async getStatistic(userId: number, projectId: number) {
+    await this.validateUserRole(userId, projectId);
+    const totalTask = await this.taskRepository
+      .createQueryBuilder('t')
+      .innerJoin('t.section', 'section')
+      .innerJoin('section.project', 'project')
+      .where('project.id = :projectId', { projectId })
+      .getCount();
+
+    const doneTask = await this.taskRepository
+      .createQueryBuilder('t')
+      .innerJoin('t.section', 'section')
+      .innerJoin('section.project', 'project')
+      .where('project.id = :projectId', { projectId })
+      .andWhere('section.name = :name', { name: 'Done' })
+      .getCount();
+
+    const contributorStatistic = await this.contributorRepository
+      .createQueryBuilder('c')
+      .leftJoin('account', 'a', 'c.userId = a.id')
+      .leftJoin('task_assignee', 'ta', 'c.userId = ta.accountId')
+      .where('c.projectId = :projectId OR ta.projectId IS NULL', { projectId })
+      .andWhere('ta.projectId = :projectId', { projectId })
+      .select(['c.userId AS id', 'a.username AS username', 'COUNT(ta.id) AS count'])
+      .groupBy('c.userId')
+      .getRawMany();
+    contributorStatistic.map((statistic) => ({
+      ...statistic,
+      count: parseInt(statistic.count, 10),
+    }));
+    return { totalTask, doneTask, contributorStatistic };
   }
 
   private async validateUserRole(userId: number, projectId: number) {

@@ -60,7 +60,7 @@ export function TaskDetail() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{
-              type: 'spring',
+              type: 'stiffness',
               damping: 30,
               stiffness: 300,
             }}

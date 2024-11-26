@@ -48,8 +48,14 @@ export function CreateLabel({ createMutation }: CreateLabelProps) {
         description: data.description.trim(),
         color: data.color,
       },
-      { onError }
+      { onSuccess, onError }
     );
+  };
+
+  const onSuccess = () => {
+    setValue('name', '');
+    setValue('description', '');
+    setValue('color', generateRandomColor());
   };
 
   const onError = (error: AxiosError) => {

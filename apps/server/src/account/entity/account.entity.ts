@@ -12,6 +12,9 @@ export class Account extends EntityTimestamp {
   @Column()
   password: string;
 
+  @Column()
+  profileImage: string;
+
   @Column({ nullable: true })
   refreshToken: string;
 

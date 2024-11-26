@@ -19,7 +19,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
   > = new Map();
 
   handleConnection(client: Socket) {
-    const projectId = client.handshake.auth.projectId;
+    const { projectId } = client.handshake.auth;
     const { id, username } = client.data.user;
 
     if (!this.selectedCards.has(projectId)) {
@@ -82,7 +82,7 @@ export class PlanningPokerGateway implements OnGatewayConnection, OnGatewayDisco
     const projectCards = this.getProjectCardsOrThrow(projectId);
 
     const hasNonEmptyCards = Array.from(projectCards.users.entries()).some(
-      ([userId, data]) => data.card !== ''
+      ([_, data]) => data.card !== ''
     );
     if (!hasNonEmptyCards) {
       return;

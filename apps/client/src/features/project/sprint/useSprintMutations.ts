@@ -15,8 +15,7 @@ export const useSprintMutations = (projectId: number) => {
 
   return {
     create: useMutation<BaseResponse, AxiosError, CreateSprintDto>({
-      mutationFn: (createSprintDto: CreateSprintDto) =>
-        projectAPI.createSprint(projectId, createSprintDto),
+      mutationFn: (createSprintDto) => projectAPI.createSprint(projectId, createSprintDto),
       onSuccess: invalidateSprints,
     }),
 
@@ -28,18 +27,13 @@ export const useSprintMutations = (projectId: number) => {
         updateSprintDto: UpdateSprintDto;
       }
     >({
-      mutationFn: ({
-        sprintId,
-        updateSprintDto,
-      }: {
-        sprintId: number;
-        updateSprintDto: UpdateSprintDto;
-      }) => projectAPI.updateSprint(sprintId, updateSprintDto),
+      mutationFn: ({ sprintId, updateSprintDto }) =>
+        projectAPI.updateSprint(sprintId, updateSprintDto),
       onSuccess: invalidateSprints,
     }),
 
     delete: useMutation<BaseResponse, AxiosError, number>({
-      mutationFn: (sprintId: number) => projectAPI.deleteSprint(sprintId),
+      mutationFn: (sprintId) => projectAPI.deleteSprint(sprintId),
       onSuccess: invalidateSprints,
     }),
   };

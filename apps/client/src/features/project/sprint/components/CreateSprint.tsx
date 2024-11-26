@@ -31,7 +31,7 @@ export function CreateSprint({ createMutation }: CreateProjectSprintProps) {
       name: '',
       dateRange: {
         from: new Date(),
-        to: new Date(new Date().getTime() + 일주일), // Default to 1 week
+        to: new Date(new Date().getTime() + 일주일),
       },
     },
   });

@@ -65,7 +65,10 @@ export class LabelService {
 
   async getAll(userId: number, projectId: number) {
     await this.validateUserRole(userId, projectId);
-    const labels = await this.labelRepository.findBy({ projectId });
+    const labels = await this.labelRepository.find({ 
+      where: { projectId },
+      order: { title: 'ASC' },
+    });
     return labels.map((label) => new LabelDetailsResponse(label));
   }
 

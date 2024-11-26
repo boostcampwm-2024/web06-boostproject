@@ -81,7 +81,10 @@ export class SprintService {
 
   async getAll(userId: number, projectId: number) {
     await this.validateUserRole(userId, projectId);
-    const sprints = await this.sprintRepository.findBy({ projectId });
+    const sprints = await this.sprintRepository.find({ 
+      where: { projectId },
+      order: { startDate: 'ASC', endDate: 'ASC' },
+    });
     return sprints.map((sprint) => new SprintDetailsResponse(sprint));
   }
 

@@ -42,6 +42,7 @@ export class ProjectService {
       .where('c.userId = :userId', { userId })
       .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
       .addSelect(['p.title', 'p.createdAt'])
+      .orderBy('p.title', 'ASC')
       .getRawMany();
 
     const result =
@@ -85,6 +86,8 @@ export class ProjectService {
       .where('c.projectId = :projectId', { projectId })
       .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
       .addSelect(['a.id, a.username, c.role'])
+      .orderBy(`CASE WHEN c.role = 'ADMIN' THEN 1 ELSE 2 END`, 'ASC')
+      .addOrderBy('a.username', 'ASC')
       .getRawMany();
 
     const response = records.map(
@@ -109,6 +112,7 @@ export class ProjectService {
       .where('c.userId = :userId', { userId })
       .andWhere('c.status = :status', { status: ContributorStatus.PENDING })
       .addSelect(['p.title', 'a.username'])
+      .orderBy('c.updatedAt', 'DESC')
       .getRawMany();
     return result.map(
       (record: { c_id: number; c_projectId: number; p_title: string; a_username: string }) => {

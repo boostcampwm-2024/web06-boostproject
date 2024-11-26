@@ -1,23 +1,30 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import Board from '@/pages/Board.tsx';
-import { TasksResponse } from '@/components/KanbanBoard.tsx';
-import { axiosInstance } from '@/lib/axios.ts';
 import PlanningPokerFloatingButton from '@/components/PlanningPokerFloatingButton';
+import { boardAPI } from '@/features/project/board/api.ts';
+
+class InvalidProjectIdError extends Error {
+  constructor(param: string) {
+    super(`Invalid task ID provided: ${param}`);
+  }
+}
 
 export const Route = createFileRoute('/_auth/$project/board')({
-  loader: ({ context: { queryClient }, params: { project: projectId } }) => {
-    queryClient.ensureQueryData({
-      queryKey: ['tasks', projectId],
-      queryFn: async () => {
-        const response = await axiosInstance.get<TasksResponse>(`/task?projectId=${projectId}`);
+  beforeLoad: ({ params }) => {
+    const projectId = Number(params.project);
+    if (Number.isNaN(projectId)) {
+      throw new InvalidProjectIdError(params.project);
+    }
+  },
+  loader: async ({ context: { queryClient }, params: { project } }) => {
+    const projectId = Number(project);
 
-        return response.data.result;
-      },
+    await queryClient.ensureQueryData({
+      queryKey: ['tasks', projectId],
+      queryFn: () => boardAPI.getTasks(projectId),
     });
   },
-  onError: (error) => {
-    console.error(error);
-  },
+  errorComponent: () => <div>error in board</div>,
   component: () => (
     <>
       <Board />

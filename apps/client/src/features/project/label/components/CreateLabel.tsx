@@ -18,13 +18,17 @@ import { generateRandomColor } from '@/features/project/label/generateRandomColo
 import { labelFormSchema, LabelFormValues } from '@/features/project/label/labelSchema.ts';
 import { BaseResponse } from '@/features/types.ts';
 import { CreateLabelDto } from '@/features/project/types.ts';
+import { useToast } from '@/lib/useToast.tsx';
 
 interface CreateLabelProps {
   createMutation: UseMutationResult<BaseResponse, AxiosError, CreateLabelDto>;
 }
 
 export function CreateLabel({ createMutation }: CreateLabelProps) {
+  const toast = useToast();
+
   const { mutate } = createMutation;
+
   const {
     register,
     handleSubmit,
@@ -53,6 +57,7 @@ export function CreateLabel({ createMutation }: CreateLabelProps) {
   };
 
   const onSuccess = () => {
+    toast.success('Label created successfully');
     setValue('name', '');
     setValue('description', '');
     setValue('color', generateRandomColor());
@@ -63,9 +68,10 @@ export function CreateLabel({ createMutation }: CreateLabelProps) {
       setError('name', {
         message: 'Label with this name already exists',
       });
+      return;
     }
 
-    // TODO: 서버 에러 처리
+    toast.error('Failed to create label');
   };
 
   const handleRandomColor = () => {

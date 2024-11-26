@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { projectAPI } from '@/features/project/api.ts';
 import { CreateSprintDto, UpdateSprintDto } from '@/features/project/types.ts';
+import { BaseResponse } from '@/features/types.ts';
 
 export const useSprintMutations = (projectId: number) => {
   const queryClient = useQueryClient();
@@ -12,13 +14,20 @@ export const useSprintMutations = (projectId: number) => {
   };
 
   return {
-    create: useMutation({
+    create: useMutation<BaseResponse, AxiosError, CreateSprintDto>({
       mutationFn: (createSprintDto: CreateSprintDto) =>
         projectAPI.createSprint(projectId, createSprintDto),
       onSuccess: invalidateSprints,
     }),
 
-    update: useMutation({
+    update: useMutation<
+      BaseResponse,
+      AxiosError,
+      {
+        sprintId: number;
+        updateSprintDto: UpdateSprintDto;
+      }
+    >({
       mutationFn: ({
         sprintId,
         updateSprintDto,
@@ -29,7 +38,7 @@ export const useSprintMutations = (projectId: number) => {
       onSuccess: invalidateSprints,
     }),
 
-    delete: useMutation({
+    delete: useMutation<BaseResponse, AxiosError, number>({
       mutationFn: (sprintId: number) => projectAPI.deleteSprint(sprintId),
       onSuccess: invalidateSprints,
     }),

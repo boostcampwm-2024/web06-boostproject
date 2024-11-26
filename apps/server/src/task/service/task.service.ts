@@ -227,8 +227,23 @@ export class TaskService {
     if (!task || task.section.project.id !== projectId) {
       throw new NotFoundException('Task not found');
     }
-    await this.taskRepository.delete(taskEvent.taskId);
 
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const taskId = task.id;
+      await queryRunner.manager.delete(TaskLabel, { taskId });
+      await queryRunner.manager.delete(TaskAssignee, { taskId });
+      await queryRunner.manager.delete(SubTask, { taskId });
+      await queryRunner.manager.delete(Task, { id: taskId });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
     this.eventEmitter.emit(
       'broadcast',
       userId,

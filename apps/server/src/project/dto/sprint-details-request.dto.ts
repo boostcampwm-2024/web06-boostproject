@@ -1,9 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { IsOptional, IsString, Matches } from 'class-validator';
+import { IsOptional, IsString, Length, Matches } from 'class-validator';
 
 export class SprintDetailsRequest {
   @IsOptional()
   @IsString()
+  @Length(1, 20)
   name: string;
 
   @IsOptional()

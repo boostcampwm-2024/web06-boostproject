@@ -8,7 +8,7 @@ export class UserService {
   constructor(@InjectRepository(Account) private userRepository: Repository<Account>) {}
 
   async getOne(id: number) {
-    return await this.userRepository.findOneBy({ id });
+    return this.userRepository.findOneBy({ id });
   }
 
   async updateProfileImage(id: number, profileImage: string) {

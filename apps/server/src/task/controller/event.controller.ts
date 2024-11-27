@@ -12,11 +12,15 @@ export class EventController {
   constructor(private broadcastService: BroadcastService) {}
 
   @Get()
-  polling(@AuthUser() user: Account, @Res() res: Response, @Query('projectId') projectId: number) {
+  async polling(
+    @AuthUser() user: Account,
+    @Res() res: Response,
+    @Query('projectId') projectId: number
+  ) {
     const customResponse = res as CustomResponse;
     customResponse.userId = user.id;
 
-    this.broadcastService.addConnection(projectId, customResponse);
+    await this.broadcastService.addConnection(projectId, customResponse);
 
     res.socket.on('close', () => {
       this.broadcastService.removeConnection(projectId, customResponse);

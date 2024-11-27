@@ -63,7 +63,7 @@ export class ImageService {
   }
 
   async getAccessUrl(id: number, key: string) {
-    const accessUrl = `https://${this.configService.get<string>('OBJECT_STORAGE_ENDPOINT')}/${this.bucketName}/${key}`;
+    const accessUrl = `${this.configService.get<string>('OBJECT_STORAGE_ENDPOINT')}/${this.bucketName}/${key}`;
     await this.userService.updateProfileImage(id, accessUrl);
     return new AccessUrlResponse(accessUrl);
   }

@@ -449,10 +449,14 @@ export class TaskService {
     await this.validateUserRole(userId, projectId);
     const contributorRecord = await this.contributorRepository
       .createQueryBuilder('c')
+      .leftJoin('task_assignee', 'ta', 'c.userId = ta.accountId and ta.projectId = :projectId', {
+        projectId,
+      })
       .leftJoin('account', 'a', 'c.userId = a.id')
-      .leftJoin('task_assignee', 'ta', 'c.userId = ta.accountId')
-      .where('c.projectId = :projectId', { projectId })
-      .andWhere('(ta.projectId = :projectId OR ta.id IS NULL)', { projectId })
+      .where('(c.projectId = :projectId AND c.status = :status)', {
+        projectId,
+        status: ContributorStatus.ACCEPTED,
+      })
       .select([
         'c.userId AS id',
         'a.username AS username',
@@ -460,6 +464,7 @@ export class TaskService {
         'COUNT(ta.id) AS count',
       ])
       .groupBy('c.userId')
+      .orderBy('count', 'DESC')
       .getRawMany();
     const users = contributorRecord.map((contributor) => ({
       ...contributor,

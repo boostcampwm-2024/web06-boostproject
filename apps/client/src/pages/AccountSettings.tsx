@@ -8,8 +8,10 @@ import {
   HandleProjectInvitationRequestDTO,
 } from '@/types/project';
 import { axiosInstance } from '@/lib/axios.ts';
+import { useToast } from '@/lib/useToast';
 
 function AccountSettings() {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const { data: invitations } = useSuspenseQuery({
     queryKey: ['project', 'invitations'],
@@ -34,11 +36,12 @@ function AccountSettings() {
       await axiosInstance.patch(`/project/${projectId}/invite`, payload);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project', 'invitations'] });
+      toast.success('Invitation responded successfully');
     },
-    onError: (error) => {
-      alert('Failed to respond to invitation');
-      console.log('Failed to respond to invitation', error);
+    onError: () => {
+      toast.error('Failed to respond to invitation. Please try again.');
     },
   });
 

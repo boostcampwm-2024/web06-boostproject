@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { UserService } from '@/account/user.service';
@@ -24,6 +24,28 @@ export class ImageService {
         secretAccessKey: this.configService.get<string>('OBJECT_STORAGE_SECRET_KEY'),
       },
     });
+    this.setBucketCors();
+  }
+
+  async setBucketCors() {
+    const corsRules = [
+      {
+        AllowedHeaders: ['*'],
+        AllowedMethods: ['GET', 'PUT', 'POST'],
+        AllowedOrigins: ['http://localhost:5173', 'http://boost-harmony.kro.kr'],
+        ExposeHeaders: ['ETag'],
+        MaxAgeSeconds: 3000,
+      },
+    ];
+
+    const command = new PutBucketCorsCommand({
+      Bucket: this.bucketName,
+      CORSConfiguration: {
+        CORSRules: corsRules,
+      },
+    });
+
+    await this.s3Client.send(command);
   }
 
   async getUploadUrl(name: string) {
@@ -31,6 +53,7 @@ export class ImageService {
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: key,
+      ACL: 'public-read',
     });
 
     return new PresignedUrlResponse(
@@ -40,7 +63,7 @@ export class ImageService {
   }
 
   async getAccessUrl(id: number, key: string) {
-    const accessUrl = `https://${process.env.OBJECT_STORAGE_ENDPOINT}/${process.env.OBJECT_BUCKET_NAME}/${key}`;
+    const accessUrl = `https://${this.configService.get<string>('OBJECT_STORAGE_ENDPOINT')}/${this.bucketName}/${key}`;
     await this.userService.updateProfileImage(id, accessUrl);
     return new AccessUrlResponse(accessUrl);
   }

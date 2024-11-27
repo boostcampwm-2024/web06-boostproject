@@ -462,16 +462,21 @@ export class TaskService {
       .andWhere('section.name = :name', { name: 'Done' })
       .getCount();
 
-    const contributorStatistic = await this.contributorRepository
+    const contributorStatisticRecord = await this.contributorRepository
       .createQueryBuilder('c')
       .leftJoin('account', 'a', 'c.userId = a.id')
       .leftJoin('task_assignee', 'ta', 'c.userId = ta.accountId')
       .where('c.projectId = :projectId OR ta.projectId IS NULL', { projectId })
       .andWhere('ta.projectId = :projectId', { projectId })
-      .select(['c.userId AS id', 'a.username AS username', 'COUNT(ta.id) AS count'])
+      .select([
+        'c.userId AS id',
+        'a.username AS username',
+        'a.profileImage AS profileImage',
+        'COUNT(ta.id) AS count',
+      ])
       .groupBy('c.userId')
       .getRawMany();
-    contributorStatistic.map((statistic) => ({
+    const contributorStatistic = contributorStatisticRecord.map((statistic) => ({
       ...statistic,
       count: parseInt(statistic.count, 10),
     }));

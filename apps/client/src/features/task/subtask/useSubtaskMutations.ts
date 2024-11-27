@@ -3,19 +3,12 @@ import { subtaskAPI } from '@/features/task/subtask/api';
 import { Subtask, UpdateSubtaskDto } from '@/features/task/subtask/types';
 import { BaseResponse } from '@/features/types.ts';
 
-export const useSubtaskMutations = (taskId: number, projectId: number) => {
+export const useSubtaskMutations = (taskId: number) => {
   const queryClient = useQueryClient();
 
   const invalidateTask = () => {
     queryClient.invalidateQueries({
       queryKey: ['task', taskId],
-    });
-  };
-
-  const invalidateTasks = () => {
-    queryClient.invalidateQueries({
-      queryKey: ['tasks', projectId],
-      refetchType: 'all',
     });
   };
 
@@ -29,7 +22,6 @@ export const useSubtaskMutations = (taskId: number, projectId: number) => {
         },
         onSuccess: (data, variables, context) => {
           invalidateTask();
-          invalidateTasks();
           options?.onSuccess?.(data, variables, context);
         },
         onError: (error, variables, context) => {
@@ -61,7 +53,6 @@ export const useSubtaskMutations = (taskId: number, projectId: number) => {
         },
         onSuccess: (data, variables, context) => {
           invalidateTask();
-          invalidateTasks();
           options?.onSuccess?.(data, variables, context);
         },
         onError: (error, variables, context) => {
@@ -78,7 +69,6 @@ export const useSubtaskMutations = (taskId: number, projectId: number) => {
         },
         onSuccess: (data, variables, context) => {
           invalidateTask();
-          invalidateTasks();
           options?.onSuccess?.(data, variables, context);
         },
         onError: (error, variables, context) => {

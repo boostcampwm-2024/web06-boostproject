@@ -18,7 +18,7 @@ export default function Sprint({ initialSprint }: SprintProps) {
     from: '/_auth/$project/board/$taskId',
   });
   const { data: sprints = [] } = useSprintsQuery(projectId);
-  const { updateSprint } = useTaskMutations(taskId, projectId);
+  const { updateSprint } = useTaskMutations(taskId);
 
   const [selectedSprint, setSelectedSprint] = useState(initialSprint);
   const [isOpen, setIsOpen] = useState(false);

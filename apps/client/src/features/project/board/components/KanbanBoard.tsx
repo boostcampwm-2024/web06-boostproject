@@ -34,8 +34,8 @@ import { AssigneeAvatars } from '@/features/project/board/components/AssigneeAva
 import { calculatePosition, findDiff, findTask } from '@/features/project/board/utils.ts';
 import { TaskTextarea } from '@/features/project/board/components/TaskTextarea.tsx';
 
-export function Board() {
-  const { projectId, sections: initialSections } = useLoaderData({
+export function KanbanBoard({ sections: initialSections }: { sections: TSection[] }) {
+  const { projectId } = useLoaderData({
     from: '/_auth/$project/board',
   });
 

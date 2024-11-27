@@ -18,7 +18,7 @@ import Estimate from '@/features/task/components/Estimate.tsx';
 import { useTaskMutations } from '@/features/task/useTaskMutations.ts';
 
 export function TaskDetail() {
-  const { taskId, projectId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
+  const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
 
   const navigate = useNavigate({ from: '/$project/board/$taskId' });
 
@@ -40,7 +40,7 @@ export function TaskDetail() {
     }, 300);
   }, [navigate]);
 
-  const { deleteTask } = useTaskMutations(taskId, projectId);
+  const { deleteTask } = useTaskMutations(taskId);
 
   const handleDelete = useCallback(() => {
     deleteTask.mutate();

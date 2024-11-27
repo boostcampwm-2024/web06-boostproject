@@ -12,9 +12,14 @@ export function Board() {
     queryFn: () => boardAPI.getTasks(projectId),
   });
 
+  const sortedSections = sections.map((section) => ({
+    ...section,
+    tasks: section.tasks.sort((a, b) => a.position.localeCompare(b.position)),
+  }));
+
   return (
     <div className="relative h-full overflow-hidden">
-      <KanbanBoard sections={sections} />
+      <KanbanBoard sections={sortedSections} />
     </div>
   );
 }

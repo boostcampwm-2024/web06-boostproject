@@ -40,7 +40,7 @@ export class ImageService {
   }
 
   async getAccessUrl(id: number, key: string) {
-    const accessUrl = `https://${process.env.OBJECT_STORAGE_BUCKET_NAME}.${process.env.OBJECT_STORAGE_REGION}.ncloudstorage.com/${key}`;
+    const accessUrl = `https://${process.env.OBJECT_STORAGE_ENDPOINT}/${process.env.OBJECT_BUCKET_NAME}/${key}`;
     await this.userService.updateProfileImage(id, accessUrl);
     return new AccessUrlResponse(accessUrl);
   }

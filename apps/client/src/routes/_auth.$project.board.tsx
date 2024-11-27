@@ -3,6 +3,7 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
 import Board from '@/pages/Board.tsx';
 import PlanningPokerFloatingButton from '@/components/PlanningPokerFloatingButton';
 import { boardAPI } from '@/features/project/board/api.ts';
+import { Board } from '@/pages/Board.tsx';
 
 class InvalidProjectIdError extends Error {
   constructor(param: string) {
@@ -20,13 +21,12 @@ export const Route = createFileRoute('/_auth/$project/board')({
   loader: async ({ context: { queryClient }, params: { project } }) => {
     const projectId = Number(project);
 
-    const sections = await queryClient.ensureQueryData({
+    await queryClient.prefetchQuery({
       queryKey: ['tasks', projectId],
       queryFn: () => boardAPI.getTasks(projectId),
-      staleTime: 0,
     });
 
-    return { projectId, sections };
+    return { projectId };
   },
   errorComponent: () => <div>error in board</div>,
   component: () => (

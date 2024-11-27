@@ -12,10 +12,10 @@ interface EstimateProps {
 }
 
 export default function Estimate({ initialEstimate }: EstimateProps) {
-  const { taskId, projectId } = useLoaderData({
+  const { taskId } = useLoaderData({
     from: '/_auth/$project/board/$taskId',
   });
-  const { updateEstimate } = useTaskMutations(taskId, projectId);
+  const { updateEstimate } = useTaskMutations(taskId);
 
   const [estimate, setEstimate] = useState<number | null>(initialEstimate);
   const [isOpen, setIsOpen] = useState(false);

@@ -20,7 +20,7 @@ export default function Labels({ initialLabels }: LabelsProps) {
     from: '/_auth/$project/board/$taskId',
   });
   const { data: labels = [] } = useLabelsQuery(projectId);
-  const { updateLabels } = useTaskMutations(taskId, projectId);
+  const { updateLabels } = useTaskMutations(taskId);
 
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(initialLabels);
   const [isOpen, setIsOpen] = useState(false);

@@ -1,19 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskAPI } from '@/features/task/api.ts';
 
-export const useTaskMutations = (taskId: number, projectId: number) => {
+export const useTaskMutations = (taskId: number) => {
   const queryClient = useQueryClient();
 
   const invalidateTask = () => {
     queryClient.invalidateQueries({
       queryKey: ['task', taskId],
-    });
-  };
-
-  const invalidateTasks = () => {
-    queryClient.invalidateQueries({
-      queryKey: ['tasks', projectId],
-      refetchType: 'all',
     });
   };
 
@@ -42,7 +35,6 @@ export const useTaskMutations = (taskId: number, projectId: number) => {
       mutationFn: (assignees?: number[]) => taskAPI.updateAssignees(taskId, assignees),
       onSuccess: () => {
         invalidateTask();
-        invalidateTasks();
       },
     }),
 
@@ -50,13 +42,11 @@ export const useTaskMutations = (taskId: number, projectId: number) => {
       mutationFn: (labels?: number[]) => taskAPI.updateLabels(taskId, labels),
       onSuccess: () => {
         invalidateTask();
-        invalidateTasks();
       },
     }),
 
     deleteTask: useMutation({
       mutationFn: () => taskAPI.delteTask(taskId),
-      onSuccess: invalidateTasks,
     }),
   };
 };

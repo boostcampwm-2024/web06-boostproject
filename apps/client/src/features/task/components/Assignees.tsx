@@ -19,7 +19,7 @@ export default function Assignees({ initialAssignees }: AssigneesProps) {
     from: '/_auth/$project/board/$taskId',
   });
   const { data: members = [] } = useUsersQuery(projectId);
-  const { updateAssignees } = useTaskMutations(taskId, projectId);
+  const { updateAssignees } = useTaskMutations(taskId);
 
   const [selectedAssignees, setSelectedAssignees] = useState<Assignee[]>(initialAssignees);
   const [isOpen, setIsOpen] = useState(false);

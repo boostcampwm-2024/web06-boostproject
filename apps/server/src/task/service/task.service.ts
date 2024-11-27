@@ -190,7 +190,9 @@ export class TaskService {
         if (!acc[record.taskId]) {
           acc[record.taskId] = [];
         }
-        acc[record.taskId].push(new AssigneeDetailsResponse(record.id, record.username, ''));
+        acc[record.taskId].push(
+          new AssigneeDetailsResponse(record.id, record.username, record.profileImage)
+        );
         return acc;
       },
       {} as Record<number, AssigneeDetailsResponse[]>
@@ -267,7 +269,7 @@ export class TaskService {
     return new TaskResponse(
       task,
       taskAssigneeRecords.map(
-        (record) => new AssigneeDetailsResponse(record.id, record.username, '')
+        (record) => new AssigneeDetailsResponse(record.id, record.username, record.profileImage)
       ),
       labels.map((label) => new LabelDetailsResponse(label)),
       {
@@ -504,7 +506,7 @@ export class TaskService {
       .createQueryBuilder('ta')
       .leftJoin('account', 'a', 'ta.accountId = a.id')
       .where('ta.taskId = :taskId', { taskId })
-      .select(['ta.accountId AS id', 'a.username AS username'])
+      .select(['ta.accountId AS id', 'a.username AS username', 'a.profileImage AS profileImage'])
       .getRawMany();
   }
 
@@ -528,7 +530,12 @@ export class TaskService {
       .createQueryBuilder('ta')
       .leftJoin('account', 'a', 'ta.accountId = a.id')
       .where('ta.projectId = :projectId', { projectId })
-      .select(['ta.taskId AS taskId', 'ta.accountId AS id', 'a.username AS username'])
+      .select([
+        'ta.taskId AS taskId',
+        'ta.accountId AS id',
+        'a.username AS username',
+        'a.profileImage AS profileImage',
+      ])
       .getRawMany();
   }
 }

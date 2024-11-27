@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { axiosInstance } from '@/lib/axios.ts';
 import { useAuth } from '@/features/auth/useAuth.ts';
-import { Toaster } from '@/components/ui/sonner.tsx';
 import {
   Dialog,
   DialogContent,
@@ -301,7 +300,6 @@ function AuthLayout() {
         </DialogContent>
       </Dialog>
       <Outlet />
-      <Toaster position="bottom-left" />
     </div>
   );
 }

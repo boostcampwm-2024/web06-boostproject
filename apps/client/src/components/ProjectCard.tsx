@@ -1,6 +1,3 @@
-import { MoreVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
 type Project = {
   id: number;
   title: string;
@@ -10,7 +7,7 @@ type Project = {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <div className="rounded-lg border-b bg-white">
+    <div className="rounded-lg border bg-white hover:border-green-400">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-[#2ecc71]" />
@@ -23,9 +20,6 @@ function ProjectCard({ project }: { project: Project }) {
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon">
-          <MoreVertical />
-        </Button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import TabView from '@/components/TabView';
 import ProjectCard from '@/components/ProjectCard';
@@ -64,7 +65,9 @@ function AccountOverview() {
         </div>
         <div className="flex flex-col gap-2">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <Link to="/$project/board" params={{ project: String(project.id) }} key={project.id}>
+              <ProjectCard project={project} />
+            </Link>
           ))}
         </div>
       </TabView.Content>

@@ -85,17 +85,27 @@ export class ProjectService {
       .leftJoin('account', 'a', 'c.userId = a.id')
       .where('c.projectId = :projectId', { projectId })
       .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
-      .addSelect(['a.id, a.username, c.role'])
+      .addSelect(['a.id, a.username, c.role, a.profileImage'])
       .orderBy(`CASE WHEN c.role = 'ADMIN' THEN 1 ELSE 2 END`, 'ASC')
       .getRawMany();
 
     const response = records.map(
-      ({ id, username, role }: { id: number; username: string; role: ContributorStatus }) => {
+      ({
+        id,
+        username,
+        role,
+        profileImage,
+      }: {
+        id: number;
+        username: string;
+        role: ContributorStatus;
+        profileImage: string;
+      }) => {
         return {
           id,
           username,
           role,
-          avatar: '',
+          profileImage,
         };
       }
     );

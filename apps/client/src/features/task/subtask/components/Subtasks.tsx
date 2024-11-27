@@ -10,13 +10,13 @@ interface SubtasksProps {
 }
 
 export function Subtasks({ initialSubtasks = [] }: SubtasksProps) {
-  const { taskId } = useLoaderData({
+  const { taskId, projectId } = useLoaderData({
     from: '/_auth/$project/board/$taskId',
   });
   const [subtasks, setSubtasks] = useState<Subtask[]>(initialSubtasks);
   const subtasksRef = useRef<HTMLDivElement>(null);
 
-  const { create, update, delete: deleteSubtask } = useSubtaskMutations(taskId);
+  const { create, update, delete: deleteSubtask } = useSubtaskMutations(taskId, projectId);
 
   const createMutation = create({
     onSuccess: (newSubtask: Subtask) => {

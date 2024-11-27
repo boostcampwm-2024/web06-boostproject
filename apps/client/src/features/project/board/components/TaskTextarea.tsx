@@ -1,5 +1,6 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useDebounce } from '@/shared/utils/useDebounce..ts';
+import { ChangeEvent, useEffect, useRef, useState, KeyboardEvent } from 'react';
+import { useDebounce } from '@/shared/utils/useDebounce.ts';
+import { cn } from '@/lib/utils.ts';
 
 interface TaskTextareaProps {
   taskId: number;
@@ -10,6 +11,7 @@ interface TaskTextareaProps {
 export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextareaProps) {
   const [localTitle, setLocalTitle] = useState(initialTitle);
   const [isComposing, setIsComposing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const debouncedTitle = useDebounce(localTitle, 300);
   const prevDebouncedTitle = useRef(debouncedTitle);
 
@@ -29,14 +31,26 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
   };
 
   const handleCompositionStart = () => setIsComposing(true);
-
   const handleCompositionEnd = () => setIsComposing(false);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.code === 'Space' && isComposing) {
       setIsComposing(false);
     }
   };
+
+  if (!isEditing) {
+    return (
+      <div
+        onDoubleClick={() => setIsEditing(true)}
+        className={cn(
+          'line-clamp-2 min-h-[24px] flex-1 cursor-text',
+          localTitle.length === 0 && 'text-gray-400'
+        )}
+      >
+        {localTitle || 'Double click to edit...'}
+      </div>
+    );
+  }
 
   return (
     <textarea
@@ -45,8 +59,10 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}
       onKeyDown={handleKeyDown}
-      className="flex flex-1 resize-none bg-transparent focus:outline-none"
+      onBlur={() => setIsEditing(false)}
+      className="flex flex-1 resize-none bg-transparent text-black focus:outline-none"
       placeholder="Enter task title..."
+      rows={2}
     />
   );
 }

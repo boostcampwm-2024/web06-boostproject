@@ -19,7 +19,7 @@ export default function Assignees({ initialAssignees }: AssigneesProps) {
     from: '/_auth/$project/board/$taskId',
   });
   const { data: members = [] } = useUsersQuery(projectId);
-  const { updateAssignees } = useTaskMutations(taskId);
+  const { updateAssignees } = useTaskMutations(taskId, projectId);
 
   const [selectedAssignees, setSelectedAssignees] = useState<Assignee[]>(initialAssignees);
   const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +81,7 @@ export default function Assignees({ initialAssignees }: AssigneesProps) {
                   )}
                 >
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src={member.avatar} />
+                    <AvatarImage src={member.profileImage} />
                     <AvatarFallback className="border border-black">
                       {member.username.slice(0, 2)}
                     </AvatarFallback>
@@ -102,7 +102,7 @@ export default function Assignees({ initialAssignees }: AssigneesProps) {
           selectedAssignees.map((assignee) => (
             <div key={assignee.id} className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={assignee.avatar} />
+                <AvatarImage src={assignee.profileImage} />
                 <AvatarFallback className="border border-black">
                   {assignee.username.slice(0, 2)}
                 </AvatarFallback>

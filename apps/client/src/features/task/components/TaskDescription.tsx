@@ -9,14 +9,14 @@ interface TaskDescriptionProps {
 }
 
 export function TaskDescription({ initialDescription = '' }: TaskDescriptionProps) {
-  const { taskId } = useLoaderData({
+  const { taskId, projectId } = useLoaderData({
     from: '/_auth/$project/board/$taskId',
   });
   const [isEdit, setIsEdit] = useState(false);
   const [description, setDescription] = useState<string>(initialDescription);
   const prevDescriptionRef = useRef(description);
 
-  const { updateDescription } = useTaskMutations(taskId);
+  const { updateDescription } = useTaskMutations(taskId, projectId);
 
   const handleDoubleClick = () => setIsEdit(true);
 

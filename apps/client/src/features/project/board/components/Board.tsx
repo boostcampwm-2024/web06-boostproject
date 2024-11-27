@@ -1,7 +1,6 @@
 import { ReactNode, useEffect, useState, DragEvent, useCallback } from 'react';
 import { Link, useLoaderData } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LexoRank } from 'lexorank';
 import { HamburgerMenuIcon, PlusIcon } from '@radix-ui/react-icons';
 import { PanelLeftOpen } from 'lucide-react';
 import {
@@ -26,13 +25,12 @@ import { Button } from '@/components/ui/button.tsx';
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge.tsx';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
-import { Assignee } from '@/features/types.ts';
 import { boardAPI } from '@/features/project/board/api.ts';
 import { useToast } from '@/lib/useToast.tsx';
 import { useBoardMutations } from '@/features/project/board/useBoardMutations.ts';
 import { throttle } from '@/shared/utils/throttle.ts';
-import { debounce } from '@/shared/utils/debounce.ts';
+import { AssigneeAvatars } from '@/features/project/board/components/AssigneeAvatars.tsx';
+import { calculatePosition, findTask } from '@/features/project/board/utils.ts';
 
 export function Board() {
   const { projectId, sections: initialSections } = useLoaderData({
@@ -40,14 +38,12 @@ export function Board() {
   });
 
   const toast = useToast();
-
-  const { createTask, updatePosition, updateTitle } = useBoardMutations(projectId);
-  const [isComposing, setIsComposing] = useState(false);
+  const { createTask, updatePosition } = useBoardMutations(projectId);
   const [sections, setSections] = useState<TSection[]>(initialSections);
   const [belowSectionId, setBelowSectionId] = useState<number>(-1);
   const [belowTaskId, setBelowTaskId] = useState<number>(-1);
 
-  const handleEvent = (event: TaskEvent) => {
+  const handleEvent = useCallback((event: TaskEvent) => {
     setSections((currentSections) => {
       const handleTaskCreated = (sections: TSection[]): TSection[] => {
         return sections.map((section) =>
@@ -151,7 +147,7 @@ export function Board() {
         tasks: [...section.tasks].sort((a, b) => a.position.localeCompare(b.position)),
       }));
     });
-  };
+  }, []);
 
   useEffect(() => {
     let timeoutId: number;
@@ -202,7 +198,7 @@ export function Board() {
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [projectId]);
+  }, [projectId, handleEvent, toast]);
 
   const handleDragStart = (event: DragEvent<HTMLDivElement>, sectionId: number, taskId: number) => {
     event.dataTransfer.setData('taskId', taskId.toString());
@@ -355,74 +351,6 @@ export function Board() {
       }
     );
   };
-  const updateLocalTitle = (taskId: number, newTitle: string) => {
-    setSections((currentSections) =>
-      currentSections.map((section) => ({
-        ...section,
-        tasks: section.tasks.map((task) =>
-          task.id === taskId ? { ...task, title: newTitle } : task
-        ),
-      }))
-    );
-  };
-
-  const sendTitleUpdate = async (taskId: number, prevTitle: string, currentTitle: string) => {
-    const { position, originalContent, content } = findDiff(prevTitle, currentTitle);
-
-    if (originalContent.length === content.length) {
-      await updateTitle.mutateAsync({
-        event: 'DELETE_TITLE',
-        taskId,
-        title: { position, content: originalContent, length: originalContent.length },
-      });
-      await updateTitle.mutateAsync({
-        event: 'INSERT_TITLE',
-        taskId,
-        title: { position, content, length: content.length },
-      });
-      return;
-    }
-
-    if (originalContent.length > content.length) {
-      await updateTitle.mutateAsync({
-        event: 'DELETE_TITLE',
-        taskId,
-        title: { position, content: originalContent, length: originalContent.length },
-      });
-      return;
-    }
-
-    await updateTitle.mutateAsync({
-      event: 'INSERT_TITLE',
-      taskId,
-      title: { position, content, length: content.length },
-    });
-  };
-
-  const debouncedSendTitleUpdate = useCallback(debounce(sendTitleUpdate, 500), []);
-
-  const handleTitleUpdate = useCallback(
-    (taskId: number, prevTitle: string, newTitle: string) => {
-      const previousSections = [...sections];
-
-      try {
-        updateLocalTitle(taskId, newTitle);
-
-        if (!isComposing) {
-          const getCurrentTitle = () => {
-            const task = findTask(sections, taskId);
-            return task?.title ?? '';
-          };
-
-          debouncedSendTitleUpdate(taskId, prevTitle, getCurrentTitle());
-        }
-      } catch (error) {
-        setSections(previousSections);
-        toast.error('Failed to update task title');
-      }
-    },
-    [sections, isComposing, debouncedSendTitleUpdate]
-  );
 
   return (
     <div className="spazce-x-2 flex h-[calc(100vh-110px)] gap-2 overflow-x-auto p-4">
@@ -502,19 +430,7 @@ export function Board() {
                       )}
                     >
                       <CardHeader className="flex flex-row items-start gap-2 space-y-0">
-                        <textarea
-                          value={task.title}
-                          onChange={(e) => handleTitleUpdate(task.id, task.title, e.target.value)}
-                          onCompositionStart={() => setIsComposing(true)}
-                          onCompositionEnd={() => setIsComposing(false)}
-                          className="flex-1 resize-none bg-transparent focus:outline-none"
-                          placeholder="Enter task title..."
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
-                        />
+                        {task.title}
                         <Button
                           variant="ghost"
                           type="button"
@@ -579,93 +495,3 @@ function SectionDropdownMenu({ children }: { children: ReactNode }) {
     </DropdownMenu>
   );
 }
-
-function AssigneeAvatars({ assignees }: { assignees: Assignee[] }) {
-  const limit = 2;
-  const visibleAssignees = assignees.slice(0, limit);
-  const remainingCount = assignees.length - limit;
-
-  return (
-    <div className="flex items-end">
-      {visibleAssignees.map((assignee, index) => (
-        <div
-          key={assignee.id}
-          className="relative -ml-4 first:ml-0"
-          style={{ zIndex: visibleAssignees.length - index }}
-        >
-          <Avatar className="h-7 w-7 border border-white">
-            <AvatarImage src={assignee.profileImage} alt={assignee.username} />
-            <AvatarFallback className="border border-black bg-gray-100 text-xs">
-              {assignee.username.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      ))}
-      {remainingCount > 0 && (
-        <div className="relative -ml-1" style={{ zIndex: 0 }}>
-          <Avatar className="h-7 w-7 border-2 border-white">
-            <AvatarFallback className="bg-gray-100 text-sm font-medium text-gray-600">
-              +{remainingCount}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const calculatePosition = (tasks: Task[], belowTaskId: number): string => {
-  const { length } = tasks;
-  if (length === 0) {
-    return LexoRank.middle().toString();
-  }
-
-  if (belowTaskId === -1) {
-    return LexoRank.parse(tasks[length - 1].position)
-      .genNext()
-      .toString();
-  }
-
-  const belowTaskIndex = tasks.findIndex((task) => task.id === belowTaskId);
-  const belowTask = tasks[belowTaskIndex];
-
-  if (belowTaskIndex === 0) {
-    return LexoRank.parse(belowTask.position).genPrev().toString();
-  }
-
-  return LexoRank.parse(tasks[belowTaskIndex - 1].position)
-    .between(LexoRank.parse(belowTask.position))
-    .toString();
-};
-
-const findDiff = (str1: string, str2: string) => {
-  let startIndex = 0;
-  while (
-    startIndex < str1.length &&
-    startIndex < str2.length &&
-    str1[startIndex] === str2[startIndex]
-  ) {
-    startIndex += 1;
-  }
-
-  let backIndex1 = str1.length - 1;
-  let backIndex2 = str2.length - 1;
-
-  while (
-    backIndex1 >= startIndex &&
-    backIndex2 >= startIndex &&
-    str1[backIndex1] === str2[backIndex2]
-  ) {
-    backIndex1 -= 1;
-    backIndex2 -= 1;
-  }
-
-  return {
-    position: startIndex,
-    originalContent: str1.substring(startIndex, backIndex1 + 1),
-    content: str2.substring(startIndex, backIndex2 + 1),
-  };
-};
-
-const findTask = (sections: TSection[], taskId: number): Task | undefined =>
-  sections.flatMap((section) => section.tasks).find((task) => task.id === taskId);

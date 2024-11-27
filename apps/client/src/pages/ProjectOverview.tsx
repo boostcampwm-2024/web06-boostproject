@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
-import { User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -113,43 +112,6 @@ function ProjectOverview() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow className="border-0">
-                  <TableCell className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6 border">
-                      <User size={24} />
-                    </Avatar>
-                    Unassigned
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Progress
-                        value={
-                          workload.totalTasks > 0
-                            ? ((workload.totalTasks -
-                                workload.users.reduce((acc, cur) => acc + cur.count, 0)) /
-                                workload.totalTasks) *
-                              100
-                            : 0
-                        }
-                      />
-                      {workload.totalTasks > 0
-                        ? (
-                            ((workload.totalTasks -
-                              workload.users.reduce((acc, cur) => acc + cur.count, 0)) /
-                              workload.totalTasks) *
-                            100
-                          ).toFixed(0)
-                        : 0}
-                      %
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {workload.totalTasks > 0
-                      ? workload.totalTasks -
-                        workload.users.reduce((acc, cur) => acc + cur.count, 0)
-                      : 0}
-                  </TableCell>
-                </TableRow>
                 {workload.users.map((user) => (
                   <TableRow key={user.id} className="border-0">
                     <TableCell className="flex items-center gap-2">
@@ -164,14 +126,17 @@ function ProjectOverview() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Progress
+                          className="flex-1"
                           value={
                             workload.totalTasks > 0 ? (user.count / workload.totalTasks) * 100 : 0
                           }
                         />
-                        {workload.totalTasks > 0
-                          ? ((user.count / workload.totalTasks) * 100).toFixed(0)
-                          : 0}
-                        %
+                        <span className="w-10">
+                          {workload.totalTasks > 0
+                            ? ((user.count / workload.totalTasks) * 100).toFixed(0)
+                            : 0}
+                          %
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">{user.count}</TableCell>

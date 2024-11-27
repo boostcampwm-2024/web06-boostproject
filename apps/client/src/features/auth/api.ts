@@ -7,10 +7,21 @@ import {
   RegisterRequestDto,
   RegisterResult,
 } from '@/features/auth/types.ts';
+import { ENV } from '@/config/env';
+
+const { API_BASE_URL } = ENV;
 
 export const authAPI = {
   login: async (loginRequestDto: LoginRequestDto) => {
-    const { data } = await axios.post<BaseResponse<LoginResult>>('/auth/signin', loginRequestDto);
+    const { data } = await axios.post<BaseResponse<LoginResult>>(
+      `${API_BASE_URL}/auth/signin`,
+      loginRequestDto,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     return data;
   },
@@ -23,8 +34,13 @@ export const authAPI = {
 
   register: async (registerRequestDto: RegisterRequestDto) => {
     const { data } = await axios.post<BaseResponse<RegisterResult>>(
-      '/auth/signup',
-      registerRequestDto
+      `${API_BASE_URL}/auth/signup`,
+      registerRequestDto,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
 
     return data;

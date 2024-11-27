@@ -47,8 +47,8 @@ axiosInstance.interceptors.response.use(
         throw new Error('Refresh token failed');
       }
 
-      const { username, accessToken } = response.data.result;
-      const authStorage: AuthState = { accessToken, isAuthenticated: true, username };
+      const { username, accessToken, profileImage } = response.data.result;
+      const authStorage: AuthState = { accessToken, isAuthenticated: true, username, profileImage };
 
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authStorage));
 

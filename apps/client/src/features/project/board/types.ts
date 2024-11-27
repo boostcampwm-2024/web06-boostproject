@@ -15,13 +15,13 @@ export type Task = {
 
 export type Section = {
   id: number;
-  title: string;
+  name: string;
   tasks: Task[];
 };
 
 export type TasksResponse = BaseResponse<Section[]>;
 
-export enum TaskEvent {
+export enum TaskEventType {
   'TASK_CREATED' = 'TASK_CREATED',
   'TASK_DELETED' = 'TASK_DELETED',
   'TITLE_UPDATED' = 'TITLE_UPDATED',
@@ -31,8 +31,8 @@ export enum TaskEvent {
   'SUBTASKS_CHANGED' = 'SUBTASKS_CHANGED',
 }
 
-export type Event = {
-  event: TaskEvent;
+export type TaskEvent = {
+  event: TaskEventType;
   task: {
     id: number;
     title?: string;
@@ -47,7 +47,7 @@ export type Event = {
   };
 };
 
-export type EventResponse = BaseResponse<Event[]>;
+export type EventResponse = BaseResponse<TaskEvent>;
 
 export interface UpdateTitleDto {
   event: 'INSERT_TITLE' | 'DELETE_TITLE';
@@ -65,9 +65,16 @@ export interface CreateTaskDto {
   position: string;
 }
 
+export type CreateTaskResponse = BaseResponse<{
+  id: number;
+  position: string;
+}>;
+
 export interface UpdatePositionDto {
   event: 'UPDATE_POSITION';
   sectionId: number;
   taskId: number;
   position: string;
 }
+
+export type UpdateDto = UpdateTitleDto | CreateTaskDto | UpdatePositionDto;

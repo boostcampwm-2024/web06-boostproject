@@ -34,6 +34,12 @@ import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto
 import { SubTask } from '@/task/domain/subTask.entity';
 import { CreateSubTaskResponse } from '@/task/dto/create-subTask-response.dto';
 import { SubTaskStatus } from '@/task/enum/subTaskStatus.enum';
+import { TaskCreatedEvent } from '@/task/event/task-created.event';
+import { PositionUpdatedEvent } from '@/task/event/position-updated.event';
+import { TaskDeletedEvent } from '@/task/event/task-deleted.event';
+import { LabelsChangedEvent } from '@/task/event/labels-changed.event';
+import { AssigneesChangedEvent } from '@/task/event/assignees-changed.event';
+import { TitleUpdatedEvent } from '@/task/event/title-updated.event';
 
 const { defaultType: json0 } = ShareDB.types;
 
@@ -64,9 +70,6 @@ export class TaskService {
     private broadcastService: BroadcastService,
     private eventEmitter: EventEmitter2
   ) {
-    this.eventEmitter.on('broadcast', (userId: number, projectId: number, event: TaskEvent) => {
-      this.broadcastService.sendConnection(userId, projectId, event);
-    });
     this.eventEmitter.on(
       'operationAdded',
       async (userId: number, projectId: number, taskId: number) => {
@@ -114,7 +117,7 @@ export class TaskService {
       'broadcast',
       eventPublisher,
       projectId,
-      TaskEventResponse.of(taskId, 'TITLE')
+      new TaskEventResponse(EventType.TITLE_UPDATED, new TitleUpdatedEvent(taskId, newText))
     );
   }
 
@@ -146,7 +149,12 @@ export class TaskService {
       section,
     });
 
-    this.eventEmitter.emit('broadcast', userId, projectId, TaskEventResponse.of(task.id, 'CARD'));
+    this.eventEmitter.emit(
+      'broadcast',
+      userId,
+      projectId,
+      new TaskEventResponse(EventType.TASK_CREATED, new TaskCreatedEvent(task))
+    );
     return new CreateTaskResponse(task);
   }
 
@@ -242,7 +250,7 @@ export class TaskService {
       'broadcast',
       userId,
       projectId,
-      TaskEventResponse.of(taskEvent.taskId, 'CARD')
+      new TaskEventResponse(EventType.POSITION_UPDATED, new PositionUpdatedEvent(task))
     );
     return new MoveTaskResponse(task);
   }
@@ -288,12 +296,12 @@ export class TaskService {
     if (!task || task.section.project.id !== projectId) {
       throw new NotFoundException('Task not found');
     }
+    const taskId = task.id;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const taskId = task.id;
       await queryRunner.manager.delete(TaskLabel, { taskId });
       await queryRunner.manager.delete(TaskAssignee, { taskId });
       await queryRunner.manager.delete(SubTask, { taskId });
@@ -309,7 +317,7 @@ export class TaskService {
       'broadcast',
       userId,
       projectId,
-      TaskEventResponse.of(taskEvent.taskId, 'CARD')
+      new TaskEventResponse(EventType.TASK_DELETED, new TaskDeletedEvent(taskId))
     );
     return new DeleteTaskResponse(taskEvent.taskId);
   }
@@ -346,7 +354,17 @@ export class TaskService {
     } finally {
       await queryRunner.release();
     }
-    return { taskId, labels: labels.map((label) => new LabelDetailsResponse(label)) };
+    const labelsResponse = labels.map((label) => new LabelDetailsResponse(label));
+    this.eventEmitter.emit(
+      'broadcast',
+      userId,
+      projectId,
+      new TaskEventResponse(
+        EventType.LABELS_CHANGED,
+        new LabelsChangedEvent(taskId, labelsResponse)
+      )
+    );
+    return { taskId, labels: labelsResponse };
   }
 
   async updateAssignees(userId: number, taskId: number, assigneeIds: number[]) {
@@ -361,7 +379,7 @@ export class TaskService {
         .where('c.projectId = :projectId', { projectId })
         .andWhere('c.status = :status', { status: ContributorStatus.ACCEPTED })
         .andWhere('c.userId IN (:...userIds)', { userIds: assigneeIds })
-        .addSelect(['a.username'])
+        .select(['c.userId AS userId, a.username AS username, a.profileImage AS profileImage'])
         .getRawMany();
     }
     if (records.length !== assigneeIds.length) {
@@ -387,12 +405,19 @@ export class TaskService {
     } finally {
       await queryRunner.release();
     }
-    return {
-      taskId,
-      assignees: records.map(
-        (record) => new AssigneeDetailsResponse(record.c_userId, record.a_username, '')
-      ),
-    };
+    const assigneesResponse = records.map(
+      (record) => new AssigneeDetailsResponse(record.userId, record.username, record.profileImage)
+    );
+    this.eventEmitter.emit(
+      'broadcast',
+      userId,
+      projectId,
+      new TaskEventResponse(
+        EventType.ASSIGNEES_CHANGED,
+        new AssigneesChangedEvent(taskId, assigneesResponse)
+      )
+    );
+    return { taskId, assignees: assigneesResponse };
   }
 
   async getTaskDetail(userId: number, taskId: number) {

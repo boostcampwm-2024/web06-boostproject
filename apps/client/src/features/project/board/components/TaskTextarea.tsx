@@ -45,7 +45,7 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}
       onKeyDown={handleKeyDown}
-      className="resize-none bg-transparent focus:outline-none"
+      className="flex flex-1 resize-none bg-transparent focus:outline-none"
       placeholder="Enter task title..."
     />
   );

@@ -127,7 +127,6 @@ export function Board() {
           break;
 
         case TaskEventType.TITLE_UPDATED:
-          console.info('title updated');
           updatedSections = handleTaskUpdated(currentSections);
           break;
 
@@ -151,8 +150,6 @@ export function Board() {
       }));
     });
   }, []);
-
-  console.log('sections', sections);
 
   const handleTitleChange = useCallback(
     (taskId: number, newTitle: string) => {
@@ -273,13 +270,17 @@ export function Board() {
     event.dataTransfer.setData('sectionId', sectionId.toString());
   };
 
-  const handleDragOver = (event: DragEvent<HTMLDivElement>, sectionId: number, taskId?: number) => {
-    event.preventDefault();
+  const handleDragOver = (e: DragEvent<HTMLDivElement>, sectionId: number, taskId?: number) => {
+    e.preventDefault();
     setBelowSectionId(sectionId);
-    setBelowTaskId(taskId ?? -1);
-  };
 
-  const throttledDragOver = throttle(handleDragOver);
+    if (!taskId) {
+      setBelowTaskId(-1);
+      return;
+    }
+
+    setBelowTaskId(taskId);
+  };
 
   const handleDragLeave = () => {
     setBelowTaskId(-1);
@@ -309,7 +310,12 @@ export function Board() {
     const targetSection = sections.find((section) => section.id === sectionId);
     if (!targetSection) return;
 
-    const position = calculatePosition(targetSection.tasks, belowTaskId);
+    // Calculate position based on whether we're dropping on a task or section
+    const position =
+      belowTaskId === -1
+        ? calculatePosition(targetSection.tasks, -1) // Drop at the end of section
+        : calculatePosition(targetSection.tasks, belowTaskId);
+
     const previousSections = [...sections];
 
     setSections((currentSections) => {
@@ -319,24 +325,11 @@ export function Board() {
       const updatedTask = {
         ...task,
         position,
+        sectionId, // Update the sectionId when moving between sections
       };
 
       return currentSections.map((section) => {
-        if (section.id === fromSectionId && fromSectionId === sectionId) {
-          const updatedTasks = section.tasks.filter((t) => t.id !== taskId);
-          const targetIndex =
-            belowTaskId === -1
-              ? updatedTasks.length
-              : updatedTasks.findIndex((t) => t.id === belowTaskId);
-
-          updatedTasks.splice(targetIndex, 0, updatedTask);
-
-          return {
-            ...section,
-            tasks: updatedTasks,
-          };
-        }
-
+        // Remove from source section
         if (section.id === fromSectionId) {
           return {
             ...section,
@@ -344,12 +337,21 @@ export function Board() {
           };
         }
 
+        // Add to target section
         if (section.id === sectionId) {
+          const updatedTasks = [...section.tasks];
+          if (belowTaskId === -1) {
+            // Append to the end if dropping on section
+            updatedTasks.push(updatedTask);
+          } else {
+            // Insert at specific position if dropping on a task
+            const targetIndex = updatedTasks.findIndex((t) => t.id === belowTaskId);
+            updatedTasks.splice(targetIndex, 0, updatedTask);
+          }
+
           return {
             ...section,
-            tasks: [...section.tasks, updatedTask].sort((a, b) =>
-              a.position.localeCompare(b.position)
-            ),
+            tasks: updatedTasks.sort((a, b) => a.position.localeCompare(b.position)),
           };
         }
 
@@ -431,6 +433,8 @@ export function Board() {
               'bg-transparent',
               section.id === belowSectionId && belowTaskId === -1 && 'border-2 border-blue-400'
             )}
+            onDragOver={(e) => handleDragOver(e, section.id)}
+            onDrop={(e) => handleDrop(e, section.id)}
           >
             <SectionHeader className="flex w-full items-center justify-between gap-2 space-y-0">
               <div className="flex items-center gap-2">
@@ -452,7 +456,7 @@ export function Board() {
             <SectionContent
               key={section.id}
               className="flex flex-1 flex-col gap-2 overflow-y-auto pt-1"
-              onDragOver={(e) => throttledDragOver(e, section.id)}
+              onDragOver={(e) => handleDragOver(e, section.id)}
               onDragLeave={throttledDragLeave}
               onDrop={(e) => handleDrop(e, section.id)}
               onDragEnd={handleDragEnd}
@@ -486,7 +490,7 @@ export function Board() {
                     onDragOver={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      throttledDragOver(e, section.id, task.id);
+                      handleDragOver(e, section.id, task.id);
                     }}
                     onDragLeave={throttledDragLeave}
                   >
@@ -528,7 +532,7 @@ export function Board() {
                   </motion.div>
                 ))}
             </SectionContent>
-            <SectionFooter>
+            <SectionFooter className="w-full">
               <Button
                 variant="ghost"
                 className="w-full border-none px-0 text-black"

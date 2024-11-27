@@ -12,7 +12,9 @@ export class Account extends EntityTimestamp {
   @Column()
   password: string;
 
-  @Column({ default: 'default_profile.jpg' })
+  @Column({
+    default: 'https://kr.object.ncloudstorage.com/4card-harmony-bucket/default_profile.jpg',
+  })
   profileImage: string;
 
   @Column({ nullable: true })

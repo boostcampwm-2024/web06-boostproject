@@ -6,10 +6,13 @@ import ProjectCard from '@/components/ProjectCard';
 import CreateProjectDialog from '@/components/dialog/CreateProjectDialog';
 import { CreateProjectRequestDTO, GetProjectsResponseDTO } from '@/types/project';
 import { axiosInstance } from '@/lib/axios.ts';
+import { useToast } from '@/lib/useToast';
 
 function AccountOverview() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const toast = useToast();
+
   const { data: projects } = useSuspenseQuery({
     queryKey: ['projects'],
     queryFn: async () => {
@@ -28,9 +31,10 @@ function AccountOverview() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setIsDialogOpen(false);
+      toast.success('Project created successfully.');
     },
-    onError: (error) => {
-      console.log('Failed to create project', error);
+    onError: () => {
+      toast.error('Failed to create project. Please try again.');
     },
   });
 

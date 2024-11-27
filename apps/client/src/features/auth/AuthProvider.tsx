@@ -11,6 +11,7 @@ import {
 } from '@/features/auth/types.ts';
 import { authAPI } from '@/features/auth/api.ts';
 import { BaseResponse } from '@/features/types.ts';
+import { useToast } from '@/lib/useToast';
 
 export interface AuthContextValue extends AuthState {
   loginMutation: ReturnType<typeof useMutation<BaseResponse<LoginResult>, Error, LoginRequestDto>>;
@@ -46,6 +47,7 @@ const getStoredState = () => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<AuthState>(getStoredState());
+  const toast = useToast();
 
   useEffect(() => {
     localStorage.setItem(ENV.AUTH_STORAGE_KEY, JSON.stringify(authState));
@@ -57,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       window.location.href = '/login';
+    },
+    onError: () => {
+      toast.error('Failed to register. Please try again.');
     },
   });
 

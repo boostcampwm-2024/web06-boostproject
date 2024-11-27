@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import Board from '@/pages/Board.tsx';
 import PlanningPokerFloatingButton from '@/components/PlanningPokerFloatingButton';
@@ -19,17 +20,28 @@ export const Route = createFileRoute('/_auth/$project/board')({
   loader: async ({ context: { queryClient }, params: { project } }) => {
     const projectId = Number(project);
 
-    await queryClient.ensureQueryData({
+    const sections = await queryClient.ensureQueryData({
       queryKey: ['tasks', projectId],
       queryFn: () => boardAPI.getTasks(projectId),
+      staleTime: 0,
     });
+
+    return { projectId, sections };
   },
   errorComponent: () => <div>error in board</div>,
   component: () => (
-    <>
+    <Suspense fallback={<LoadingFallback />}>
       <Board />
       <PlanningPokerFloatingButton />
       <Outlet />
-    </>
+    </Suspense>
   ),
 });
+
+function LoadingFallback() {
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="text-lg">Loading...</div>
+    </div>
+  );
+}

@@ -7,8 +7,8 @@ export interface BaseResponse<T = void> {
 export type User = {
   id: number;
   username: string;
-  role: string;
-  avatar?: string; // or imageUrl
+  role?: string;
+  profileImage?: string; // or imageUrl
 };
 
 export type Sprint = {

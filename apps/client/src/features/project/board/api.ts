@@ -1,5 +1,6 @@
+import { AxiosRequestConfig } from 'axios';
 import { axiosInstance } from '@/lib/axios.ts';
-import { EventResponse, TasksResponse } from '@/features/project/board/types.ts';
+import { EventResponse, TasksResponse, UpdateDto } from '@/features/project/board/types.ts';
 
 export const boardAPI = {
   getTasks: async (projectId: number) => {
@@ -7,8 +8,16 @@ export const boardAPI = {
     return response.data.result;
   },
 
-  getEvents: async (projectId: string) => {
-    const response = await axiosInstance.get<EventResponse>(`/task/events?projectId=${projectId}`);
+  getEvent: async (projectId: number, config: AxiosRequestConfig = {}) => {
+    const response = await axiosInstance.get<EventResponse>(
+      `/task/events?projectId=${projectId}`,
+      config
+    );
+    return response.data.result;
+  },
+
+  update: async (projectId: number, data: UpdateDto) => {
+    const response = await axiosInstance.post(`/project/${projectId}/update`, data);
     return response.data.result;
   },
 };

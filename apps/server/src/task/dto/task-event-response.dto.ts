@@ -1,18 +1,12 @@
+import { EventType } from '@/task/enum/eventType.enum';
+
 export class TaskEventResponse {
-  taskId: number;
-
-  taskEvent: string;
-
-  static from(taskId: number) {
-    const response = new TaskEventResponse();
-    response.taskId = taskId;
-    return response;
+  constructor(eventTitle: EventType, event: any) {
+    this.event = eventTitle;
+    this.event = event;
   }
 
-  static of(taskId: number, taskEvent: string) {
-    const response = new TaskEventResponse();
-    response.taskId = taskId;
-    response.taskEvent = taskEvent;
-    return response;
-  }
+  event: EventType;
+
+  task: any;
 }

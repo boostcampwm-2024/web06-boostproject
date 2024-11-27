@@ -143,6 +143,7 @@ function AuthLayout() {
       setPreviewUrl(undefined);
       setSelectedFile(undefined);
       setIsProfileOpen(false);
+      toast.success('Image uploaded successfully.');
     },
     onError: () => {
       toast.error('Failed to upload image.');

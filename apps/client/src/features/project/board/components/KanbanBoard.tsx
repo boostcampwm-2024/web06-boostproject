@@ -74,28 +74,26 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
         if (!task) return sections;
 
         return sections.map((section) => {
-          if (section.id === task.sectionId) {
-            return {
-              ...section,
-              tasks: section.tasks.filter((t) => t.id !== task.id),
-            };
-          }
+          const filteredTasks = section.tasks.filter((t) => t.id !== task.id);
 
           if (section.id === event.task.sectionId) {
             return {
               ...section,
               tasks: [
-                ...section.tasks,
+                ...filteredTasks,
                 {
                   ...task,
                   sectionId: event.task.sectionId!,
                   position: event.task.position!,
                 },
-              ],
+              ].sort((a, b) => a.position.localeCompare(b.position)),
             };
           }
 
-          return section;
+          return {
+            ...section,
+            tasks: filteredTasks,
+          };
         });
       };
 
@@ -159,7 +157,6 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
 
         const diff = findDiff(task.title, newTitle);
 
-        // 삭제된 내용이 있는 경우
         if (diff.originalContent.length > 0) {
           updateTitle.mutate(
             {
@@ -173,7 +170,6 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
             },
             {
               onSuccess: () => {
-                // 새로운 내용이 있는 경우에만 삽입
                 if (diff.content.length > 0) {
                   updateTitle.mutate({
                     event: 'INSERT_TITLE',
@@ -200,7 +196,6 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
           });
         }
 
-        // 자기가 발생시킨 업데이트에 대한 로컬 상태 관리
         return currentSections.map((section) => ({
           ...section,
           tasks: section.tasks.map((t) => (t.id === taskId ? { ...t, title: newTitle } : t)),
@@ -310,10 +305,9 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
     const targetSection = sections.find((section) => section.id === sectionId);
     if (!targetSection) return;
 
-    // Calculate position based on whether we're dropping on a task or section
     const position =
       belowTaskId === -1
-        ? calculatePosition(targetSection.tasks, -1) // Drop at the end of section
+        ? calculatePosition(targetSection.tasks, -1)
         : calculatePosition(targetSection.tasks, belowTaskId);
 
     const previousSections = [...sections];
@@ -325,11 +319,10 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
       const updatedTask = {
         ...task,
         position,
-        sectionId, // Update the sectionId when moving between sections
+        sectionId,
       };
 
       return currentSections.map((section) => {
-        // Remove from source section
         if (section.id === fromSectionId) {
           return {
             ...section,
@@ -337,14 +330,11 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
           };
         }
 
-        // Add to target section
         if (section.id === sectionId) {
           const updatedTasks = [...section.tasks];
           if (belowTaskId === -1) {
-            // Append to the end if dropping on section
             updatedTasks.push(updatedTask);
           } else {
-            // Insert at specific position if dropping on a task
             const targetIndex = updatedTasks.findIndex((t) => t.id === belowTaskId);
             updatedTasks.splice(targetIndex, 0, updatedTask);
           }

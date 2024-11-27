@@ -32,4 +32,10 @@ export const taskAPI = {
 
     return data;
   },
+
+  delteTask: async (taskId: number) => {
+    const { data } = await axiosInstance.delete<BaseResponse>(`/task/${taskId}`);
+
+    return data;
+  },
 };

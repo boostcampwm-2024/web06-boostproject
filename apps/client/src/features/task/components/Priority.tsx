@@ -30,10 +30,10 @@ function PriorityStars({ count }: { count: number }) {
 }
 
 export default function Priority({ initialPriority }: PriorityProps) {
-  const { taskId } = useLoaderData({
+  const { taskId, projectId } = useLoaderData({
     from: '/_auth/$project/board/$taskId',
   });
-  const { updatePriority } = useTaskMutations(taskId);
+  const { updatePriority } = useTaskMutations(taskId, projectId);
 
   const [priority, setPriority] = useState<number | null>(initialPriority);
   const [isOpen, setIsOpen] = useState(false);

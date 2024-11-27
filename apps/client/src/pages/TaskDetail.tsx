@@ -15,9 +15,10 @@ import Labels from '@/features/task/components/Labels.tsx';
 import Priority from '@/features/task/components/Priority.tsx';
 import Sprint from '@/features/task/components/Sprint.tsx';
 import Estimate from '@/features/task/components/Estimate.tsx';
+import { useTaskMutations } from '@/features/task/useTaskMutations.ts';
 
 export function TaskDetail() {
-  const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
+  const { taskId, projectId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
 
   const navigate = useNavigate({ from: '/$project/board/$taskId' });
 
@@ -38,6 +39,13 @@ export function TaskDetail() {
       navigate({ to: '/$project/board' });
     }, 300);
   }, [navigate]);
+
+  const { deleteTask } = useTaskMutations(taskId, projectId);
+
+  const handleDelete = useCallback(() => {
+    deleteTask.mutate();
+    navigate({ to: '/$project/board' });
+  }, [deleteTask, navigate]);
 
   return (
     <AnimatePresence key={taskId} mode="wait" onExitComplete={() => setIsClosing(false)}>
@@ -68,7 +76,9 @@ export function TaskDetail() {
             <Card className="h-full rounded-none border-none">
               <CardHeader className="bg-blue sticky top-0 z-40 h-[100px] backdrop-blur">
                 <div className="flex h-full items-center justify-between">
-                  <h2 className="text-3xl font-semibold">{task.title}</h2>
+                  <h2 className="line-clamp-2 max-w-sm break-words text-3xl font-semibold lg:max-w-xl">
+                    {task.title}
+                  </h2>
                   <Button variant="ghost" size="icon" onClick={handleClose}>
                     <X className="h-4 w-4" />
                   </Button>
@@ -106,6 +116,7 @@ export function TaskDetail() {
                     <Button
                       variant="ghost"
                       className="m-0 p-0 px-2 font-medium text-gray-500 hover:text-red-600"
+                      onClick={handleDelete}
                     >
                       <TrashIcon className="h-5 w-5" />
                       <span className="text-xs">Delete task</span>

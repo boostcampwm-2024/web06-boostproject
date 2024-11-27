@@ -2,6 +2,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   username: string;
   accessToken: string;
+  profileImage: string;
 }
 
 export interface LoginRequestDto {
@@ -13,6 +14,7 @@ export interface LoginResult {
   id: number;
   username: string;
   accessToken: string;
+  profileImage: string;
 }
 
 export interface RegisterRequestDto {

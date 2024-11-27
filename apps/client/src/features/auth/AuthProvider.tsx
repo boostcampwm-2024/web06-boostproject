@@ -18,6 +18,7 @@ export interface AuthContextValue extends AuthState {
     typeof useMutation<BaseResponse<RegisterResult>, Error, RegisterRequestDto>
   >;
   logoutMutation: ReturnType<typeof useMutation<BaseResponse, Error, void>>;
+  updateProfileImage: (newProfileImage: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -26,6 +27,7 @@ const INITIAL_STATE: AuthState = {
   isAuthenticated: false,
   username: '',
   accessToken: '',
+  profileImage: '',
 };
 
 const getStoredState = () => {
@@ -67,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: true,
         username: data.result.username,
         accessToken: data.result.accessToken,
+        profileImage: data.result.profileImage,
       });
       queryClient.clear();
     },
@@ -82,12 +85,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const updateProfileImage = (newProfileImage: string) => {
+    setAuthState((prevState) => ({
+      ...prevState,
+      profileImage: newProfileImage,
+    }));
+  };
+
   const value = useMemo(
     () => ({
       ...authState,
       loginMutation,
       registerMutation,
       logoutMutation,
+      updateProfileImage,
     }),
     [authState, loginMutation, registerMutation, logoutMutation]
   );

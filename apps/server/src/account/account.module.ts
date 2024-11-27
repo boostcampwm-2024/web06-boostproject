@@ -9,10 +9,11 @@ import { RefreshTokenGuard } from '@/account/guard/refreshToken.guard';
 import { AuthService } from '@/account/auth.service';
 import { Account } from '@/account/entity/account.entity';
 import { UserService } from './user.service';
+import { UserController } from './user.controller';
 
 @Module({
   imports: [JwtModule.register({ global: true }), TypeOrmModule.forFeature([Account])],
-  controllers: [AuthController],
+  controllers: [AuthController, UserController],
   providers: [
     AuthService,
     UserService,

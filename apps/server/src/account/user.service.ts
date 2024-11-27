@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from './entity/account.entity';
 
@@ -15,5 +15,14 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ id });
     user.profileImage = profileImage;
     return this.userRepository.save(user);
+  }
+
+  async searchUsers(query: string) {
+    return this.userRepository.find({
+      where: {
+        username: Like(`${query}%`),
+      },
+      select: ['id', 'username', 'profileImage'],
+    });
   }
 }

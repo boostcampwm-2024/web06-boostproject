@@ -35,11 +35,14 @@ export class BroadcastService {
     if (!connections) {
       return;
     }
+
+    const filteredConnections = this.connections.get(projectId).filter((r) => r.userId === userId);
+    this.connections.set(projectId, filteredConnections);
+
     for (let i = 0; i < connections.length; i += 1) {
       const res = connections[i];
       if (res.userId !== userId) {
         res.json(new BaseResponse(200, '이벤트가 발생했습니다.', event));
-        this.removeConnection(projectId, res);
       }
     }
   }

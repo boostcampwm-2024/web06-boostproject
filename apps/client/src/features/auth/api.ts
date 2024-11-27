@@ -1,4 +1,5 @@
-import { axiosInstance } from '@/lib/axios.ts';
+import axios from 'axios';
+import { axiosInstance } from '@/lib/axios';
 import { BaseResponse } from '@/features/types.ts';
 import {
   LoginRequestDto,
@@ -9,10 +10,7 @@ import {
 
 export const authAPI = {
   login: async (loginRequestDto: LoginRequestDto) => {
-    const { data } = await axiosInstance.post<BaseResponse<LoginResult>>(
-      '/auth/signin',
-      loginRequestDto
-    );
+    const { data } = await axios.post<BaseResponse<LoginResult>>('/auth/signin', loginRequestDto);
 
     return data;
   },
@@ -24,7 +22,7 @@ export const authAPI = {
   },
 
   register: async (registerRequestDto: RegisterRequestDto) => {
-    const { data } = await axiosInstance.post<BaseResponse<RegisterResult>>(
+    const { data } = await axios.post<BaseResponse<RegisterResult>>(
       '/auth/signup',
       registerRequestDto
     );

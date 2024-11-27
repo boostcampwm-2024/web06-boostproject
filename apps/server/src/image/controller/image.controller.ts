@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ImageService } from '@/image/service/image.service';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 import { FileNameRequest } from '../dto/file-name-request.dto';
 import { Account } from '@/account/entity/account.entity';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
+import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 
 @Controller('image')
+@UseGuards(AccessTokenGuard)
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 

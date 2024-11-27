@@ -445,29 +445,14 @@ export class TaskService {
     return result;
   }
 
-  async getStatistic(userId: number, projectId: number) {
+  async getWorkload(userId: number, projectId: number) {
     await this.validateUserRole(userId, projectId);
-    const totalTask = await this.taskRepository
-      .createQueryBuilder('t')
-      .innerJoin('t.section', 'section')
-      .innerJoin('section.project', 'project')
-      .where('project.id = :projectId', { projectId })
-      .getCount();
-
-    const doneTask = await this.taskRepository
-      .createQueryBuilder('t')
-      .innerJoin('t.section', 'section')
-      .innerJoin('section.project', 'project')
-      .where('project.id = :projectId', { projectId })
-      .andWhere('section.name = :name', { name: 'Done' })
-      .getCount();
-
-    const contributorStatisticRecord = await this.contributorRepository
+    const contributorRecord = await this.contributorRepository
       .createQueryBuilder('c')
       .leftJoin('account', 'a', 'c.userId = a.id')
       .leftJoin('task_assignee', 'ta', 'c.userId = ta.accountId')
-      .where('c.projectId = :projectId OR ta.projectId IS NULL', { projectId })
-      .andWhere('ta.projectId = :projectId', { projectId })
+      .where('c.projectId = :projectId', { projectId })
+      .andWhere('(ta.projectId = :projectId OR ta.id IS NULL)', { projectId })
       .select([
         'c.userId AS id',
         'a.username AS username',
@@ -476,11 +461,30 @@ export class TaskService {
       ])
       .groupBy('c.userId')
       .getRawMany();
-    const contributorStatistic = contributorStatisticRecord.map((statistic) => ({
-      ...statistic,
-      count: parseInt(statistic.count, 10),
+    const users = contributorRecord.map((contributor) => ({
+      ...contributor,
+      count: parseInt(contributor.count, 10),
     }));
-    return { totalTask, doneTask, contributorStatistic };
+    const totalTasks = users.reduce((sum, contributor) => sum + contributor.count, 0);
+    return { totalTasks, users };
+  }
+
+  async getOverview(userId: number, projectId: number) {
+    await this.validateUserRole(userId, projectId);
+    const sectionRecords = await this.sectionRepository
+      .createQueryBuilder('s')
+      .leftJoin('task', 't', 's.id = t.section_id')
+      .leftJoin('project', 'p', 's.project_id = p.id')
+      .where('p.id = :projectId', { projectId })
+      .select(['s.id AS id', 's.name AS title', 'COUNT(t.id) AS count'])
+      .groupBy('s.id')
+      .getRawMany();
+    const sections = sectionRecords.map((section) => ({
+      ...section,
+      count: parseInt(section.count, 10),
+    }));
+    const totalTasks = sections.reduce((sum, section) => sum + section.count, 0);
+    return { totalTasks, sections };
   }
 
   private async validateUserRole(userId: number, projectId: number) {

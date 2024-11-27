@@ -152,9 +152,15 @@ export class ProjectController {
     return this.labelService.getAll(user.id, id);
   }
 
-  @Get(':id/statistic')
-  @ResponseMessage('프로젝트 통계 조회에 성공했습니다.')
-  async getStatistic(@AuthUser() user: Account, @Param('id') id: number) {
-    return this.taskService.getStatistic(user.id, id);
+  @Get(':id/workload')
+  @ResponseMessage('프로젝트 워크로드 조회에 성공했습니다.')
+  async getWorkload(@AuthUser() user: Account, @Param('id') id: number) {
+    return this.taskService.getWorkload(user.id, id);
+  }
+
+  @Get(':id/overview')
+  @ResponseMessage('프로젝트 오버뷰 조회에 성공했습니다.')
+  async getOverview(@AuthUser() user: Account, @Param('id') id: number) {
+    return this.taskService.getOverview(user.id, id);
   }
 }

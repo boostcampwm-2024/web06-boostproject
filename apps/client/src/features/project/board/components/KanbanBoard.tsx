@@ -294,7 +294,6 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
     event.preventDefault();
 
     const taskId = Number(event.dataTransfer.getData('taskId'));
-    const fromSectionId = Number(event.dataTransfer.getData('sectionId'));
 
     if (taskId === belowTaskId) {
       setBelowTaskId(-1);
@@ -323,29 +322,21 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
       };
 
       return currentSections.map((section) => {
-        if (section.id === fromSectionId) {
-          return {
-            ...section,
-            tasks: section.tasks.filter((t) => t.id !== taskId),
-          };
-        }
+        const filteredTasks = section.tasks.filter((t) => t.id !== taskId);
 
         if (section.id === sectionId) {
-          const updatedTasks = [...section.tasks];
-          if (belowTaskId === -1) {
-            updatedTasks.push(updatedTask);
-          } else {
-            const targetIndex = updatedTasks.findIndex((t) => t.id === belowTaskId);
-            updatedTasks.splice(targetIndex, 0, updatedTask);
-          }
-
           return {
             ...section,
-            tasks: updatedTasks.sort((a, b) => a.position.localeCompare(b.position)),
+            tasks: [...filteredTasks, updatedTask].sort((a, b) =>
+              a.position.localeCompare(b.position)
+            ),
           };
         }
 
-        return section;
+        return {
+          ...section,
+          tasks: filteredTasks,
+        };
       });
     });
 

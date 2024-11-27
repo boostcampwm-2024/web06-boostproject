@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { GetProjectMembersResponseDTO, InviteProjectMemberRequestDTO } from '@/types/project';
 import { axiosInstance } from '@/lib/axios.ts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/lib/useToast';
 
 const formSchema = z.object({
   username: z
@@ -21,6 +22,7 @@ const formSchema = z.object({
 function ProjectSettings() {
   const queryClient = useQueryClient();
   const { project } = useParams({ from: '/_auth/$project/settings' });
+  const toast = useToast();
 
   const { data: members } = useSuspenseQuery({
     queryKey: ['project', project, 'members'],
@@ -42,10 +44,10 @@ function ProjectSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', project, 'members'] });
+      toast.success('Member invited successfully.');
     },
-    onError: (error) => {
-      alert('Failed to invite member');
-      console.log('Failed to invite member', error);
+    onError: () => {
+      toast.error('Failed to invite member.');
     },
   });
 

@@ -3,6 +3,7 @@ import { Link, useLoaderData } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HamburgerMenuIcon, PlusIcon } from '@radix-ui/react-icons';
 import { PanelLeftOpen } from 'lucide-react';
+import { AxiosError } from 'axios';
 import {
   Section as TSection,
   Task,
@@ -30,7 +31,8 @@ import { useToast } from '@/lib/useToast.tsx';
 import { useBoardMutations } from '@/features/project/board/useBoardMutations.ts';
 import { throttle } from '@/shared/utils/throttle.ts';
 import { AssigneeAvatars } from '@/features/project/board/components/AssigneeAvatars.tsx';
-import { calculatePosition, findTask } from '@/features/project/board/utils.ts';
+import { calculatePosition, findDiff, findTask } from '@/features/project/board/utils.ts';
+import { TaskTextarea } from '@/features/project/board/components/TaskTextarea.tsx';
 
 export function Board() {
   const { projectId, sections: initialSections } = useLoaderData({
@@ -38,7 +40,7 @@ export function Board() {
   });
 
   const toast = useToast();
-  const { createTask, updatePosition } = useBoardMutations(projectId);
+  const { createTask, updatePosition, updateTitle } = useBoardMutations(projectId);
   const [sections, setSections] = useState<TSection[]>(initialSections);
   const [belowSectionId, setBelowSectionId] = useState<number>(-1);
   const [belowTaskId, setBelowTaskId] = useState<number>(-1);
@@ -125,6 +127,7 @@ export function Board() {
           break;
 
         case TaskEventType.TITLE_UPDATED:
+          console.info('title updated');
           updatedSections = handleTaskUpdated(currentSections);
           break;
 
@@ -148,6 +151,67 @@ export function Board() {
       }));
     });
   }, []);
+
+  console.log('sections', sections);
+
+  const handleTitleChange = useCallback(
+    (taskId: number, newTitle: string) => {
+      setSections((currentSections) => {
+        const task = findTask(currentSections, taskId);
+        if (!task) return currentSections;
+
+        const diff = findDiff(task.title, newTitle);
+
+        // 삭제된 내용이 있는 경우
+        if (diff.originalContent.length > 0) {
+          updateTitle.mutate(
+            {
+              event: 'DELETE_TITLE',
+              taskId,
+              title: {
+                position: diff.position,
+                content: diff.originalContent,
+                length: diff.originalContent.length,
+              },
+            },
+            {
+              onSuccess: () => {
+                // 새로운 내용이 있는 경우에만 삽입
+                if (diff.content.length > 0) {
+                  updateTitle.mutate({
+                    event: 'INSERT_TITLE',
+                    taskId,
+                    title: {
+                      position: diff.position,
+                      content: diff.content,
+                      length: diff.content.length,
+                    },
+                  });
+                }
+              },
+            }
+          );
+        } else if (diff.content.length > 0) {
+          updateTitle.mutate({
+            event: 'INSERT_TITLE',
+            taskId,
+            title: {
+              position: diff.position,
+              content: diff.content,
+              length: diff.content.length,
+            },
+          });
+        }
+
+        // 자기가 발생시킨 업데이트에 대한 로컬 상태 관리
+        return currentSections.map((section) => ({
+          ...section,
+          tasks: section.tasks.map((t) => (t.id === taskId ? { ...t, title: newTitle } : t)),
+        }));
+      });
+    },
+    [updateTitle]
+  );
 
   useEffect(() => {
     let timeoutId: number;
@@ -173,8 +237,12 @@ export function Board() {
           handleEvent(event);
           retryCount = 0;
         }
-      } catch {
+      } catch (error) {
         retryCount += 1;
+
+        if ((error as AxiosError).status === 404) {
+          retryCount = 0;
+        }
 
         if (retryCount >= MAX_RETRY_COUNT) {
           toast.error('Failed to poll event. Please refresh the page.', 5000);
@@ -430,7 +498,11 @@ export function Board() {
                       )}
                     >
                       <CardHeader className="flex flex-row items-start gap-2 space-y-0">
-                        {task.title}
+                        <TaskTextarea
+                          taskId={task.id}
+                          initialTitle={task.title}
+                          onTitleChange={handleTitleChange}
+                        />
                         <Button
                           variant="ghost"
                           type="button"

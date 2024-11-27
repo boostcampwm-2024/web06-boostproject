@@ -1,7 +1,9 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, Outlet, createFileRoute, redirect, useParams } from '@tanstack/react-router';
-import { ChevronsUpDownIcon, LogOut } from 'lucide-react';
+import { ChevronsUpDownIcon, LogOut, UserPen } from 'lucide-react';
 import { SlashIcon } from '@radix-ui/react-icons';
+import { ChangeEvent, useState } from 'react';
+import axios from 'axios';
 import { Harmony } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import {
@@ -13,6 +15,17 @@ import {
 import { axiosInstance } from '@/lib/axios.ts';
 import { useAuth } from '@/features/auth/useAuth.ts';
 import { Toaster } from '@/components/ui/sonner.tsx';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/lib/useToast';
 
 type Project = {
   id: number;
@@ -67,7 +80,8 @@ function AuthLayout() {
     },
   });
 
-  const { logoutMutation } = useAuth();
+  const { logoutMutation, profileImage, updateProfileImage } = useAuth();
+
   const { mutateAsync: logout } = logoutMutation;
 
   const handleLogout = async () => {
@@ -79,6 +93,86 @@ function AuthLayout() {
   };
 
   const currentProject = projects.find((project) => project.id === Number(params.project));
+
+  const toast = useToast();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>();
+  const [selectedFile, setSelectedFile] = useState<File>();
+  const { mutate: uploadProfileImage, isPending } = useMutation({
+    mutationFn: async (selectedFile: File) => {
+      // Fetch presigned URL
+      const { data: s3UrlResponse } = await axiosInstance.post('/image/presigned-url', {
+        fileName: selectedFile.name,
+      });
+      if (s3UrlResponse.status !== 200) {
+        throw new Error('Failed to fetch presigned URL.');
+      }
+
+      const {
+        result: { presignedUrl, key },
+      } = s3UrlResponse;
+
+      // Upload to S3
+      const putResponse = await axios.put(presignedUrl, selectedFile, {
+        headers: {
+          'Content-Type': selectedFile.type,
+        },
+      });
+      if (putResponse.status !== 200) {
+        throw new Error('Failed to upload image.');
+      }
+
+      // Fetch access URL
+      const { data: imageUrlResponse } = await axiosInstance.get(`/image/access-url/${key}`);
+      if (imageUrlResponse.status !== 200) {
+        throw new Error('Failed to fetch image URL.');
+      }
+
+      const {
+        result: { accessUrl },
+      } = imageUrlResponse;
+
+      return accessUrl;
+    },
+    onSuccess: (accessUrl) => {
+      updateProfileImage(accessUrl);
+
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setPreviewUrl(undefined);
+      setSelectedFile(undefined);
+      setIsProfileOpen(false);
+    },
+    onError: () => {
+      toast.error('Failed to upload image.');
+    },
+  });
+
+  const handleProfileEditButtonClick = () => {
+    setIsProfileOpen(true);
+  };
+
+  const handleImageUploadChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) {
+      return;
+    }
+
+    const file = event.target.files[0];
+    setSelectedFile(file);
+
+    const imageUrl = URL.createObjectURL(file);
+    setPreviewUrl(imageUrl);
+  };
+
+  const handleImageUploadButtonClick = () => {
+    if (!selectedFile) {
+      toast.error('Please select an image.');
+      return;
+    }
+
+    uploadProfileImage(selectedFile);
+  };
 
   return (
     <div>
@@ -121,10 +215,21 @@ function AuthLayout() {
         rightContent={
           <DropdownMenu>
             <DropdownMenuTrigger>
-              {/* 프로필 이미지 */}
-              <div className="h-8 w-8 rounded-full bg-[#333333]" />
+              <Avatar className="h-8 w-8 border">
+                <AvatarImage src={profileImage} className="object-cover" alt="Avatar" />
+                <AvatarFallback>
+                  <div className="h-full w-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500" />
+                </AvatarFallback>
+              </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-white">
+              <DropdownMenuItem
+                className="justify-between hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
+                onClick={handleProfileEditButtonClick}
+              >
+                프로필 수정
+                <UserPen width={16} />
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="justify-between text-red-400 hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-red-400"
                 onClick={handleLogout}
@@ -136,6 +241,64 @@ function AuthLayout() {
           </DropdownMenu>
         }
       />
+      <Dialog
+        open={isProfileOpen}
+        onOpenChange={(isProfileOpen) => {
+          if (!isProfileOpen) {
+            if (previewUrl) {
+              URL.revokeObjectURL(previewUrl);
+            }
+            setPreviewUrl(undefined);
+            setSelectedFile(undefined);
+          }
+          setIsProfileOpen(isProfileOpen);
+        }}
+      >
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Avatar</DialogTitle>
+            <DialogDescription className="text-gray-500">
+              This is your avatar.
+              <br />
+              Click on the avatar to upload a custom one from your files.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="my-2 flex justify-center">
+            <label
+              htmlFor="avatar-upload"
+              className="flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-full shadow-lg"
+            >
+              <Avatar className="h-full w-full">
+                <AvatarImage
+                  src={previewUrl || profileImage}
+                  className="object-cover"
+                  alt="Avatar"
+                />
+                <AvatarFallback>
+                  <div className="h-full w-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500" />
+                </AvatarFallback>
+              </Avatar>
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUploadChange}
+              disabled={isPending}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              className="bg-black hover:bg-black/80"
+              onClick={handleImageUploadButtonClick}
+              disabled={isPending}
+            >
+              {isPending ? 'Uploading...' : 'Save changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Outlet />
       <Toaster position="bottom-left" />
     </div>

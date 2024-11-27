@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { Harmony } from './logo';
 import { Button } from './ui/button';
 import { useAuth } from '@/features/auth/useAuth.ts';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const CARDS = ['☕️', '8', '4', '2', '1'];
 
@@ -64,6 +65,7 @@ interface User {
   userId: number;
   name: string;
   selectedCard: string;
+  profileImage: string;
 }
 
 function PlanningPokerFloatingButton() {
@@ -113,16 +115,20 @@ function PlanningPokerFloatingButton() {
         withCredentials: true,
       });
 
-      socketRef.current.on('user_joined', (data: { userId: number; username: string }) => {
-        setUsers((prevUsers) => [
-          {
-            userId: data.userId,
-            name: data.username,
-            selectedCard: '',
-          },
-          ...prevUsers,
-        ]);
-      });
+      socketRef.current.on(
+        'user_joined',
+        (data: { userId: number; username: string; profileImage: string }) => {
+          setUsers((prevUsers) => [
+            {
+              userId: data.userId,
+              name: data.username,
+              selectedCard: '',
+              profileImage: data.profileImage,
+            },
+            ...prevUsers,
+          ]);
+        }
+      );
 
       socketRef.current.on('user_left', (data: { userId: number }) => {
         setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== data.userId));
@@ -136,6 +142,7 @@ function PlanningPokerFloatingButton() {
             userId: number;
             username: string;
             card: string;
+            profileImage: string;
           }[];
         }) => {
           setUsers(
@@ -143,6 +150,7 @@ function PlanningPokerFloatingButton() {
               userId: user.userId,
               name: user.username,
               selectedCard: user.card,
+              profileImage: user.profileImage,
             }))
           );
           setIsRevealed(data.isRevealed);
@@ -252,7 +260,12 @@ function PlanningPokerFloatingButton() {
                   className="flex flex-row-reverse gap-2"
                 >
                   <div className="flex w-9 flex-col items-center gap-1">
-                    <div className="h-7 w-7 rounded-full bg-[#333333]" /> {/* 프로필 이미지 */}
+                    <Avatar className="h-8 w-8 rounded-full shadow">
+                      <AvatarImage src={user.profileImage} className="object-cover" alt="Avatar" />
+                      <AvatarFallback>
+                        <div className="h-full w-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500" />
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-xs text-gray-600">
                       {index === users.length - 1 ? 'Me' : truncateName(user.name, 4)}
                     </span>

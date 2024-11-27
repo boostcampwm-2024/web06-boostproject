@@ -488,7 +488,12 @@ export class TaskService {
       ...section,
       count: parseInt(section.count, 10),
     }));
-    const totalTasks = sections.reduce((sum, section) => sum + section.count, 0);
+    const totalTasks = await this.taskRepository
+      .createQueryBuilder('t')
+      .leftJoin('section', 's', 't.section_id = s.id')
+      .leftJoin('project', 'p', 's.project_id = p.id')
+      .where('p.id = :projectId', { projectId })
+      .getCount();
     return { totalTasks, sections };
   }
 

@@ -12,7 +12,7 @@ export class Account extends EntityTimestamp {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ default: 'default_profile.jpg' })
   profileImage: string;
 
   @Column({ nullable: true })

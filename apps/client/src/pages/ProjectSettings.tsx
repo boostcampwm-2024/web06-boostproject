@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { GetProjectMembersResponseDTO, InviteProjectMemberRequestDTO } from '@/types/project';
 import { axiosInstance } from '@/lib/axios.ts';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const formSchema = z.object({
   username: z
@@ -75,7 +76,12 @@ function ProjectSettings() {
                 className="flex items-center justify-between rounded-lg border bg-[#fafafa] p-4"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="h-8 w-8 rounded-full bg-[#2ecc71]" />
+                  <Avatar className="h-8 w-8 rounded-full border">
+                    <AvatarImage src={member.profileImage} className="object-cover" alt="Avatar" />
+                    <AvatarFallback>
+                      <div className="h-full w-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500" />
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <p className="font-medium">{member.username}</p>
                     <p className="text-sm text-gray-500">

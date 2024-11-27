@@ -19,6 +19,7 @@ export interface ProjectMember {
   id: number;
   username: string;
   role: string;
+  profileImage: string;
 }
 
 export interface GetProjectMembersResponseDTO {

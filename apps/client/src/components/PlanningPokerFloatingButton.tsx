@@ -7,6 +7,10 @@ import { Button } from './ui/button';
 import { useAuth } from '@/features/auth/useAuth.ts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
+import { ENV } from '@/config/env.ts';
+
+const { API_BASE_URL } = ENV;
+
 const CARDS = ['☕️', '8', '4', '2', '1'];
 
 const truncateName = (name: string, maxLength: number) => {
@@ -106,8 +110,8 @@ function PlanningPokerFloatingButton() {
     }
 
     if (!socketRef.current) {
-      socketRef.current = io('http://223.130.147.122', {
-        path: '/api/socket.io',
+      socketRef.current = io(API_BASE_URL, {
+        path: '/socket.io',
         auth: {
           token: auth.accessToken,
           projectId: project,

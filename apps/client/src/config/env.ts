@@ -3,6 +3,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   AUTH_STORAGE_KEY: z.string(),
   API_BASE_URL: z.string(),
+  API_SOCKET_URL: z.string(),
 });
 
 type Env = z.infer<typeof envSchema>;
@@ -10,6 +11,7 @@ type Env = z.infer<typeof envSchema>;
 const processEnv: Env = {
   AUTH_STORAGE_KEY: import.meta.env.VITE_AUTH_STORAGE_KEY,
   API_BASE_URL: import.meta.env.VITE_API_URL,
+  API_SOCKET_URL: import.meta.env.VITE_SOCKET_URL,
 };
 
 function validateEnv() {

@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { ENV } from '@/config/env.ts';
 
-const { API_BASE_URL } = ENV;
+const { API_SOCKET_URL } = ENV;
 
 const CARDS = ['☕️', '8', '4', '2', '1'];
 
@@ -110,7 +110,7 @@ function PlanningPokerFloatingButton() {
     }
 
     if (!socketRef.current) {
-      socketRef.current = io(API_BASE_URL, {
+      socketRef.current = io(API_SOCKET_URL, {
         path: '/socket.io',
         auth: {
           token: auth.accessToken,

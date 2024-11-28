@@ -1,30 +1,11 @@
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
 import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
 import Footer from '@/components/Footer.tsx';
-import LoginForm, { LoginFormData } from '@/auth/LoginForm.tsx';
-import { useAuth } from '@/features/auth/useAuth.ts';
+import { LoginForm } from '@/features/auth/components/LoginForm.tsx';
 
 function Login() {
-  const navigate = useNavigate({
-    from: '/login',
-  });
-  const { loginMutation } = useAuth();
-
-  const { mutateAsync: login, isPending } = loginMutation;
-
-  const handleSubmit = async (loginFormData: LoginFormData) => {
-    await login({
-      username: loginFormData.username,
-      password: loginFormData.password,
-    });
-
-    setTimeout(() => {
-      navigate({ to: '/account' });
-    }, 100);
-  };
-
   return (
     <>
       <div className="flex h-screen flex-col">
@@ -46,7 +27,7 @@ function Login() {
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold">Harmony 로그인</h1>
             </div>
-            <LoginForm isPending={isPending} onSubmit={handleSubmit} />
+            <LoginForm />
           </div>
         </main>
         <div className="flex h-24 w-full items-center justify-center border-y-2 bg-white dark:bg-gray-800">

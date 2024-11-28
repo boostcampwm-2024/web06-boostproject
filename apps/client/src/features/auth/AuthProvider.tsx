@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { ENV } from '@/config/env';
 import {
@@ -14,7 +15,9 @@ import { BaseResponse } from '@/features/types.ts';
 import { useToast } from '@/lib/useToast';
 
 export interface AuthContextValue extends AuthState {
-  loginMutation: ReturnType<typeof useMutation<BaseResponse<LoginResult>, Error, LoginRequestDto>>;
+  loginMutation: ReturnType<
+    typeof useMutation<BaseResponse<LoginResult>, AxiosError, LoginRequestDto>
+  >;
   registerMutation: ReturnType<
     typeof useMutation<BaseResponse<RegisterResult>, Error, RegisterRequestDto>
   >;
@@ -65,8 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: (loginRequestDto: LoginRequestDto) => {
+  const loginMutation = useMutation<BaseResponse<LoginResult>, AxiosError, LoginRequestDto>({
+    mutationFn: (loginRequestDto) => {
       return authAPI.login(loginRequestDto);
     },
     onSuccess: (data) => {

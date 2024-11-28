@@ -12,16 +12,15 @@ import {
 } from '@/features/auth/types.ts';
 import { authAPI } from '@/features/auth/api.ts';
 import { BaseResponse } from '@/features/types.ts';
-import { useToast } from '@/lib/useToast';
 
 export interface AuthContextValue extends AuthState {
   loginMutation: ReturnType<
     typeof useMutation<BaseResponse<LoginResult>, AxiosError, LoginRequestDto>
   >;
   registerMutation: ReturnType<
-    typeof useMutation<BaseResponse<RegisterResult>, Error, RegisterRequestDto>
+    typeof useMutation<BaseResponse<RegisterResult>, AxiosError, RegisterRequestDto>
   >;
-  logoutMutation: ReturnType<typeof useMutation<BaseResponse, Error, void>>;
+  logoutMutation: ReturnType<typeof useMutation<BaseResponse, AxiosError, void>>;
   updateProfileImage: (newProfileImage: string) => void;
 }
 
@@ -50,21 +49,18 @@ const getStoredState = () => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<AuthState>(getStoredState());
-  const toast = useToast();
 
   useEffect(() => {
     localStorage.setItem(ENV.AUTH_STORAGE_KEY, JSON.stringify(authState));
   }, [authState]);
 
-  const registerMutation = useMutation({
+  const registerMutation = useMutation<
+    BaseResponse<RegisterResult>,
+    AxiosError,
+    RegisterRequestDto
+  >({
     mutationFn: (registerRequestDto: RegisterRequestDto) => {
       return authAPI.register(registerRequestDto);
-    },
-    onSuccess: () => {
-      window.location.href = '/login';
-    },
-    onError: () => {
-      toast.error('Failed to register. Please try again.');
     },
   });
 
@@ -83,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<BaseResponse, AxiosError, void>({
     mutationFn: () => {
       return authAPI.logout();
     },

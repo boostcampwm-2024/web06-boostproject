@@ -1,31 +1,56 @@
+import { AxiosError } from 'axios';
+import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { SignupSchema } from '@/auth/SignupSchema.ts';
+import { Input } from '@/components/ui/input.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { signupFormSchema, SignupFormValues } from '@/features/auth/SignupFormSchema.ts';
+import { useToast } from '@/lib/useToast.tsx';
+import { useAuth } from '@/features/auth/useAuth.ts';
 
-export interface SignupFormData {
-  username: string;
-  password: string;
-  passwordConfirm: string;
-}
+export function SignupForm() {
+  const navigate = useNavigate({ from: '/signup' });
 
-interface SignupFormProps {
-  isPending: boolean;
-  onSubmit: (data: SignupFormData) => void;
-}
+  const toast = useToast();
 
-function SignupForm({ isPending, onSubmit }: SignupFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(SignupSchema),
+    setError,
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupFormSchema),
   });
 
+  const { registerMutation } = useAuth();
+
+  const { mutate, isPending } = registerMutation;
+
+  const onRegister = (data: SignupFormValues) => {
+    mutate(data, {
+      onSuccess: () => {
+        toast.success('Successfully registered');
+        setTimeout(() => {
+          navigate({ to: '/login' });
+        }, 100);
+      },
+      onError,
+    });
+  };
+
+  const onError = (error: AxiosError) => {
+    if (error.response?.status === 409) {
+      setError('username', {
+        message: 'Username already exists',
+      });
+      return;
+    }
+
+    toast.error('Failed to register. Please try again later');
+  };
+
   return (
-    <form className="mb-4 bg-white px-8 pb-8 dark:bg-gray-800" onSubmit={handleSubmit(onSubmit)}>
+    <form className="mb-4 bg-white px-8 pb-8 dark:bg-gray-800" onSubmit={handleSubmit(onRegister)}>
       <div className="mb-4">
         <label htmlFor="username">
           <Input
@@ -70,5 +95,3 @@ function SignupForm({ isPending, onSubmit }: SignupFormProps) {
     </form>
   );
 }
-
-export default SignupForm;

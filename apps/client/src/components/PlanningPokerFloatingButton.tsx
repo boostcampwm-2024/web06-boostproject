@@ -111,7 +111,7 @@ function PlanningPokerFloatingButton() {
 
     if (!socketRef.current) {
       socketRef.current = io(API_SOCKET_URL, {
-        path: '/socket.io',
+        path: '/api/socket.io',
         auth: {
           token: auth.accessToken,
           projectId: project,

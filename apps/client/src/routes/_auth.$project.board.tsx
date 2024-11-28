@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
-import Board from '@/pages/Board.tsx';
 import PlanningPokerFloatingButton from '@/components/PlanningPokerFloatingButton';
 import { boardAPI } from '@/features/project/board/api.ts';
 import { Board } from '@/pages/Board.tsx';

@@ -63,7 +63,7 @@ export function TaskDetail() {
 
           <motion.div
             key="panel"
-            className="bg-surface fixed inset-y-0 right-0 z-50 w-full border-l md:w-2/3"
+            className="bg-surface fixed inset-y-0 right-0 z-40 w-full border-l md:w-2/3"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

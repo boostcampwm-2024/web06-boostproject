@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
+import { Bar, BarChart, Cell, XAxis, Label, Pie, PieChart } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { axiosInstance } from '@/lib/axios';
+import { ChartConfig, ChartContainer } from '@/components/ui/chart';
 
 interface GetOverviewResponseDto {
   status: number;
@@ -40,8 +42,31 @@ interface GetWorkloadResponseDto {
   };
 }
 
+interface GetPriorityResponseDto {
+  status: number;
+  message: string;
+  result: {
+    priority: string;
+    count: number;
+  }[];
+}
+
+const priorityConfig = {
+  None: { label: 'None', color: '#DEE1E6' },
+  Lowest: { label: 'Lowest', color: '#4ADE80' },
+  Low: { label: 'Low', color: '#22C55E' },
+  Medium: { label: 'Medium', color: '#EAB308' },
+  High: { label: 'High', color: '#F97316' },
+  Highest: { label: 'Highest', color: '#EF4444' },
+} satisfies ChartConfig;
+
+const overviewConfig = {
+  'To Do': { label: 'To Do', color: '#DEE1E6' },
+  'In Progress': { label: 'In Progress', color: '#279AFE' },
+  Done: { label: 'Done', color: '#00B67A' },
+} satisfies ChartConfig;
+
 // TODO: suspense fallback 만들어야함
-// TODO: status overview, burndown chart, ui 작업 필요
 function ProjectOverview() {
   const { project } = useParams({ from: '/_auth/$project' });
 
@@ -73,6 +98,25 @@ function ProjectOverview() {
     },
   });
 
+  const { data: priority } = useSuspenseQuery({
+    queryKey: ['project', project, 'priority'],
+    queryFn: async () => {
+      try {
+        const priority = await axiosInstance.get<GetPriorityResponseDto>(
+          `/project/${project}/priority`
+        );
+        return priority.data.result;
+      } catch {
+        throw new Error('Failed to fetch priority');
+      }
+    },
+  });
+
+  const overviewData = overview.sections.map((section) => ({
+    name: section.title,
+    value: section.count,
+  }));
+
   return (
     <section className="px-6 py-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -84,14 +128,56 @@ function ProjectOverview() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ul>
-              {overview.sections.map((section) => (
-                <li key={section.id} className="flex items-center gap-2">
-                  <span>{section.title}</span>
-                  <span className="text-gray-500">{section.count}</span>
-                </li>
-              ))}
-            </ul>
+            <ChartContainer config={overviewConfig} className="h-[280px] w-full">
+              <PieChart>
+                <Pie
+                  data={overviewData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  innerRadius={50}
+                  label={({ name, value }) => `${name}: ${value}`}
+                  labelLine={false}
+                >
+                  {overviewData.map((item) => (
+                    <Cell
+                      key={item.name}
+                      fill={overviewConfig[item.name as keyof typeof overviewConfig].color}
+                    />
+                  ))}
+                  {/* eslint-disable react/no-unstable-nested-components */}
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-black text-3xl font-bold"
+                            >
+                              {Math.round((overviewData[2].value / overview.totalTasks) * 100)}%
+                            </tspan>
+                            <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24}>
+                              Done
+                            </tspan>
+                          </text>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  {/* eslint-disable react/no-unstable-nested-components */}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -149,12 +235,26 @@ function ProjectOverview() {
 
         <Card className="h-[400px] bg-white">
           <CardHeader>
-            <CardTitle className="text-xl">Burndown chart</CardTitle>
+            <CardTitle className="text-xl">Priority breakdown</CardTitle>
             <CardDescription className="text-gray-500">
-              Track your project&apos;s progress over time
+              View the priority of items within your project.
             </CardDescription>
           </CardHeader>
-          <CardContent>번다운차트</CardContent>
+          <CardContent>
+            <ChartContainer config={priorityConfig} className="max-h-[300px] min-h-[200px] w-full">
+              <BarChart accessibilityLayer data={priority}>
+                <XAxis dataKey="priority" tickLine={false} tickMargin={10} axisLine={false} />
+                <Bar dataKey="count" radius={4}>
+                  {priority.map((item) => (
+                    <Cell
+                      key={item.priority}
+                      fill={priorityConfig[item.priority as keyof typeof priorityConfig].color}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
         </Card>
       </div>
     </section>

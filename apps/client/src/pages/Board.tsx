@@ -7,6 +7,7 @@ export function Board() {
   const { projectId } = useLoaderData({
     from: '/_auth/$project/board',
   });
+
   const { data: sections } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => boardAPI.getTasks(projectId),
@@ -19,7 +20,7 @@ export function Board() {
 
   return (
     <div className="relative h-full overflow-hidden">
-      <KanbanBoard sections={sortedSections} />
+      <KanbanBoard key={projectId} sections={sortedSections} />
     </div>
   );
 }

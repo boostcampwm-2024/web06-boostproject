@@ -1,28 +1,11 @@
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { HarmonyWithText } from '@/components/logo';
 import { Topbar } from '@/components/navigation/topbar';
-import SignupForm, { SignupFormData } from '@/auth/SignupForm.tsx';
 import Footer from '@/components/Footer.tsx';
-import { useAuth } from '@/features/auth/useAuth.ts';
+import { SignupForm } from '@/features/auth/components/SignupForm.tsx';
 
-function Signup() {
-  const navigate = useNavigate({ from: '/signup' });
-  const { registerMutation } = useAuth();
-
-  const { mutateAsync: signup, isPending } = registerMutation;
-
-  const handleSubmit = async (signupFormData: SignupFormData) => {
-    await signup({
-      username: signupFormData.username,
-      password: signupFormData.password,
-    });
-
-    setTimeout(() => {
-      navigate({ to: '/login' });
-    }, 100);
-  };
-
+export function Signup() {
   return (
     <div className="flex h-screen flex-col">
       <Topbar
@@ -42,7 +25,7 @@ function Signup() {
           <div className="mb-8 pt-12 text-center">
             <h1 className="text-3xl font-bold">Harmony 시작하기</h1>
           </div>
-          <SignupForm isPending={isPending} onSubmit={handleSubmit} />
+          <SignupForm />
         </div>
       </main>
 
@@ -50,5 +33,3 @@ function Signup() {
     </div>
   );
 }
-
-export default Signup;

@@ -9,7 +9,7 @@ import { useAuth } from '@/features/auth/useAuth.ts';
 import { useToast } from '@/lib/useToast.tsx';
 
 export function LoginForm() {
-  const navigation = useNavigate({ from: '/login' });
+  const navigate = useNavigate({ from: '/login' });
 
   const toast = useToast();
 
@@ -30,7 +30,7 @@ export function LoginForm() {
     mutate(data, {
       onSuccess: () => {
         setTimeout(() => {
-          navigation({ to: '/account' });
+          navigate({ to: '/account' });
         }, 100);
       },
       onError,

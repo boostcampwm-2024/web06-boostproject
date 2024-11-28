@@ -433,7 +433,7 @@ export class TaskService {
     const taskAssigneeRecords = await this.findTaskAssigneeRecordsByTask(taskId);
     result.setAssignees(
       taskAssigneeRecords.map(
-        (record) => new AssigneeDetailsResponse(record.id, record.username, '')
+        (record) => new AssigneeDetailsResponse(record.id, record.username, record.profileImage)
       )
     );
 

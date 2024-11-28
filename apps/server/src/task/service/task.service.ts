@@ -488,13 +488,36 @@ export class TaskService {
       ...section,
       count: parseInt(section.count, 10),
     }));
-    const totalTasks = await this.taskRepository
+    const totalTasks = sections.reduce((sum, section) => sum + section.count, 0);
+    return { totalTasks, sections };
+  }
+
+  async getPriority(userId: number, projectId: number) {
+    await this.validateUserRole(userId, projectId);
+    const tasks = await this.taskRepository
       .createQueryBuilder('t')
       .leftJoin('section', 's', 't.section_id = s.id')
       .leftJoin('project', 'p', 's.project_id = p.id')
       .where('p.id = :projectId', { projectId })
-      .getCount();
-    return { totalTasks, sections };
+      .getMany();
+
+    const result = tasks.reduce(
+      (acc, task) => {
+        const key = task.priority ? task.priority : 0;
+        if (!acc[key]) {
+          acc[key] = 0;
+        }
+        acc[key] += 1;
+        return acc;
+      },
+      {} as Record<number, number>
+    );
+    const response = [];
+    const keyMapper = ['None', 'Lowest', 'Low', 'Medium', 'High', 'Highest'];
+    for (let i = 0; i <= 5; i += 1) {
+      response.push({ priority: keyMapper[i], count: result[i] ? result[i] : 0 });
+    }
+    return response;
   }
 
   private async validateUserRole(userId: number, projectId: number) {

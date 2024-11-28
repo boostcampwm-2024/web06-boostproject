@@ -163,4 +163,10 @@ export class ProjectController {
   async getOverview(@AuthUser() user: Account, @Param('id') id: number) {
     return this.taskService.getOverview(user.id, id);
   }
+
+  @Get(':id/priority')
+  @ResponseMessage('프로젝트 우선순위 통계 조회에 성공했습니다.')
+  async getPriority(@AuthUser() user: Account, @Param('id') id: number) {
+    return this.taskService.getPriority(user.id, id);
+  }
 }

@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, Outlet, createFileRoute, redirect, useParams } from '@tanstack/react-router';
-import { ChevronsUpDownIcon, LogOut, UserPen } from 'lucide-react';
+import { AlertTriangle, ChevronsUpDownIcon, LogOut, UserPen } from 'lucide-react';
 import { SlashIcon } from '@radix-ui/react-icons';
 import { ChangeEvent, useState } from 'react';
 import axios from 'axios';
@@ -25,6 +25,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/lib/useToast';
+import { Card, CardContent } from '@/components/ui/card.tsx';
 
 type Project = {
   id: number;
@@ -60,7 +61,34 @@ export const Route = createFileRoute('/_auth')({
       },
     });
   },
-  errorComponent: () => <div>Failed to load projects</div>,
+
+  errorComponent: ({ error, reset }) => (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md border bg-white">
+        <CardContent className="space-y-6 p-6 text-center">
+          <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500" />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-gray-900">Failed to load projects</h2>
+            <p className="text-sm text-gray-500">
+              {error.message || 'An error occurred while loading the projects. Please try again.'}
+            </p>
+          </div>
+          <div className="flex justify-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => window.history.back()}
+              className="hover:bg-[#f2f2f2] hover:text-black"
+            >
+              Go Back
+            </Button>
+            <Button onClick={reset} className="bg-black hover:bg-black/80">
+              Try Again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  ),
   component: AuthLayout,
 });
 

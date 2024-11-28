@@ -247,7 +247,7 @@ function PlanningPokerFloatingButton() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-32 right-12 flex flex-col gap-2"
+            className="fixed bottom-32 right-12 z-50 flex flex-col gap-2"
           >
             <AnimatePresence>
               {users.map((user, index) => (
@@ -307,7 +307,7 @@ function PlanningPokerFloatingButton() {
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-28 right-24" role="button" aria-expanded={isExpanded}>
+      <div className="fixed bottom-28 right-24 z-50" role="button" aria-expanded={isExpanded}>
         <ToggleCard isExpanded={isExpanded} toggleExpand={toggleExpand} />
         {CARDS.map((card, index) => {
           const baseY = isExpanded ? 0 : -(index + 1) * 1;

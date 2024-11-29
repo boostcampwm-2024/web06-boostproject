@@ -33,7 +33,7 @@ export class ImageService {
       {
         AllowedHeaders: ['*'],
         AllowedMethods: ['GET', 'PUT', 'POST'],
-        AllowedOrigins: ['http://localhost:5173', 'http://boost-harmony.kro.kr'],
+        AllowedOrigins: ['http://localhost:5173', 'https://boost-harmony.kro.kr'],
         ExposeHeaders: ['ETag'],
         MaxAgeSeconds: 3000,
       },

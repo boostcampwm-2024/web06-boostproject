@@ -1,26 +1,30 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useLoaderData } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { boardAPI } from '@/features/project/board/api.ts';
 import { KanbanBoard } from '@/features/project/board/components/KanbanBoard.tsx';
+import { useLongPollingEvents } from '@/features/project/board/useLongPollingEvents.ts';
+import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
 
 export function Board() {
   const { projectId } = useLoaderData({
     from: '/_auth/$project/board',
   });
 
-  const { data: sections } = useSuspenseQuery({
+  const { data: initialSections } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => boardAPI.getTasks(projectId),
   });
 
-  const sortedSections = sections.map((section) => ({
-    ...section,
-    tasks: section.tasks.sort((a, b) => a.position.localeCompare(b.position)),
-  }));
+  useEffect(() => {
+    useBoardStore.getState().setSections(initialSections);
+  }, [initialSections]);
+
+  useLongPollingEvents(projectId, useBoardStore.getState().handleEvent);
 
   return (
     <div className="relative h-full overflow-hidden">
-      <KanbanBoard key={projectId} sections={sortedSections} />
+      <KanbanBoard projectId={projectId} />
     </div>
   );
 }

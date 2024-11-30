@@ -10,6 +10,7 @@ import { AuthDto } from '@/account/dto/auth.dto';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 import { ResponseStatus } from '@/common/decorator/response-status.decorator';
+import { SigninUserDto } from '@/account/dto/signin-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
 
   @Post('signin')
   @ResponseMessage('로그인 처리가 완료되었습니다.')
-  async signIn(@Body() body: CreateUserDto, @Res({ passthrough: true }) res: Response) {
+  async signIn(@Body() body: SigninUserDto, @Res({ passthrough: true }) res: Response) {
     const signInResult = await this.authService.signIn(body.username, body.password);
     res.cookie('refreshToken', signInResult.refreshToken, {
       httpOnly: true,

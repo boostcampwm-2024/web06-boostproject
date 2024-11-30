@@ -9,6 +9,9 @@ export const signupFormSchema = z
       })
       .max(15, {
         message: 'Username should be at most 15 characters.',
+      })
+      .refine((value) => /^\S+$/.test(value), {
+        message: 'Username should not contain whitespace.',
       }),
 
     password: z
@@ -18,6 +21,9 @@ export const signupFormSchema = z
       })
       .max(15, {
         message: 'Password should be at most 15 characters.',
+      })
+      .refine((value) => /^\S+$/.test(value), {
+        message: 'Password should not contain whitespace.',
       }),
 
     passwordConfirm: z.string(),

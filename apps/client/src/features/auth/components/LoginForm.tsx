@@ -62,7 +62,7 @@ export function LoginForm() {
           <Input
             type="text"
             id="username"
-            placeholder="아이디"
+            placeholder="Username"
             className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             {...register('username')}
           />
@@ -74,7 +74,7 @@ export function LoginForm() {
           <Input
             type="password"
             id="password"
-            placeholder="비밀번호"
+            placeholder="Password"
             className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             {...register('password')}
           />
@@ -82,7 +82,7 @@ export function LoginForm() {
         </label>
       </div>
       <Button type="submit" className="h-12 w-full" disabled={isPending}>
-        로그인
+        Login
       </Button>
     </form>
   );

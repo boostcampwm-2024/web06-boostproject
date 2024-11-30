@@ -2,9 +2,10 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useLoaderData } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { boardAPI } from '@/features/project/board/api.ts';
-import { KanbanBoard } from '@/features/project/board/components/KanbanBoard.tsx';
+
 import { useLongPollingEvents } from '@/features/project/board/useLongPollingEvents.ts';
 import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
+import { KanbanBoard } from '@/features/project/board/components/KanbanBoard.tsx';
 
 export function Board() {
   const { projectId } = useLoaderData({

@@ -61,17 +61,14 @@ export const Route = createFileRoute('/_auth')({
       },
     });
   },
-
-  errorComponent: ({ error, reset }) => (
+  errorComponent: () => (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md border bg-white">
         <CardContent className="space-y-6 p-6 text-center">
           <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500" />
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-gray-900">Failed to load projects</h2>
-            <p className="text-sm text-gray-500">
-              {error.message || 'An error occurred while loading the projects. Please try again.'}
-            </p>
+            <h2 className="text-2xl font-semibold text-gray-900">Failed to load</h2>
+            <p className="text-sm text-gray-500">Sorry, an unexpected error occurred.</p>
           </div>
           <div className="flex justify-center space-x-3">
             <Button
@@ -81,8 +78,27 @@ export const Route = createFileRoute('/_auth')({
             >
               Go Back
             </Button>
-            <Button onClick={reset} className="bg-black hover:bg-black/80">
-              Try Again
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="flex min-h-[calc(100vh-100px)] items-center justify-center p-4">
+      <Card className="w-full max-w-md border bg-white">
+        <CardContent className="space-y-6 p-6 text-center">
+          <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500" />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-gray-900">Page not found</h2>
+            <p className="text-sm text-gray-500">Sorry, the page could not be found.</p>
+          </div>
+          <div className="flex justify-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => window.history.back()}
+              className="hover:bg-[#f2f2f2] hover:text-black"
+            >
+              Go Back
             </Button>
           </div>
         </CardContent>

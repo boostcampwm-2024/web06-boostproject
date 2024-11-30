@@ -7,13 +7,18 @@ export const signupFormSchema = z
       .min(6, {
         message: 'Username should be at least 6 characters.',
       })
-      .max(20, {
-        message: 'Username should be at most 20 characters.',
+      .max(15, {
+        message: 'Username should be at most 15 characters.',
       }),
 
-    password: z.string().min(8, {
-      message: 'Username should be at least 8 characters.',
-    }),
+    password: z
+      .string()
+      .min(8, {
+        message: 'Password should be at least 8 characters.',
+      })
+      .max(15, {
+        message: 'Password should be at most 15 characters.',
+      }),
 
     passwordConfirm: z.string(),
   })

@@ -12,6 +12,7 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
   const [localTitle, setLocalTitle] = useState(initialTitle);
   const [isComposing, setIsComposing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const debouncedTitle = useDebounce(localTitle, 300);
   const prevDebouncedTitle = useRef(debouncedTitle);
 
@@ -26,6 +27,13 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
     }
   }, [debouncedTitle, isComposing, taskId, onTitleChange]);
 
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.selectionStart = textareaRef.current.value.length;
+    }
+  }, [isEditing]);
+
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setLocalTitle(e.target.value);
   };
@@ -38,12 +46,20 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
     }
   };
 
+  const handleStartEditing = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+  };
+
   if (!isEditing) {
     return (
       <div
-        onDoubleClick={() => setIsEditing(true)}
+        onDoubleClick={handleStartEditing}
         className={cn(
-          'line-clamp-2 min-h-[24px] flex-1 cursor-text',
+          'line-clamp-2 min-h-[24px] flex-1 cursor-text p-[1px]',
           localTitle.length === 0 && 'text-gray-400'
         )}
       >
@@ -54,12 +70,13 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
 
   return (
     <textarea
+      ref={textareaRef}
       value={localTitle}
       onChange={handleChange}
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}
       onKeyDown={handleKeyDown}
-      onBlur={() => setIsEditing(false)}
+      onBlur={handleBlur}
       className="flex flex-1 resize-none bg-transparent text-black focus:outline-none"
       placeholder="Enter task title..."
       rows={2}

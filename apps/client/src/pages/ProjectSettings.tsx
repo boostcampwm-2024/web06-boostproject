@@ -1,25 +1,71 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
-import { z } from 'zod';
-import { UserPlus } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+
+import { UserPlus, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { GetProjectMembersResponseDTO, InviteProjectMemberRequestDTO } from '@/types/project';
+import { GetProjectMembersResponseDTO } from '@/types/project';
 import { axiosInstance } from '@/lib/axios.ts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/lib/useToast';
-
-const formSchema = z.object({
-  username: z
-    .string()
-    .min(1, 'Username is required.')
-    .regex(/^[a-zA-Z0-9 ]*$/, 'Only English letters and numbers are allowed.'),
-});
+import { BaseResponse, User } from '@/features/types.ts';
+import { Input } from '@/components/ui/input.tsx';
+import { ScrollArea } from '@/components/ui/scroll-area.tsx';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx';
 
 function ProjectSettings() {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { data: searchResults = [] } = useQuery({
+    queryKey: ['users', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery) return [];
+      const response = await axiosInstance.get<BaseResponse<User[]>>(`/user?search=${searchQuery}`);
+      return response.data.result;
+    },
+    enabled: searchQuery.length >= 2,
+  });
+
+  const { mutate: inviteMember, isPending } = useMutation<BaseResponse, AxiosError, User>({
+    mutationFn: (user: User) =>
+      axiosInstance.post(`/project/${project}/invite`, {
+        username: user.username,
+        projectId: Number(project),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', project, 'members'] });
+      toast.success('Member invited successfully.');
+      setSelectedUser(null);
+      setSearchQuery('');
+    },
+    onError: (error) => {
+      setSelectedUser(null);
+      setSearchQuery('');
+      if (error.response?.status === 404) {
+        toast.error('User not found.');
+        return;
+      }
+
+      if (error.response?.status === 409) {
+        toast.error('User is already invited.');
+
+        return;
+      }
+
+      toast.error('Failed to invite member.');
+    },
+  });
+
   const queryClient = useQueryClient();
   const { project } = useParams({ from: '/_auth/$project/settings' });
   const toast = useToast();
@@ -37,31 +83,6 @@ function ProjectSettings() {
       }
     },
   });
-
-  const { isPending, mutate } = useMutation({
-    mutationFn: async (data: InviteProjectMemberRequestDTO) => {
-      await axiosInstance.post(`/project/${project}/invite`, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', project, 'members'] });
-      toast.success('Member invited successfully.');
-    },
-    onError: () => {
-      toast.error('Failed to invite member.');
-    },
-  });
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<InviteProjectMemberRequestDTO>({
-    resolver: zodResolver(formSchema),
-  });
-
-  const onSubmit = (data: InviteProjectMemberRequestDTO) => {
-    mutate({ ...data, projectId: Number(project) });
-  };
 
   return (
     <div className="space-y-6">
@@ -100,35 +121,90 @@ function ProjectSettings() {
       <Card className="bg-white">
         <CardHeader>
           <CardTitle className="text-xl">Invite New Member</CardTitle>
-          <CardDescription>Send an invitation to a new team member.</CardDescription>
+          <CardDescription>Search and select a member to invite.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Username
-                <div className="mt-1">
+          <div className="space-y-4">
+            <Select
+              value={selectedUser?.id.toString() || ''}
+              onValueChange={(value) => {
+                const user = searchResults.find((u) => u.id.toString() === value);
+                if (user) {
+                  setSelectedUser(user);
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Search member..." />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-white">
+                <div className="flex items-center space-x-2 px-3 py-2">
                   <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter username"
-                    {...register('username')}
+                    ref={inputRef}
+                    placeholder="Type to search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-8"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
                   />
-                  {errors.username && (
-                    <p className="mt-1 text-sm text-red-500">{errors.username.message}</p>
-                  )}
                 </div>
-              </label>
-            </div>
+                <ScrollArea className="">
+                  {searchResults.map((user) => (
+                    <SelectItem
+                      key={user.id}
+                      value={user.id.toString()}
+                      onClick={() => {
+                        setSelectedUser(user);
+                      }}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={user.profileImage} />
+                          <AvatarFallback>
+                            <div className="h-full w-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>{user.username}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                  {searchResults.length === 0 && (
+                    <div className="px-2 py-4 text-center text-sm text-gray-500">
+                      No users found
+                    </div>
+                  )}
+                </ScrollArea>
+              </SelectContent>
+            </Select>
+
+            {selectedUser && (
+              <div className="flex items-center space-x-2 rounded-lg border bg-gray-50 p-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={selectedUser.profileImage} />
+                  <AvatarFallback>
+                    <div className="h-full w-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500" />
+                  </AvatarFallback>
+                </Avatar>
+                <span>{selectedUser.username}</span>
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="ml-auto text-gray-500 hover:text-gray-700"
+                  type="button"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
             <Button
               className="w-full bg-black text-white hover:bg-black/80"
-              type="submit"
-              disabled={isPending}
+              onClick={() => selectedUser && inviteMember(selectedUser)}
             >
               <UserPlus className="mr-2 h-4 w-4" />
               {isPending ? 'Inviting...' : 'Invite Member'}
             </Button>
-          </form>
+          </div>
         </CardContent>
       </Card>
     </div>

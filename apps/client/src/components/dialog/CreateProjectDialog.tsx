@@ -16,7 +16,8 @@ const formSchema = z.object({
   title: z
     .string()
     .min(1, 'Title is required.')
-    .regex(/^[a-zA-Z0-9 ]*$/, 'Only English letters and numbers are allowed.'),
+    .max(20, 'Title should be at most 20 characters.')
+    .regex(/^[가-힣a-zA-Z0-9\-_]*$/, 'Only letters, numbers, hyphens and underscores are allowed.'),
 });
 
 interface CreateProjectDialogProps {

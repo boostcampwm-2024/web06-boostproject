@@ -17,7 +17,8 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async searchUsers(query: string) {
+  searchUsers(query: string) {
+    console.log(query);
     return this.userRepository.find({
       where: {
         username: Like(`${query}%`),

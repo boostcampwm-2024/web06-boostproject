@@ -10,6 +10,7 @@ interface BoardState {
   updateTaskTitle: (taskId: number, newTitle: string) => void;
   createTask: (sectionId: number, task: Task) => void;
   restoreState: (sections: TSection[]) => void;
+  deleteTask: (taskId: number) => void;
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -98,6 +99,14 @@ export const useBoardStore = create<BoardState>((set) => ({
             }
           : section
       ),
+    })),
+
+  deleteTask: (taskId: number) =>
+    set((state) => ({
+      sections: state.sections.map((section) => ({
+        ...section,
+        tasks: section.tasks.filter((t) => t.id !== taskId),
+      })),
     })),
 
   restoreState: (sections: TSection[]) => set({ sections }),

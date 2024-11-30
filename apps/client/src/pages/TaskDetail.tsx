@@ -16,6 +16,7 @@ import Priority from '@/features/task/components/Priority.tsx';
 import Sprint from '@/features/task/components/Sprint.tsx';
 import Estimate from '@/features/task/components/Estimate.tsx';
 import { useTaskMutations } from '@/features/task/useTaskMutations.ts';
+import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
 
 export function TaskDetail() {
   const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
@@ -25,6 +26,8 @@ export function TaskDetail() {
   const [isClosing, setIsClosing] = useState(false);
 
   const { data: task } = useSuspenseTaskQuery(taskId);
+
+  const { deleteTask } = useBoardStore();
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -40,12 +43,13 @@ export function TaskDetail() {
     }, 300);
   }, [navigate]);
 
-  const { deleteTask } = useTaskMutations(taskId);
+  const { deleteTask: deleteTaskMutation } = useTaskMutations(taskId);
 
-  const handleDelete = useCallback(() => {
-    deleteTask.mutate();
-    navigate({ to: '/$project/board' });
-  }, [deleteTask, navigate]);
+  const handleDelete = () => {
+    deleteTaskMutation.mutate();
+    deleteTask(taskId);
+    handleClose();
+  };
 
   return (
     <AnimatePresence key={taskId} mode="wait" onExitComplete={() => setIsClosing(false)}>

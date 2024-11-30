@@ -195,6 +195,10 @@ export function SprintList({ sprints, updateMutation, deleteMutation }: ProjectS
               )}
             </div>
           ))}
+
+          {sprints.length === 0 && (
+            <div className="py-4 text-center text-gray-500">No Sprints found</div>
+          )}
         </div>
       </CardContent>
     </Card>

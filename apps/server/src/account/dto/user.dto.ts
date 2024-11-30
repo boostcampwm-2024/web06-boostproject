@@ -5,11 +5,11 @@ export class UserDto {
 
   username: string;
 
-  profieImage: string;
+  profileImage: string;
 
   constructor(account: Account) {
     this.id = account.id;
     this.username = account.username;
-    this.profieImage = account.profileImage;
+    this.profileImage = account.profileImage;
   }
 }

@@ -16,14 +16,14 @@ export function Signup() {
         }
         rightContent={
           <Button variant="outline" asChild>
-            <Link to="/login">로그인</Link>
+            <Link to="/login">Login</Link>
           </Button>
         }
       />
       <main className="flex h-full items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border">
           <div className="mb-8 pt-12 text-center">
-            <h1 className="text-3xl font-bold">Harmony 시작하기</h1>
+            <h1 className="text-3xl font-bold">Harmony Register</h1>
           </div>
           <SignupForm />
         </div>

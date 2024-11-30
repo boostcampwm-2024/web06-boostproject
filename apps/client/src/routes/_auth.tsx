@@ -255,14 +255,14 @@ function AuthLayout() {
                 className="justify-between hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
                 onClick={handleProfileEditButtonClick}
               >
-                프로필 수정
+                Edit profile
                 <UserPen width={16} />
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="justify-between text-red-400 hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-red-400"
                 onClick={handleLogout}
               >
-                로그아웃
+                Log out
                 <LogOut width={16} />
               </DropdownMenuItem>
             </DropdownMenuContent>

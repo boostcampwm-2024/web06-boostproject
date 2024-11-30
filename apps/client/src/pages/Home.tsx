@@ -15,10 +15,10 @@ function Home() {
         rightContent={
           <>
             <Button variant="ghost" asChild>
-              <Link to="/login">로그인</Link>
+              <Link to="/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link to="/signup">회원가입</Link>
+              <Link to="/signup">Register</Link>
             </Button>
           </>
         }
@@ -43,9 +43,9 @@ function Home() {
             <Button size="lg" className="rounded-full" asChild>
               <Link to="/login">로그인</Link>
             </Button>
-            <Button variant="outline" size="lg" className="ml-4 rounded-full">
-              데모보기
-            </Button>
+            {/* <Button variant="outline" size="lg" className="ml-4 rounded-full"> */}
+            {/*  <Link to="/signup">시연 영상 보기</Link> */}
+            {/* </Button> */}
           </div>
         </section>
 

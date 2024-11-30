@@ -56,7 +56,7 @@ export function SignupForm() {
           <Input
             type="text"
             id="username"
-            placeholder="아이디"
+            placeholder="Username"
             className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             {...register('username')}
           />
@@ -68,7 +68,7 @@ export function SignupForm() {
           <Input
             type="password"
             id="password"
-            placeholder="비밀번호"
+            placeholder="Password"
             className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             {...register('password')}
           />
@@ -80,7 +80,7 @@ export function SignupForm() {
           <Input
             type="password"
             id="password_confirm"
-            placeholder="비밀번호 확인"
+            placeholder="Password Confirm"
             className="h-12 w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             {...register('passwordConfirm')}
           />
@@ -90,7 +90,7 @@ export function SignupForm() {
         </label>
       </div>
       <Button disabled={isPending} className="text-md h-12 w-full">
-        {isPending ? '회원가입 중...' : '회원가입'}
+        {isPending ? 'Registering...' : 'Register'}
       </Button>
     </form>
   );

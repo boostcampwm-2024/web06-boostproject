@@ -430,7 +430,7 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
                   onClick={() => handleCreateTask(section.id)}
                 >
                   <PlusIcon />
-                  태스크 추가
+                  Add Task
                 </Button>
               </SectionDropdownMenu>
             </SectionHeader>
@@ -520,7 +520,7 @@ export function KanbanBoard({ sections: initialSections }: { sections: TSection[
                 onClick={() => handleCreateTask(section.id)}
               >
                 <PlusIcon />
-                태스크 추가
+                Add Task
               </Button>
             </SectionFooter>
           </Section>

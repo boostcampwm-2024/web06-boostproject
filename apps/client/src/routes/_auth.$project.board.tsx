@@ -27,7 +27,6 @@ export const Route = createFileRoute('/_auth/$project/board')({
 
     return { projectId };
   },
-  errorComponent: () => <div>error in board</div>,
   component: () => (
     <Suspense fallback={<LoadingFallback />}>
       <Board />

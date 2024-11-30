@@ -212,6 +212,10 @@ export function LabelList({ labels, updateMutation, deleteMutation }: LabelListP
               )}
             </div>
           ))}
+
+          {labels.length === 0 && (
+            <div className="py-4 text-center text-gray-500">No labels found</div>
+          )}
         </div>
       </CardContent>
     </Card>

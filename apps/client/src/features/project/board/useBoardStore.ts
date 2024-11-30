@@ -117,7 +117,7 @@ const handleTaskCreated = (sections: TSection[], event: TaskEvent): TSection[] =
               position: event.task.position!,
               assignees: event.task.assignees ?? [],
               labels: event.task.labels ?? [],
-              subtasks: event.task.subtasks ?? { total: 0, completed: 0 },
+              statistic: event.task.statistics ?? { total: 0, completed: 0 },
             } as Task,
           ],
         }

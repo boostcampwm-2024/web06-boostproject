@@ -18,7 +18,12 @@ export function Board() {
   });
 
   useEffect(() => {
-    useBoardStore.getState().setSections(initialSections);
+    useBoardStore.getState().setSections(
+      initialSections.map((section) => ({
+        ...section,
+        tasks: [...section.tasks].sort((a, b) => a.position.localeCompare(b.position)),
+      }))
+    );
   }, [initialSections]);
 
   useLongPollingEvents(projectId, useBoardStore.getState().handleEvent);

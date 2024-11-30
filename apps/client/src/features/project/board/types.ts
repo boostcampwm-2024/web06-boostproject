@@ -40,9 +40,9 @@ export type TaskEvent = {
     position?: string;
     assignees?: Assignee[];
     labels?: Label[];
-    subtasks?: {
+    statistics?: {
       total?: number;
-      completed?: number;
+      done?: number;
     };
   };
 };

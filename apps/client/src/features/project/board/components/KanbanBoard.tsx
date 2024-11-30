@@ -1,4 +1,4 @@
-import { ReactNode, useState, DragEvent, useCallback } from 'react';
+import { ReactNode, useState, DragEvent } from 'react';
 import { Link } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HamburgerMenuIcon, PlusIcon } from '@radix-ui/react-icons';
@@ -41,56 +41,53 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
   const [belowSectionId, setBelowSectionId] = useState<number>(-1);
   const [belowTaskId, setBelowTaskId] = useState<number>(-1);
 
-  const handleTitleChange = useCallback(
-    (taskId: number, newTitle: string) => {
-      const task = findTask(sections, taskId);
-      if (!task) return;
+  const handleTitleChange = (taskId: number, newTitle: string) => {
+    const task = findTask(sections, taskId);
+    if (!task) return;
 
-      const diff = findDiff(task.title, newTitle);
+    const diff = findDiff(task.title, newTitle);
 
-      if (diff.originalContent.length > 0) {
-        mutations.updateTitle.mutate(
-          {
-            event: 'DELETE_TITLE',
-            taskId,
-            title: {
-              position: diff.position,
-              content: diff.originalContent,
-              length: diff.originalContent.length,
-            },
-          },
-          {
-            onSuccess: () => {
-              if (diff.content.length > 0) {
-                mutations.updateTitle.mutate({
-                  event: 'INSERT_TITLE',
-                  taskId,
-                  title: {
-                    position: diff.position,
-                    content: diff.content,
-                    length: diff.content.length,
-                  },
-                });
-              }
-            },
-          }
-        );
-      } else if (diff.content.length > 0) {
-        mutations.updateTitle.mutate({
-          event: 'INSERT_TITLE',
+    if (diff.originalContent.length > 0) {
+      mutations.updateTitle.mutate(
+        {
+          event: 'DELETE_TITLE',
           taskId,
           title: {
             position: diff.position,
-            content: diff.content,
-            length: diff.content.length,
+            content: diff.originalContent,
+            length: diff.originalContent.length,
           },
-        });
-      }
+        },
+        {
+          onSuccess: () => {
+            if (diff.content.length > 0) {
+              mutations.updateTitle.mutate({
+                event: 'INSERT_TITLE',
+                taskId,
+                title: {
+                  position: diff.position,
+                  content: diff.content,
+                  length: diff.content.length,
+                },
+              });
+            }
+          },
+        }
+      );
+    } else if (diff.content.length > 0) {
+      mutations.updateTitle.mutate({
+        event: 'INSERT_TITLE',
+        taskId,
+        title: {
+          position: diff.position,
+          content: diff.content,
+          length: diff.content.length,
+        },
+      });
+    }
 
-      updateTaskTitle(taskId, newTitle);
-    },
-    [sections, mutations.updateTitle, updateTaskTitle]
-  );
+    updateTaskTitle(taskId, newTitle);
+  };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>, sectionId: number) => {
     event.stopPropagation();

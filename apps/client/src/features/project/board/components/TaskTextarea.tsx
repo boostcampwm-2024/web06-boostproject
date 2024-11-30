@@ -59,7 +59,7 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
       <div
         onDoubleClick={handleStartEditing}
         className={cn(
-          'line-clamp-2 min-h-[24px] flex-1 cursor-text p-[1px]',
+          'line-clamp-2 min-h-[24px] flex-1 cursor-text whitespace-pre-wrap p-[1px]',
           localTitle.length === 0 && 'text-gray-400'
         )}
       >
@@ -77,7 +77,7 @@ export function TaskTextarea({ taskId, initialTitle, onTitleChange }: TaskTextar
       onCompositionEnd={handleCompositionEnd}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      className="flex flex-1 resize-none bg-transparent text-black focus:outline-none"
+      className="flex flex-1 resize-none whitespace-pre-wrap bg-transparent text-black focus:outline-none"
       placeholder="Enter task title..."
       rows={2}
     />

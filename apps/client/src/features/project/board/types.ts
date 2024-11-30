@@ -7,9 +7,9 @@ export type Task = {
   position: string;
   assignees: Assignee[];
   labels: Label[];
-  subtasks: {
+  statistic: {
     total: number;
-    completed: number;
+    done: number;
   };
 };
 

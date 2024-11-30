@@ -17,16 +17,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card.tsx';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge.tsx';
 import { useToast } from '@/lib/useToast.tsx';
 import { useBoardMutations } from '@/features/project/board/useBoardMutations.ts';
-import { throttle } from '@/shared/utils/throttle.ts';
 import { AssigneeAvatars } from '@/features/project/board/components/AssigneeAvatars.tsx';
 import { calculatePosition, findDiff, findTask } from '@/features/project/board/utils.ts';
 import { TaskTextarea } from '@/features/project/board/components/TaskTextarea.tsx';
 import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
+import { SubtaskProgress } from '@/features/project/board/components/SubtaskProgress.tsx';
 
 interface KanbanBoardProps {
   projectId: number;
@@ -156,7 +156,7 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
             position,
             assignees: [],
             labels: [],
-            subtasks: { total: 0, completed: 0 },
+            statistic: { total: 0, done: 0 },
           });
         },
         onError: () => {
@@ -193,8 +193,6 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     setBelowSectionId(-1);
   };
 
-  const throttledDragLeave = throttle(handleDragLeave);
-
   return (
     <div className="spazce-x-2 flex h-[calc(100vh-110px)] gap-2 overflow-x-auto p-4">
       <AnimatePresence mode="popLayout">
@@ -206,8 +204,6 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
               'bg-transparent',
               section.id === belowSectionId && belowTaskId === -1 && 'border-2 border-blue-400'
             )}
-            onDragOver={(e) => handleDragOver(e, section.id)}
-            onDrop={(e) => handleDrop(e, section.id)}
           >
             <SectionHeader className="flex w-full items-center justify-between gap-2 space-y-0">
               <div className="flex items-center gap-2">
@@ -228,9 +224,9 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
             </SectionHeader>
             <SectionContent
               key={section.id}
-              className="flex flex-1 flex-col gap-2 overflow-y-auto pt-1"
+              className="flex w-full flex-1 flex-col items-center gap-2 overflow-y-auto pt-1"
               onDragOver={(e) => handleDragOver(e, section.id)}
-              onDragLeave={throttledDragLeave}
+              onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, section.id)}
               onDragEnd={handleDragEnd}
             >
@@ -259,7 +255,7 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
                     e.stopPropagation();
                     handleDragOver(e, section.id, task.id);
                   }}
-                  onDragLeave={throttledDragLeave}
+                  onDragLeave={handleDragLeave}
                 >
                   <Card
                     className={cn(
@@ -295,6 +291,14 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
                       </div>
                       <AssigneeAvatars assignees={task.assignees} />
                     </CardContent>
+                    {task.statistic.total > 0 && (
+                      <CardFooter className="flex items-center justify-between space-y-0">
+                        <SubtaskProgress
+                          total={task.statistic.total}
+                          completed={task.statistic.done}
+                        />
+                      </CardFooter>
+                    )}
                   </Card>
                 </motion.div>
               ))}

@@ -23,6 +23,10 @@ export class UserService {
         username: Like(`${query}%`),
       },
       select: ['id', 'username', 'profileImage'],
+      take: 5,
+      order: {
+        username: 'ASC',
+      },
     });
   }
 }

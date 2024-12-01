@@ -15,6 +15,8 @@ import { CreateProjectResponse } from '@/project/dto/create-project-response.dto
 import { Account } from '@/account/entity/account.entity';
 import { UserInvitationResponse } from '@/project/dto/user-invitation-response.dto';
 import { Section } from '@/task/domain/section.entity';
+import { Label } from '@/project/entity/label.entity';
+import { Sprint } from '@/project/entity/sprint.entity';
 
 @Injectable()
 export class ProjectService {
@@ -154,6 +156,41 @@ export class ProjectService {
       await queryRunner.manager.save(Section, { name: 'To Do', project });
       await queryRunner.manager.save(Section, { name: 'In Progress', project });
       await queryRunner.manager.save(Section, { name: 'Done', project });
+
+      await queryRunner.manager.save(Label, {
+        projectId: project.id,
+        title: 'Feature',
+        description: 'default feature label',
+        color: '#60975E',
+      });
+      await queryRunner.manager.save(Label, {
+        projectId: project.id,
+        title: 'Fix',
+        description: 'default fix label',
+        color: '#B43004',
+      });
+      await queryRunner.manager.save(Label, {
+        projectId: project.id,
+        title: 'Config',
+        description: 'default config label',
+        color: '#6F6683',
+      });
+      await queryRunner.manager.save(Label, {
+        projectId: project.id,
+        title: 'Docs',
+        description: 'default docs label',
+        color: '#8D802D',
+      });
+
+      const start = new Date();
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+      await queryRunner.manager.save(Sprint, {
+        projectId: project.id,
+        title: 'Week 1',
+        startDate: start,
+        endDate: end,
+      });
 
       await queryRunner.commitTransaction();
       return new CreateProjectResponse(project);

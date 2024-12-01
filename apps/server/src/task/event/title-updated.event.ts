@@ -1,10 +1,10 @@
 export class TitleUpdatedEvent {
-  constructor(taskId: number, title: string) {
+  constructor(taskId: number, position: number, content: string, length: number) {
     this.id = taskId;
-    this.title = title;
+    this.title = { position, content, length };
   }
 
   id: number;
 
-  title: string;
+  title: { position: number; content: string; length: number };
 }

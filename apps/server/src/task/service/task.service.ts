@@ -18,7 +18,6 @@ import { CreateTaskResponse } from '@/task/dto/create-task-response.dto';
 import { TaskEvent } from '@/task/dto/task-event.dto';
 import { EventType } from '@/task/enum/eventType.enum';
 import { Contributor } from '@/project/entity/contributor.entity';
-import { BroadcastService } from '@/task/service/broadcast.service';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
 import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
@@ -47,7 +46,7 @@ const { defaultType: json0 } = ShareDB.types;
 export class TaskService {
   private logger = new Logger(TaskService.name);
 
-  private operations: Map<number, TaskEvent[]> = new Map();
+  private operations: Map<number, { userId: number; taskEvent: TaskEvent }[]> = new Map();
 
   constructor(
     @InjectRepository(Task)
@@ -67,30 +66,26 @@ export class TaskService {
     @InjectRepository(SubTask)
     private subTaskRepository: Repository<SubTask>,
     private dataSource: DataSource,
-    private broadcastService: BroadcastService,
     private eventEmitter: EventEmitter2
   ) {
-    this.eventEmitter.on(
-      'operationAdded',
-      async (userId: number, projectId: number, taskId: number) => {
-        try {
-          await this.dequeue(userId, projectId, taskId);
-        } catch (e) {
-          this.logger.error(e);
-        }
+    this.eventEmitter.on('operationAdded', async (projectId: number, taskId: number) => {
+      try {
+        await this.dequeue(projectId, taskId);
+      } catch (e) {
+        this.logger.error(e);
       }
-    );
+    });
   }
 
   async enqueue(userId: number, projectId: number, taskEvent: TaskEvent) {
     const { taskId } = taskEvent;
     await this.validateUserRole(userId, projectId);
     const currentEvents = this.operations.get(taskId) || [];
-    this.operations.set(taskId, [...currentEvents, taskEvent]);
-    this.eventEmitter.emit('operationAdded', userId, projectId, taskId);
+    this.operations.set(taskId, [...currentEvents, { userId, taskEvent }]);
+    this.eventEmitter.emit('operationAdded', projectId, taskId);
   }
 
-  private async dequeue(userId: number, projectId: number, taskId: number) {
+  private async dequeue(projectId: number, taskId: number) {
     const taskEventQueue = this.operations.get(taskId);
     if (!taskEventQueue) {
       return;
@@ -99,8 +94,8 @@ export class TaskService {
     const initialTask = await this.taskRepository.findOneBy({ id: taskId });
     let accumulateOperations = [];
     while (taskEventQueue.length) {
-      const taskEvent = taskEventQueue.shift();
-      const operation = this.convertToOperation(taskEvent);
+      const { userId, taskEvent } = taskEventQueue.shift();
+      const operation = this.convertToOperation(userId, taskEvent);
 
       const transformedOperation = accumulateOperations.length
         ? json0.transform(operation, accumulateOperations, 'right')
@@ -112,24 +107,32 @@ export class TaskService {
     const newText = json0.apply(initialTask.title, accumulateOperations);
     const result = { ...initialTask, title: newText };
     await this.taskRepository.save(result);
-    const eventPublisher = accumulateOperations.length <= 1 ? userId : null;
-    this.eventEmitter.emit(
-      'broadcast',
-      eventPublisher,
-      projectId,
-      new TaskEventResponse(EventType.TITLE_UPDATED, new TitleUpdatedEvent(taskId, newText))
-    );
+    for (let i = 0; i < accumulateOperations.length; i += 1) {
+      const operation = accumulateOperations[i];
+      const content = operation.si ? operation.si : operation.sd;
+      const position = operation.p[0];
+      const eventType = operation.si ? EventType.TITLE_INSERTED : EventType.TITLE_DELETED;
+      this.eventEmitter.emit(
+        'event',
+        operation.userId,
+        projectId,
+        new TaskEventResponse(
+          eventType,
+          new TitleUpdatedEvent(taskId, position, content, content.length)
+        )
+      );
+    }
   }
 
-  private convertToOperation(taskEvent: TaskEvent) {
+  private convertToOperation(userId: number, taskEvent: TaskEvent) {
     const { event } = taskEvent;
     const { content, position } = taskEvent.title;
 
     switch (event) {
       case EventType.INSERT_TITLE:
-        return [{ p: [position], si: content }];
+        return [{ userId, p: [position], si: content }];
       case EventType.DELETE_TITLE:
-        return [{ p: [position], sd: content }];
+        return [{ userId, p: [position], sd: content }];
       default:
         throw new BadRequestException('Invalid event type');
     }
@@ -150,7 +153,7 @@ export class TaskService {
     });
 
     this.eventEmitter.emit(
-      'broadcast',
+      'event',
       userId,
       projectId,
       new TaskEventResponse(EventType.TASK_CREATED, new TaskCreatedEvent(task))
@@ -229,7 +232,8 @@ export class TaskService {
           return new TaskResponse(task, assignees, labels, statistic);
         }),
     }));
-    return taskBySection;
+    const now = new Date();
+    return { version: now.getTime(), project: taskBySection };
   }
 
   async move(userId: number, projectId: number, taskEvent: TaskEvent) {
@@ -247,7 +251,7 @@ export class TaskService {
     await this.taskRepository.save(task);
 
     this.eventEmitter.emit(
-      'broadcast',
+      'event',
       userId,
       projectId,
       new TaskEventResponse(EventType.POSITION_UPDATED, new PositionUpdatedEvent(task))
@@ -314,7 +318,7 @@ export class TaskService {
       await queryRunner.release();
     }
     this.eventEmitter.emit(
-      'broadcast',
+      'event',
       userId,
       projectId,
       new TaskEventResponse(EventType.TASK_DELETED, new TaskDeletedEvent(taskId))
@@ -356,7 +360,7 @@ export class TaskService {
     }
     const labelsResponse = labels.map((label) => new LabelDetailsResponse(label));
     this.eventEmitter.emit(
-      'broadcast',
+      'event',
       userId,
       projectId,
       new TaskEventResponse(
@@ -409,7 +413,7 @@ export class TaskService {
       (record) => new AssigneeDetailsResponse(record.userId, record.username, record.profileImage)
     );
     this.eventEmitter.emit(
-      'broadcast',
+      'event',
       userId,
       projectId,
       new TaskEventResponse(

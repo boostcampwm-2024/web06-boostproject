@@ -15,10 +15,12 @@ export class EventController {
   async polling(
     @AuthUser() user: Account,
     @Res() res: Response,
-    @Query('projectId') projectId: number
+    @Query('projectId') projectId: number,
+    @Query('version') version: number
   ) {
     const customResponse = res as CustomResponse;
     customResponse.userId = user.id;
+    customResponse.version = version;
 
     await this.broadcastService.addConnection(projectId, customResponse);
 

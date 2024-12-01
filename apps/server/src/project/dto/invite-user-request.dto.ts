@@ -2,7 +2,7 @@ import { IsNotEmpty, IsNumber, IsPositive, Length } from 'class-validator';
 
 export class InviteUserRequest {
   @IsNotEmpty()
-  @Length(8, 15)
+  @Length(6, 15)
   username: string;
 
   @IsNotEmpty()

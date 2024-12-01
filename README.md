@@ -44,6 +44,8 @@
 
 ## 시스템 아키텍처
 
+![아키텍처 구조도](https://github.com/user-attachments/assets/41ae31c5-f08c-45ce-94f4-c38b4e3272fe)
+
 <br />
 <!-- 핵심 경험 -->
 

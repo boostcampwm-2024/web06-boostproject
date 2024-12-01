@@ -184,7 +184,7 @@ export class ProjectService {
 
       const start = new Date();
       const end = new Date(start);
-      end.setDate(start.getDate() + 7);
+      end.setDate(start.getDate() + 6);
       await queryRunner.manager.save(Sprint, {
         projectId: project.id,
         title: 'Week 1',

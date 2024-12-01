@@ -12,10 +12,14 @@ export function Board() {
     from: '/_auth/$project/board',
   });
 
-  const { data: initialSections } = useSuspenseQuery({
+  const {
+    data: { project: initialSections },
+  } = useSuspenseQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => boardAPI.getTasks(projectId),
   });
+
+  const handleEvent = useBoardStore((state) => state.handleEvent);
 
   useEffect(() => {
     useBoardStore.getState().setSections(
@@ -26,7 +30,7 @@ export function Board() {
     );
   }, [initialSections]);
 
-  useLongPollingEvents(projectId, useBoardStore.getState().handleEvent);
+  useLongPollingEvents(projectId, handleEvent);
 
   return (
     <div className="relative h-full overflow-hidden">

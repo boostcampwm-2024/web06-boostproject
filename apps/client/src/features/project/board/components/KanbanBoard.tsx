@@ -153,7 +153,7 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
             position,
             assignees: [],
             labels: [],
-            statistic: { total: 0, done: 0 },
+            subtasks: { total: 0, completed: 0 },
           });
         },
         onError: () => {
@@ -288,11 +288,11 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
                       </div>
                       <AssigneeAvatars assignees={task.assignees} />
                     </CardContent>
-                    {task.statistic.total > 0 && (
+                    {task.subtasks.total > 0 && (
                       <CardFooter className="flex items-center justify-between space-y-0">
                         <SubtaskProgress
-                          total={task.statistic.total}
-                          completed={task.statistic.done}
+                          total={task.subtasks.total}
+                          completed={task.subtasks.completed}
                         />
                       </CardFooter>
                     )}

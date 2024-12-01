@@ -45,11 +45,16 @@ export function CreateSprint({ createMutation }: CreateProjectSprintProps) {
     mutate(
       {
         name: data.name.trim(),
-        startDate: data.dateRange.from.toISOString().split('T')[0],
-        endDate: data.dateRange.to.toISOString().split('T')[0],
+        startDate: dateToYYYYMMDD(data.dateRange.from),
+        endDate: dateToYYYYMMDD(data.dateRange.to),
       },
       { onSuccess, onError }
     );
+  };
+
+  const dateToYYYYMMDD = (date: Date) => {
+    const [year, month, day] = date.toLocaleDateString().replace(/\./g, '').split(' ');
+    return `${year}-${month}-${day}`;
   };
 
   const onSuccess = () => {

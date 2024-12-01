@@ -187,7 +187,6 @@ const handleTaskUpdated = (sections: TSection[], event: TaskEvent): TSection[] =
 };
 
 const handleTitleInserted = (sections: TSection[], event: TaskEvent): TSection[] => {
-  // 실제 task 내의 title 의 특정 부분에 event에 발생한 것을 추가해야 함
   return sections.map((section) => {
     const task = section.tasks.find((t) => t.id === event.task.id);
 
@@ -203,7 +202,6 @@ const handleTitleInserted = (sections: TSection[], event: TaskEvent): TSection[]
 };
 
 const handleTitleDeleted = (sections: TSection[], event: TaskEvent): TSection[] => {
-  // 실제 task 내의 title 의 특정 부분에 event에 발생한 것을 삭제해야 함
   return sections.map((section) => {
     const task = section.tasks.find((t) => t.id === event.task.id);
 

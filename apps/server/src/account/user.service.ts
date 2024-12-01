@@ -18,7 +18,6 @@ export class UserService {
   }
 
   searchUsers(query: string) {
-    console.log(query);
     return this.userRepository.find({
       where: {
         username: Like(`${query}%`),

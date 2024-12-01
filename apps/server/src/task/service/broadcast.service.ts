@@ -17,7 +17,7 @@ export class BroadcastService {
 
   private static PUT_EVENT = [
     EventType.LABELS_CHANGED,
-    EventType.SUBTASK_CHANGED,
+    EventType.SUBTASKS_CHANGED,
     EventType.ASSIGNEES_CHANGED,
     EventType.POSITION_UPDATED,
   ];
@@ -112,7 +112,13 @@ export class BroadcastService {
       const res = connections[i];
       const result = events.filter((e) => e.userId !== res.userId && res.version < e.event.version);
       if (result.length !== 0) {
-        res.json(new BaseResponse(200, '이벤트가 발생했습니다.', result));
+        res.json(
+          new BaseResponse(
+            200,
+            '이벤트가 발생했습니다.',
+            result.map((response) => response.event)
+          )
+        );
         broadcastUsers.push(res.userId);
       }
     }
@@ -129,7 +135,7 @@ export class BroadcastService {
     }
   }
 
-  private validateVersion(version) {
+  private validateVersion(version: number) {
     if (version < this.limitVersion) {
       throw new NotFoundException('Version not found');
     }

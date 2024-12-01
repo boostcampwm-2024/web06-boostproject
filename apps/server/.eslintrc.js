@@ -32,5 +32,12 @@ module.exports = {
     'no-await-in-loop': 'off',
 
     'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'ForInStatement',
+        message: 'Avoid `for...in` loops.',
+      },
+    ],
   },
 };

@@ -7,7 +7,7 @@ export class TaskResponse {
     task: Task,
     assigneeDetails: AssigneeDetailsResponse[],
     labelDetails: LabelDetailsResponse[],
-    statistic: any
+    subtasks: { total: number; completed: number }
   ) {
     this.id = task.id;
     this.title = task.title;
@@ -16,7 +16,7 @@ export class TaskResponse {
     this.position = task.position;
     this.assignees = assigneeDetails;
     this.labels = labelDetails;
-    this.statistic = statistic;
+    this.subtasks = subtasks;
   }
 
   id: number;
@@ -33,5 +33,5 @@ export class TaskResponse {
 
   labels: LabelDetailsResponse[];
 
-  statistic: any;
+  subtasks: { total: number; completed: number };
 }

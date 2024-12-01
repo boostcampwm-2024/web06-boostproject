@@ -185,15 +185,15 @@ export class TaskService {
     const subTaskStatistics = subTasks.reduce(
       (acc, subTask) => {
         if (!acc[subTask.taskId]) {
-          acc[subTask.taskId] = { total: 0, done: 0 };
+          acc[subTask.taskId] = { total: 0, completed: 0 };
         }
         if (subTask.status === SubTaskStatus.COMPLETED) {
-          acc[subTask.taskId].done += 1;
+          acc[subTask.taskId].completed += 1;
         }
         acc[subTask.taskId].total += 1;
         return acc;
       },
-      {} as Record<number, { total: number; done: number }>
+      {} as Record<number, { total: number; completed: number }>
     );
 
     const assigneesByTaskId = taskAssigneeRecords.reduce(
@@ -226,10 +226,10 @@ export class TaskService {
       tasks: tasks
         .filter((task) => task.section.id === section.id)
         .map((task) => {
-          const statistic = subTaskStatistics[task.id] || { total: 0, done: 0 };
+          const subtasks = subTaskStatistics[task.id] || { total: 0, completed: 0 };
           const assignees = assigneesByTaskId[task.id] || [];
           const labels = labelsByTaskId[task.id] || [];
-          return new TaskResponse(task, assignees, labels, statistic);
+          return new TaskResponse(task, assignees, labels, subtasks);
         }),
     }));
     const now = new Date();
@@ -286,7 +286,7 @@ export class TaskService {
       labels.map((label) => new LabelDetailsResponse(label)),
       {
         total: subTasks.length,
-        done: subTasks.filter((subTask) => subTask.status === SubTaskStatus.COMPLETED).length,
+        completed: subTasks.filter((subTask) => subTask.status === SubTaskStatus.COMPLETED).length,
       }
     );
   }

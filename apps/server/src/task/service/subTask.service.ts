@@ -93,11 +93,11 @@ export class SubTaskService {
       completed: subTasks.filter((sub) => sub.status === SubTaskStatus.COMPLETED).length,
     };
     this.eventEmitter.emit(
-      'broadcast',
+      'event',
       userId,
       projectId,
       new TaskEventResponse(
-        EventType.SUBTASK_CHANGED,
+        EventType.SUBTASKS_CHANGED,
         new SubTaskChangedEvent(taskId, statistic.total, statistic.completed)
       )
     );

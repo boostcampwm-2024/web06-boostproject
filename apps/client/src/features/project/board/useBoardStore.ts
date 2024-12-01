@@ -3,8 +3,12 @@ import { Section as TSection, Task, TaskEvent, TaskEventType } from './types';
 import { findTask } from './utils';
 
 interface BoardState {
+  version: number;
+  setVersion: (version: number) => void;
+
   sections: TSection[];
   setSections: (sections: TSection[]) => void;
+
   handleEvent: (event: TaskEvent) => void;
   updateTaskPosition: (sectionId: number, taskId: number, position: string) => void;
   updateTaskTitle: (taskId: number, newTitle: string) => void;
@@ -14,6 +18,10 @@ interface BoardState {
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
+  version: 0,
+
+  setVersion: (version) => set({ version }),
+
   sections: [] as TSection[],
 
   setSections: (sections) => set({ sections }),
@@ -31,17 +39,24 @@ export const useBoardStore = create<BoardState>((set) => ({
           updatedSections = handlePositionUpdated(state.sections, event);
           break;
 
-        case TaskEventType.TITLE_UPDATED:
-          updatedSections = handleTaskUpdated(state.sections, event);
+        case TaskEventType.TITLE_INSERTED:
+          updatedSections = handleTitleInserted(state.sections, event);
+          break;
+
+        case TaskEventType.TITLE_DELETED:
+          updatedSections = handleTitleDeleted(state.sections, event);
           break;
 
         case TaskEventType.TASK_DELETED:
           updatedSections = handleTaskDeleted(state.sections, event);
           break;
 
+        case TaskEventType.SUBTASKS_CHANGED:
+          updatedSections = handleSubtasksChanged(state.sections, event);
+          break;
+
         case TaskEventType.ASSIGNEES_CHANGED:
         case TaskEventType.LABELS_CHANGED:
-        case TaskEventType.SUBTASKS_CHANGED:
           updatedSections = handleTaskUpdated(state.sections, event);
           break;
 
@@ -126,7 +141,7 @@ const handleTaskCreated = (sections: TSection[], event: TaskEvent): TSection[] =
               position: event.task.position!,
               assignees: event.task.assignees ?? [],
               labels: event.task.labels ?? [],
-              statistic: event.task.statistics ?? { total: 0, completed: 0 },
+              subtasks: event.task.subtasks ?? { total: 0, completed: 0 },
             } as Task,
           ],
         }
@@ -167,6 +182,55 @@ const handleTaskUpdated = (sections: TSection[], event: TaskEvent): TSection[] =
     ...section,
     tasks: section.tasks.map((task) =>
       task.id === event.task.id ? ({ ...task, ...event.task } as Task) : task
+    ),
+  }));
+};
+
+const handleTitleInserted = (sections: TSection[], event: TaskEvent): TSection[] => {
+  // 실제 task 내의 title 의 특정 부분에 event에 발생한 것을 추가해야 함
+  return sections.map((section) => {
+    const task = section.tasks.find((t) => t.id === event.task.id);
+
+    const title = task?.title ?? '';
+    const { position, content, length } = event.task.title!;
+    const newTitle = title.slice(0, position) + content + title.slice(position + length);
+
+    return {
+      ...section,
+      tasks: section.tasks.map((t) => (t.id === event.task.id ? { ...t, title: newTitle } : t)),
+    };
+  });
+};
+
+const handleTitleDeleted = (sections: TSection[], event: TaskEvent): TSection[] => {
+  // 실제 task 내의 title 의 특정 부분에 event에 발생한 것을 삭제해야 함
+  return sections.map((section) => {
+    const task = section.tasks.find((t) => t.id === event.task.id);
+
+    const title = task?.title ?? '';
+    const { position, length } = event.task.title!;
+    const newTitle = title.slice(0, position) + title.slice(position + length);
+
+    return {
+      ...section,
+      tasks: section.tasks.map((t) => (t.id === event.task.id ? { ...t, title: newTitle } : t)),
+    };
+  });
+};
+
+const handleSubtasksChanged = (sections: TSection[], event: TaskEvent): TSection[] => {
+  return sections.map((section) => ({
+    ...section,
+    tasks: section.tasks.map((task) =>
+      task.id === event.task.id
+        ? ({
+            ...task,
+            subtasks: {
+              total: event.task.subtasks!.total,
+              completed: event.task.subtasks!.completed,
+            },
+          } as Task)
+        : task
     ),
   }));
 };

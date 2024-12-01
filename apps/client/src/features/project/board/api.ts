@@ -8,9 +8,9 @@ export const boardAPI = {
     return response.data.result;
   },
 
-  getEvent: async (projectId: number, config: AxiosRequestConfig = {}) => {
+  getEvent: async (projectId: number, version: number, config: AxiosRequestConfig = {}) => {
     const response = await axiosInstance.get<EventResponse>(
-      `/event?projectId=${projectId}`,
+      `/event?projectId=${projectId}&version=${version}`,
       config
     );
     return response.data.result;

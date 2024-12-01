@@ -3,12 +3,15 @@ import { AxiosError } from 'axios';
 import { useToast } from '@/lib/useToast.tsx';
 import { TaskEvent } from '@/features/project/board/types.ts';
 import { boardAPI } from '@/features/project/board/api.ts';
+import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
 
 const MAX_RETRY_COUNT = 5;
 const POLLING_INTERVAL = 500;
 
 export const useLongPollingEvents = (projectId: number, onEvent: (event: TaskEvent) => void) => {
   const toast = useToast();
+
+  const { version, setVersion } = useBoardStore();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -25,12 +28,18 @@ export const useLongPollingEvents = (projectId: number, onEvent: (event: TaskEve
 
       try {
         isPolling = true;
-        const event = await boardAPI.getEvent(projectId, {
+        const events = await boardAPI.getEvent(projectId, version === 0 ? Date.now() : version, {
           signal: controller.signal,
         });
 
-        if (event) {
-          onEvent(event);
+        if (events) {
+          const lastEventVersion = events[events.length - 1].version;
+          setVersion(lastEventVersion);
+
+          events.forEach((event) => {
+            onEvent(event);
+          });
+
           retryCount = 0;
         }
       } catch (error) {

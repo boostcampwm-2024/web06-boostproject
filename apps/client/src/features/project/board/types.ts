@@ -7,9 +7,9 @@ export type Task = {
   position: string;
   assignees: Assignee[];
   labels: Label[];
-  statistic: {
+  subtasks: {
     total: number;
-    done: number;
+    completed: number;
   };
 };
 
@@ -19,12 +19,16 @@ export type Section = {
   tasks: Task[];
 };
 
-export type TasksResponse = BaseResponse<Section[]>;
+export type TasksResponse = BaseResponse<{
+  version: number;
+  project: Section[];
+}>;
 
 export enum TaskEventType {
   'TASK_CREATED' = 'TASK_CREATED',
   'TASK_DELETED' = 'TASK_DELETED',
-  'TITLE_UPDATED' = 'TITLE_UPDATED',
+  'TITLE_INSERTED' = 'TITLE_INSERTED',
+  'TITLE_DELETED' = 'TITLE_DELETED',
   'POSITION_UPDATED' = 'POSITION_UPDATED',
   'ASSIGNEES_CHANGED' = 'ASSIGNEES_CHANGED',
   'LABELS_CHANGED' = 'LABELS_CHANGED',
@@ -33,21 +37,26 @@ export enum TaskEventType {
 
 export type TaskEvent = {
   event: TaskEventType;
+  version: number;
   task: {
     id: number;
-    title?: string;
+    title?: {
+      position: number;
+      content: string;
+      length: number;
+    };
     sectionId?: number;
     position?: string;
     assignees?: Assignee[];
     labels?: Label[];
-    statistics?: {
-      total?: number;
-      done?: number;
+    subtasks?: {
+      total: number;
+      completed: number;
     };
   };
 };
 
-export type EventResponse = BaseResponse<TaskEvent>;
+export type EventResponse = BaseResponse<TaskEvent[]>;
 
 export interface UpdateTitleDto {
   event: 'INSERT_TITLE' | 'DELETE_TITLE';

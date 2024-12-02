@@ -91,15 +91,7 @@ export function BoardSection({
           <SectionCount>{section.tasks.length}</SectionCount>
         </div>
         <SectionDropdownMenu>
-          <Button
-            type="button"
-            variant="ghost"
-            className="hover:text-primary w-full border-none px-0 text-black hover:bg-white"
-            onClick={handleCreateTask}
-          >
-            <PlusIcon />
-            Add Task
-          </Button>
+          <AddTaskButton onClick={handleCreateTask} />
         </SectionDropdownMenu>
       </SectionHeader>
 
@@ -112,14 +104,7 @@ export function BoardSection({
         {children}
       </SectionContent>
       <SectionFooter className="w-full">
-        <Button
-          variant="ghost"
-          className="w-full border-none px-0 text-black"
-          onClick={handleCreateTask}
-        >
-          <PlusIcon />
-          Add Task
-        </Button>
+        <AddTaskButton onClick={handleCreateTask} />
       </SectionFooter>
     </Section>
   );
@@ -145,5 +130,14 @@ function SectionDropdownMenu({ children }: { children: ReactNode }) {
         {children}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function AddTaskButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button variant="ghost" className="w-full border-none px-0 text-black" onClick={onClick}>
+      <PlusIcon />
+      Add Task
+    </Button>
   );
 }

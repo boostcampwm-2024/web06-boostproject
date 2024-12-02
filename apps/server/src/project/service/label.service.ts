@@ -9,8 +9,8 @@ import { DataSource, Repository } from 'typeorm';
 import { Label } from '@/project/entity/label.entity';
 import { Contributor } from '@/project/entity/contributor.entity';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
-import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
-import { TaskLabel } from '@/task/domain/task-label.entity';
+import { LabelDetailsResponse } from '@/project/dto/label/label-details-response.dto';
+import { TaskLabel } from '@/project/entity/task-label.entity';
 
 @Injectable()
 export class LabelService {

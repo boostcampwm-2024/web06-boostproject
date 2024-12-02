@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import { Task } from '@/task/domain/task.entity';
-import { Section } from '@/task/domain/section.entity';
+import { Task } from '@/project/entity/task.entity';
+import { Section } from '@/project/entity/section.entity';
 import { Account } from '@/account/entity/account.entity';
 import { Project } from '@/project/entity/project.entity';
 import { Contributor } from '@/project/entity/contributor.entity';
-import { SubTask } from '@/task/domain/subTask.entity';
+import { SubTask } from '@/project/entity/subTask.entity';
 import { Sprint } from '@/project/entity/sprint.entity';
 import { Label } from '@/project/entity/label.entity';
-import { TaskLabel } from '@/task/domain/task-label.entity';
-import { TaskAssignee } from '@/task/domain/task-assignee.entity';
+import { TaskLabel } from '@/project/entity/task-label.entity';
+import { TaskAssignee } from '@/project/entity/task-assignee.entity';
 
 @Injectable()
 export class TypeormConfig implements TypeOrmOptionsFactory {

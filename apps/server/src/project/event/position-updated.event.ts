@@ -1,4 +1,4 @@
-import { Task } from '@/task/domain/task.entity';
+import { Task } from '@/project/entity/task.entity';
 
 export class PositionUpdatedEvent {
   constructor(task: Task) {

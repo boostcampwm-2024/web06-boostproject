@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Section } from '@/task/domain/section.entity';
+import { Section } from '@/project/entity/section.entity';
 import { EntityTimestamp } from '@/common/entity-timestamp.entity';
-import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
+import { UpdateTaskDetailsRequest } from '@/project/dto/task/update-task-details-request.dto';
 
 @Entity()
 export class Task extends EntityTimestamp {

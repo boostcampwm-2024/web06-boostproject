@@ -13,13 +13,13 @@ export class ImageController {
 
   @Post('presigned-url')
   @ResponseMessage('Presigned URL이 성공적으로 생성되었습니다.')
-  async getUploadUrl(@Body() fileNameRequest: FileNameRequest) {
+  getUploadUrl(@Body() fileNameRequest: FileNameRequest) {
     return this.imageService.getUploadUrl(fileNameRequest.fileName);
   }
 
   @Get('access-url/:key')
   @ResponseMessage('이미지의 접근 URL이 성공적으로 조회되었습니다.')
-  async getPublicUrl(@AuthUser() user: Account, @Param('key') key: string) {
+  getPublicUrl(@AuthUser() user: Account, @Param('key') key: string) {
     return this.imageService.getAccessUrl(user.id, key);
   }
 }

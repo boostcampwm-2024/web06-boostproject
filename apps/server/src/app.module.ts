@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import * as cookieParser from 'cookie-parser';
-import { TaskModule } from '@/task/task.module';
 import { TypeormConfig } from '../config/typeorm.config';
 import { AppService } from '@/app.service';
 import { AppController } from '@/app.controller';
@@ -29,7 +28,6 @@ import { ImageModule } from './image/image.module';
       },
     }),
     EventEmitterModule.forRoot(),
-    TaskModule,
     AccountModule,
     ProjectModule,
     PlanningPokerModule,

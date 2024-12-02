@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { SubTaskStatus } from '@/task/enum/subTaskStatus.enum';
+import { SubTaskStatus } from '@/project/enum/subTaskStatus.enum';
 import { EntityTimestamp } from '@/common/entity-timestamp.entity';
 
 @Entity()

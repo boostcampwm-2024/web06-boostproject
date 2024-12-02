@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Param, Patch, UseGuards } from '@nestjs/commo
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
-import { SubTaskService } from '@/task/service/subTask.service';
-import { UpdateSubTaskRequest } from '@/task/dto/update-subTask-request.dto';
+import { SubTaskService } from '@/project/service/subTask.service';
+import { UpdateSubTaskRequest } from '@/project/dto/subtask/update-subTask-request.dto';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 
 @UseGuards(AccessTokenGuard)
@@ -13,7 +13,7 @@ export class SubTaskController {
 
   @Patch(':id')
   @ResponseMessage('서브 태스크 수정 완료했습니다.')
-  async update(
+  update(
     @AuthUser() user: Account,
     @Param('id') subTaskId: number,
     @Body() body: UpdateSubTaskRequest
@@ -23,7 +23,7 @@ export class SubTaskController {
 
   @Delete(':id')
   @ResponseMessage('서브 태스크 삭제 완료했습니다.')
-  async delete(@AuthUser() user: Account, @Param('id') subTaskId: number) {
+  delete(@AuthUser() user: Account, @Param('id') subTaskId: number) {
     return this.subTaskService.delete(user.id, subTaskId);
   }
 }

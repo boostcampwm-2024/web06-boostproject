@@ -1,4 +1,4 @@
-import { EventType } from '@/task/enum/eventType.enum';
+import { EventType } from '@/project/enum/eventType.enum';
 
 export class TaskEventResponse {
   constructor(eventTitle: EventType, event: any) {

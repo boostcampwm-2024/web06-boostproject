@@ -1,6 +1,6 @@
-import { Task } from '@/task/domain/task.entity';
-import { AssigneeDetailsResponse } from '@/task/dto/assignee-details-response.dto';
-import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
+import { Task } from '@/project/entity/task.entity';
+import { AssigneeDetailsResponse } from '@/project/dto/assignee/assignee-details-response.dto';
+import { LabelDetailsResponse } from '@/project/dto/label/label-details-response.dto';
 
 export class TaskResponse {
   constructor(

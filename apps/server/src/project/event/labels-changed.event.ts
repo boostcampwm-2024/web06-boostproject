@@ -1,4 +1,4 @@
-import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
+import { LabelDetailsResponse } from '@/project/dto/label/label-details-response.dto';
 
 export class LabelsChangedEvent {
   constructor(taskId: number, labels: LabelDetailsResponse[]) {

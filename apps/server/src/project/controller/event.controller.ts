@@ -3,8 +3,8 @@ import { Response } from 'express';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
-import { CustomResponse } from '@/task/domain/custom-response.interface';
-import { BroadcastService } from '@/task/service/broadcast.service';
+import { CustomResponse } from '@/project/interface/custom-response.interface';
+import { BroadcastService } from '@/project/service/broadcast.service';
 
 @UseGuards(AccessTokenGuard)
 @Controller('event')

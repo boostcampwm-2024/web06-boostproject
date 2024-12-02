@@ -10,19 +10,19 @@ import {
 } from '@nestjs/common';
 import { ProjectService } from '@/project/service/project.service';
 import { AccessTokenGuard } from '@/account/guard/accessToken.guard';
-import { CreateProjectRequest } from '@/project/dto/create-project-request.dto';
+import { CreateProjectRequest } from '@/project/dto/project/create-project-request.dto';
 import { AuthUser } from '@/account/decorator/authUser.decorator';
 import { Account } from '@/account/entity/account.entity';
-import { InviteUserRequest } from '@/project/dto/invite-user-request.dto';
-import { UpdateContributorRequest } from '@/project/dto/update-contributor-request.dts';
-import { TaskEvent } from '@/task/dto/task-event.dto';
-import { TaskService } from '@/task/service/task.service';
-import { EventType } from '@/task/enum/eventType.enum';
+import { InviteUserRequest } from '@/project/dto/contributor/invite-user-request.dto';
+import { UpdateContributorRequest } from '@/project/dto/contributor/update-contributor-request.dts';
+import { TaskEvent } from '@/project/dto/task/task-event.dto';
+import { TaskService } from '@/project/service/task.service';
+import { EventType } from '@/project/enum/eventType.enum';
 import { ResponseMessage } from '@/common/decorator/response-message.decorator';
 import { SprintService } from '@/project/service/sprint.service';
-import { SprintDetailsRequest } from '@/project/dto/sprint-details-request.dto';
+import { SprintDetailsRequest } from '@/project/dto/sprint/sprint-details-request.dto';
 import { LabelService } from '@/project/service/label.service';
-import { LabelDetailsRequest } from '@/project/dto/label-details-request.dto';
+import { LabelDetailsRequest } from '@/project/dto/label/label-details-request.dto';
 import { ResponseStatus } from '@/common/decorator/response-status.decorator';
 
 @UseGuards(AccessTokenGuard)
@@ -37,26 +37,26 @@ export class ProjectController {
 
   @Get('invitations')
   @ResponseMessage('프로젝트 멤버 초대 목록 조회에 성공했습니다.')
-  async getInvitations(@AuthUser() user: Account) {
+  getInvitations(@AuthUser() user: Account) {
     return this.projectService.getInvitations(user.id);
   }
 
   @Get(':id')
   @ResponseMessage('프로젝트 상세 조회에 성공했습니다.')
-  async getProject(@AuthUser() user: Account, @Param('id') projectId: number) {
+  getProject(@AuthUser() user: Account, @Param('id') projectId: number) {
     return this.projectService.getProject(user.id, projectId);
   }
 
   @Get(':id/members')
   @ResponseMessage('프로젝트 멤버 목록 조회에 성공했습니다.')
-  async getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
+  getMembers(@AuthUser() user: Account, @Param('id') projectId: number) {
     return this.projectService.getContributors(user.id, projectId);
   }
 
   @Post()
   @ResponseStatus(201)
   @ResponseMessage('프로젝트 생성이 성공했습니다.')
-  async create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
+  create(@AuthUser() user: Account, @Body() body: CreateProjectRequest) {
     return this.projectService.create(user.id, body.title);
   }
 
@@ -68,10 +68,6 @@ export class ProjectController {
     @Body() body: InviteUserRequest
   ) {
     await this.projectService.invite(user.id, projectId, body.username);
-    return {
-      message: 'Successfully invite user',
-      success: true,
-    };
   }
 
   @Patch(':id/invite')
@@ -82,10 +78,6 @@ export class ProjectController {
     @Body() body: UpdateContributorRequest
   ) {
     await this.projectService.updateInvitation(user.id, projectId, body.contributorId, body.status);
-    return {
-      message: 'Successfully update invitation',
-      success: true,
-    };
   }
 
   @Post(':id/update')
@@ -119,7 +111,7 @@ export class ProjectController {
 
   @Post(':id/sprint')
   @ResponseMessage('스프린트 생성 완료했습니다.')
-  async createSprint(
+  createSprint(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: SprintDetailsRequest
@@ -137,7 +129,7 @@ export class ProjectController {
   @Post(':id/label')
   @ResponseStatus(201)
   @ResponseMessage('라벨 생성 완료했습니다.')
-  async createLabel(
+  createLabel(
     @AuthUser() user: Account,
     @Param('id') id: number,
     @Body() body: LabelDetailsRequest
@@ -148,25 +140,25 @@ export class ProjectController {
 
   @Get(':id/labels')
   @ResponseMessage('라벨 목록 조회에 성공했습니다.')
-  async getLabels(@AuthUser() user: Account, @Param('id') id: number) {
+  getLabels(@AuthUser() user: Account, @Param('id') id: number) {
     return this.labelService.getAll(user.id, id);
   }
 
   @Get(':id/workload')
   @ResponseMessage('프로젝트 워크로드 조회에 성공했습니다.')
-  async getWorkload(@AuthUser() user: Account, @Param('id') id: number) {
+  getWorkload(@AuthUser() user: Account, @Param('id') id: number) {
     return this.taskService.getWorkload(user.id, id);
   }
 
   @Get(':id/overview')
   @ResponseMessage('프로젝트 오버뷰 조회에 성공했습니다.')
-  async getOverview(@AuthUser() user: Account, @Param('id') id: number) {
+  getOverview(@AuthUser() user: Account, @Param('id') id: number) {
     return this.taskService.getOverview(user.id, id);
   }
 
   @Get(':id/priority')
   @ResponseMessage('프로젝트 우선순위 통계 조회에 성공했습니다.')
-  async getPriority(@AuthUser() user: Account, @Param('id') id: number) {
+  getPriority(@AuthUser() user: Account, @Param('id') id: number) {
     return this.taskService.getPriority(user.id, id);
   }
 }

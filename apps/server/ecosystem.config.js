@@ -4,6 +4,8 @@ module.exports = [
   {
     name: 'harmony-api',
     script: 'apps/server/dist/src/main.js',
+    instances: 2,
+    exec_mode: 'cluster',
     env: {
       NODE_ENV: 'production',
     },

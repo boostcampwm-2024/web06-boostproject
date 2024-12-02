@@ -3,9 +3,6 @@ import { Section as TSection, Task, TaskEvent, TaskEventType } from './types';
 import { findTask } from './utils';
 
 export interface BoardState {
-  version: number;
-  setVersion: (version: number) => void;
-
   sections: TSection[];
   setSections: (sections: TSection[]) => void;
 
@@ -18,10 +15,6 @@ export interface BoardState {
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
-  version: 0,
-
-  setVersion: (version) => set({ version }),
-
   sections: [] as TSection[],
 
   setSections: (sections) => set({ sections }),

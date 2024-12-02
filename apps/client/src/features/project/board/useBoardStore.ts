@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Section as TSection, Task, TaskEvent, TaskEventType } from './types';
 import { findTask } from './utils';
 
-interface BoardState {
+export interface BoardState {
   version: number;
   setVersion: (version: number) => void;
 

@@ -5,7 +5,18 @@ import { EventResponse, TasksResponse, UpdateDto } from '@/features/project/boar
 export const boardAPI = {
   getTasks: async (projectId: number) => {
     const response = await axiosInstance.get<TasksResponse>(`/task?projectId=${projectId}`);
-    return response.data.result;
+
+    const { version, project } = response.data.result;
+
+    return {
+      version,
+      sections: project.map((section) => {
+        return {
+          ...section,
+          tasks: section.tasks.sort((a, b) => a.position.localeCompare(b.position)),
+        };
+      }),
+    };
   },
 
   getEvent: async (projectId: number, version: number, config: AxiosRequestConfig = {}) => {

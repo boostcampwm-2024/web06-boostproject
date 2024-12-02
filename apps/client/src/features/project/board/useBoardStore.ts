@@ -12,6 +12,10 @@ export interface BoardState {
   createTask: (sectionId: number, task: Task) => void;
   restoreState: (sections: TSection[]) => void;
   deleteTask: (taskId: number) => void;
+
+  updateTaskAssignees: (taskId: number, assignees: number[]) => void;
+  updateTaskLabels: (taskId: number, labels: number[]) => void;
+  updateTaskSubtasks: (taskId: number, subtasks: { total: number; completed: number }) => void;
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -118,6 +122,30 @@ export const useBoardStore = create<BoardState>((set) => ({
     })),
 
   restoreState: (sections: TSection[]) => set({ sections }),
+
+  updateTaskAssignees: (taskId: number, assignees: number[]) =>
+    set((state) => ({
+      sections: state.sections.map((section) => ({
+        ...section,
+        tasks: section.tasks.map((t) => (t.id === taskId ? { ...t, assignees } : t) as Task),
+      })),
+    })),
+
+  updateTaskLabels: (taskId: number, labels: number[]) =>
+    set((state) => ({
+      sections: state.sections.map((section) => ({
+        ...section,
+        tasks: section.tasks.map((t) => (t.id === taskId ? { ...t, labels } : t) as Task),
+      })),
+    })),
+
+  updateTaskSubtasks: (taskId: number, subtasks: { total: number; completed: number }) =>
+    set((state) => ({
+      sections: state.sections.map((section) => ({
+        ...section,
+        tasks: section.tasks.map((t) => (t.id === taskId ? { ...t, subtasks } : t)),
+      })),
+    })),
 }));
 
 const handleTaskCreated = (sections: TSection[], event: TaskEvent): TSection[] => {

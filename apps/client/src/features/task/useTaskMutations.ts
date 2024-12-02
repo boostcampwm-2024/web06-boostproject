@@ -21,7 +21,9 @@ export const useTaskMutations = (taskId: number) => {
 
     updateAssignees: useMutation({
       mutationFn: (assignees?: number[]) => taskAPI.updateAssignees(taskId, assignees),
-      onSuccess: () => {},
+      onSuccess: () => {
+        // setBoardStore assignees
+      },
     }),
 
     updateLabels: useMutation({

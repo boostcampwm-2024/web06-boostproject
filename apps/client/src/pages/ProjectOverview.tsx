@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import { Bar, BarChart, Cell, XAxis, Label, Pie, PieChart } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,50 +66,51 @@ const overviewConfig = {
   Done: { label: 'Done', color: '#00B67A' },
 } satisfies ChartConfig;
 
-// TODO: suspense fallback 만들어야함
 function ProjectOverview() {
   const { project } = useParams({ from: '/_auth/$project' });
 
-  const { data: overview } = useSuspenseQuery({
-    queryKey: ['project', project, 'overview'],
-    queryFn: async () => {
-      try {
-        const overview = await axiosInstance.get<GetOverviewResponseDto>(
-          `/project/${project}/overview`
-        );
-        return overview.data.result;
-      } catch {
-        throw new Error('Failed to fetch overview');
-      }
-    },
-  });
-
-  const { data: workload } = useSuspenseQuery({
-    queryKey: ['project', project, 'workload'],
-    queryFn: async () => {
-      try {
-        const workload = await axiosInstance.get<GetWorkloadResponseDto>(
-          `/project/${project}/workload`
-        );
-        return workload.data.result;
-      } catch {
-        throw new Error('Failed to fetch workload');
-      }
-    },
-  });
-
-  const { data: priority } = useSuspenseQuery({
-    queryKey: ['project', project, 'priority'],
-    queryFn: async () => {
-      try {
-        const priority = await axiosInstance.get<GetPriorityResponseDto>(
-          `/project/${project}/priority`
-        );
-        return priority.data.result;
-      } catch {
-        throw new Error('Failed to fetch priority');
-      }
-    },
+  const [{ data: overview }, { data: workload }, { data: priority }] = useSuspenseQueries({
+    queries: [
+      {
+        queryKey: ['project', project, 'overview'],
+        queryFn: async () => {
+          try {
+            const overview = await axiosInstance.get<GetOverviewResponseDto>(
+              `/project/${project}/overview`
+            );
+            return overview.data.result;
+          } catch {
+            throw new Error('Failed to fetch overview');
+          }
+        },
+      },
+      {
+        queryKey: ['project', project, 'workload'],
+        queryFn: async () => {
+          try {
+            const workload = await axiosInstance.get<GetWorkloadResponseDto>(
+              `/project/${project}/workload`
+            );
+            return workload.data.result;
+          } catch {
+            throw new Error('Failed to fetch workload');
+          }
+        },
+      },
+      {
+        queryKey: ['project', project, 'priority'],
+        queryFn: async () => {
+          try {
+            const priority = await axiosInstance.get<GetPriorityResponseDto>(
+              `/project/${project}/priority`
+            );
+            return priority.data.result;
+          } catch {
+            throw new Error('Failed to fetch priority');
+          }
+        },
+      },
+    ],
   });
 
   const overviewData = overview.sections.map((section) => ({

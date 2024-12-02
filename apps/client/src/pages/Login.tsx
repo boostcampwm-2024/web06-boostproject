@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
 import { HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar';
+import Header from '@/components/Header';
 import Footer from '@/components/Footer.tsx';
 import { LoginForm } from '@/features/auth/components/LoginForm.tsx';
 
@@ -9,18 +9,18 @@ function Login() {
   return (
     <>
       <div className="flex h-screen flex-col">
-        <Topbar
-          leftContent={
+        <Header>
+          <Header.Left>
             <Link to="/">
               <HarmonyWithText />
             </Link>
-          }
-          rightContent={
-            <Button variant="outline" asChild>
+          </Header.Left>
+          <Header.Right>
+            <Button variant="outline" className="hover:bg-primary hover:text-white" asChild>
               <Link to="/signup">Register</Link>
             </Button>
-          }
-        />
+          </Header.Right>
+        </Header>
 
         <main className="flex h-full items-center justify-center">
           <div className="w-full max-w-md">

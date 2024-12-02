@@ -40,14 +40,44 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
   const toast = useToast();
   const mutations = useBoardMutations(projectId);
 
+  const onDrop = (sectionId: number, taskId: number) => {
+    const targetSection = sections.find((section) => section.id === sectionId);
+    if (!targetSection) return;
+
+    const position =
+      belowTaskId === -1
+        ? calculatePosition(targetSection.tasks, -1)
+        : calculatePosition(targetSection.tasks, belowTaskId);
+
+    const previousSections = [...sections];
+
+    updateTaskPosition(sectionId, taskId, position);
+
+    mutations.updatePosition.mutate(
+      {
+        event: 'UPDATE_POSITION',
+        sectionId,
+        taskId,
+        position,
+      },
+      {
+        onError: () => {
+          restoreState(previousSections);
+          toast.error('Failed to update task position');
+        },
+      }
+    );
+  };
+
   const {
     belowSectionId,
     belowTaskId,
     handleDragStart,
     handleDragOver,
     handleDragLeave,
+    handleDrop,
     handleDragEnd,
-  } = useDragAndDrop();
+  } = useDragAndDrop(onDrop);
 
   const handleTitleChange = (taskId: number, newTitle: string) => {
     const task = findTask(sections, taskId);
@@ -95,47 +125,6 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     }
 
     updateTaskTitle(taskId, newTitle);
-  };
-
-  const handleDrop = (event: DragEvent<HTMLDivElement>, sectionId: number) => {
-    event.stopPropagation();
-    event.preventDefault();
-
-    const taskId = Number(event.dataTransfer.getData('taskId'));
-
-    if (taskId === belowTaskId) {
-      handleDragEnd();
-      return;
-    }
-
-    const targetSection = sections.find((section) => section.id === sectionId);
-    if (!targetSection) return;
-
-    const position =
-      belowTaskId === -1
-        ? calculatePosition(targetSection.tasks, -1)
-        : calculatePosition(targetSection.tasks, belowTaskId);
-
-    const previousSections = [...sections];
-
-    updateTaskPosition(sectionId, taskId, position);
-
-    mutations.updatePosition.mutate(
-      {
-        event: 'UPDATE_POSITION',
-        sectionId,
-        taskId,
-        position,
-      },
-      {
-        onError: () => {
-          restoreState(previousSections);
-          toast.error('Failed to update task position');
-        },
-      }
-    );
-
-    handleDragEnd();
   };
 
   const handleCreateTask = (sectionId: number) => {

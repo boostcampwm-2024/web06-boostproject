@@ -1,6 +1,8 @@
 import { useState, DragEvent } from 'react';
 
-export const useDragAndDrop = () => {
+type DropHandler = (sectionId: number, taskId: number) => void;
+
+export const useDragAndDrop = (onDrop?: DropHandler) => {
   const [belowSectionId, setBelowSectionId] = useState<number>(-1);
   const [belowTaskId, setBelowTaskId] = useState<number>(-1);
 
@@ -20,6 +22,27 @@ export const useDragAndDrop = () => {
     setBelowSectionId(-1);
   };
 
+  const handleDrop = (e: DragEvent, sectionId: number) => {
+    e.preventDefault();
+
+    const draggedTaskId = Number(e.dataTransfer.getData('taskId'));
+    if (!draggedTaskId || Number.isNaN(draggedTaskId)) {
+      handleDragEnd();
+      return;
+    }
+
+    if (draggedTaskId === belowTaskId) {
+      handleDragEnd();
+      return;
+    }
+
+    if (onDrop) {
+      onDrop(sectionId, draggedTaskId);
+    }
+
+    handleDragEnd();
+  };
+
   const handleDragEnd = () => {
     setBelowTaskId(-1);
     setBelowSectionId(-1);
@@ -31,6 +54,7 @@ export const useDragAndDrop = () => {
     handleDragStart,
     handleDragOver,
     handleDragLeave,
+    handleDrop,
     handleDragEnd,
   };
 };

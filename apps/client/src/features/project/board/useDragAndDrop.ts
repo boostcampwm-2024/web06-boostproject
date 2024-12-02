@@ -24,6 +24,7 @@ export const useDragAndDrop = (onDrop?: DropHandler) => {
 
   const handleDrop = (e: DragEvent, sectionId: number) => {
     e.preventDefault();
+    e.stopPropagation();
 
     const draggedTaskId = Number(e.dataTransfer.getData('taskId'));
     if (!draggedTaskId || Number.isNaN(draggedTaskId) || draggedTaskId === belowTaskId) {

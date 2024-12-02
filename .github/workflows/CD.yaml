@@ -59,6 +59,6 @@ jobs:
             pnpm build
 
             # Restart pm2
-            pm2 restart apps/server/ecosystem.config.js --env production || pm2 start apps/server/ecosystem.config.js --env production
+            pm2 startOrReload apps/server/ecosystem.config.js --env production
 
             echo "Deployment Success"

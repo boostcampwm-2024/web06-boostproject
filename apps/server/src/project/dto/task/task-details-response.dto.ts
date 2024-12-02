@@ -1,8 +1,8 @@
-import { Task } from '@/task/domain/task.entity';
-import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto';
-import { AssigneeDetailsResponse } from '@/task/dto/assignee-details-response.dto';
-import { LabelDetailsResponse } from '@/project/dto/label-details-response.dto';
-import { CreateSubTaskResponse } from '@/task/dto/create-subTask-response.dto';
+import { Task } from '@/project/entity/task.entity';
+import { SprintDetailsResponse } from '@/project/dto/sprint/sprint-details-response.dto';
+import { AssigneeDetailsResponse } from '@/project/dto/assignee/assignee-details-response.dto';
+import { LabelDetailsResponse } from '@/project/dto/label/label-details-response.dto';
+import { CreateSubTaskResponse } from '@/project/dto/subtask/create-subTask-response.dto';
 
 export class TaskDetailsResponse {
   id: number;

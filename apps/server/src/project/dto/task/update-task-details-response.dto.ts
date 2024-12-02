@@ -1,5 +1,5 @@
-import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto';
-import { UpdateTaskDetailsRequest } from '@/task/dto/update-task-details-request.dto';
+import { SprintDetailsResponse } from '@/project/dto/sprint/sprint-details-response.dto';
+import { UpdateTaskDetailsRequest } from '@/project/dto/task/update-task-details-request.dto';
 
 export class UpdateTaskDetailsResponse {
   constructor(

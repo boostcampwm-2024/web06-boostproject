@@ -10,8 +10,8 @@ import { DataSource, Repository } from 'typeorm';
 import { Sprint } from '@/project/entity/sprint.entity';
 import { Contributor } from '@/project/entity/contributor.entity';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
-import { SprintDetailsResponse } from '@/project/dto/sprint-details-response.dto';
-import { Task } from '@/task/domain/task.entity';
+import { SprintDetailsResponse } from '@/project/dto/sprint/sprint-details-response.dto';
+import { Task } from '@/project/entity/task.entity';
 
 @Injectable()
 export class SprintService {

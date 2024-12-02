@@ -11,10 +11,10 @@ import { Project } from '@/project/entity/project.entity';
 import { Contributor } from '@/project/entity/contributor.entity';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { ProjectRole } from '@/project/enum/project-role.enum';
-import { CreateProjectResponse } from '@/project/dto/create-project-response.dto';
+import { CreateProjectResponse } from '@/project/dto/project/create-project-response.dto';
 import { Account } from '@/account/entity/account.entity';
-import { UserInvitationResponse } from '@/project/dto/user-invitation-response.dto';
-import { Section } from '@/task/domain/section.entity';
+import { UserInvitationResponse } from '@/project/dto/contributor/user-invitation-response.dto';
+import { Section } from '@/project/entity/section.entity';
 import { Label } from '@/project/entity/label.entity';
 import { Sprint } from '@/project/entity/sprint.entity';
 

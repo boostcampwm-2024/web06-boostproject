@@ -2,15 +2,15 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SubTask } from '@/task/domain/subTask.entity';
+import { SubTask } from '@/project/entity/subTask.entity';
 import { Contributor } from '@/project/entity/contributor.entity';
-import { Task } from '@/task/domain/task.entity';
+import { Task } from '@/project/entity/task.entity';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
-import { SubTaskStatus } from '@/task/enum/subTaskStatus.enum';
-import { CreateSubTaskResponse } from '@/task/dto/create-subTask-response.dto';
-import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
-import { EventType } from '@/task/enum/eventType.enum';
-import { SubTaskChangedEvent } from '@/task/event/subtask-changed.event';
+import { SubTaskStatus } from '@/project/enum/subTaskStatus.enum';
+import { CreateSubTaskResponse } from '@/project/dto/subtask/create-subTask-response.dto';
+import { TaskEventResponse } from '@/project/dto/task/task-event-response.dto';
+import { EventType } from '@/project/enum/eventType.enum';
+import { SubTaskChangedEvent } from '@/project/event/subtask-changed.event';
 
 @Injectable()
 export class SubTaskService {

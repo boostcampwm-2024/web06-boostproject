@@ -2,12 +2,12 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomResponse } from '@/task/domain/custom-response.interface';
+import { CustomResponse } from '@/project/interface/custom-response.interface';
 import { BaseResponse } from '@/common/BaseResponse';
 import { ContributorStatus } from '@/project/enum/contributor-status.enum';
 import { Contributor } from '@/project/entity/contributor.entity';
-import { EventType } from '@/task/enum/eventType.enum';
-import { TaskEventResponse } from '@/task/dto/task-event-response.dto';
+import { EventType } from '@/project/enum/eventType.enum';
+import { TaskEventResponse } from '@/project/dto/task/task-event-response.dto';
 
 @Injectable()
 export class BroadcastService {

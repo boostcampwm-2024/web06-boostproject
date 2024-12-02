@@ -7,8 +7,8 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { EventType } from '@/task/enum/eventType.enum';
-import { UpdateInformation } from '@/task/domain/update-information.type';
+import { EventType } from '@/project/enum/eventType.enum';
+import { UpdateInformation } from '@/project/dto/task/update-information.type';
 
 export class TaskEvent {
   @IsOptional()

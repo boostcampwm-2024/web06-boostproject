@@ -1,5 +1,5 @@
-import { SubTask } from '@/task/domain/subTask.entity';
-import { SubTaskStatus } from '@/task/enum/subTaskStatus.enum';
+import { SubTask } from '@/project/entity/subTask.entity';
+import { SubTaskStatus } from '@/project/enum/subTaskStatus.enum';
 
 export class CreateSubTaskResponse {
   constructor(subTask: SubTask) {

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { Assignee } from '@/features/types';
 import { useTaskMutations } from '@/features/task/useTaskMutations';
 import { useUsersQuery } from '@/features/project/useUsersQuery.ts';
+import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
 
 interface AssigneesProps {
   initialAssignees: Assignee[];
@@ -20,6 +21,8 @@ export default function Assignees({ initialAssignees }: AssigneesProps) {
   });
   const { data: members = [] } = useUsersQuery(projectId);
   const { updateAssignees } = useTaskMutations(taskId);
+
+  const { updateTaskAssignees } = useBoardStore();
 
   const [selectedAssignees, setSelectedAssignees] = useState<Assignee[]>(initialAssignees);
   const [isOpen, setIsOpen] = useState(false);
@@ -33,10 +36,17 @@ export default function Assignees({ initialAssignees }: AssigneesProps) {
     const isSelected = selectedAssignees.some((a) => a.id === assignee.id);
     const newAssignees = isSelected
       ? selectedAssignees.filter((a) => a.id !== assignee.id)
-      : [...selectedAssignees, assignee];
+      : ([...selectedAssignees, assignee] as Assignee[]);
 
     setSelectedAssignees(newAssignees);
-    updateAssignees.mutate(newAssignees.map((a) => a.id));
+    updateAssignees.mutate(
+      newAssignees.map((a) => a.id),
+      {
+        onSuccess: () => {
+          updateTaskAssignees(taskId, newAssignees);
+        },
+      }
+    );
   };
 
   return (

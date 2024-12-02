@@ -26,19 +26,12 @@ export const useDragAndDrop = (onDrop?: DropHandler) => {
     e.preventDefault();
 
     const draggedTaskId = Number(e.dataTransfer.getData('taskId'));
-    if (!draggedTaskId || Number.isNaN(draggedTaskId)) {
+    if (!draggedTaskId || Number.isNaN(draggedTaskId) || draggedTaskId === belowTaskId) {
       handleDragEnd();
       return;
     }
 
-    if (draggedTaskId === belowTaskId) {
-      handleDragEnd();
-      return;
-    }
-
-    if (onDrop) {
-      onDrop(sectionId, draggedTaskId);
-    }
+    onDrop?.(sectionId, draggedTaskId);
 
     handleDragEnd();
   };

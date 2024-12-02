@@ -58,7 +58,13 @@ jobs:
             # Build
             pnpm build
 
-            # Restart pm2
-            pm2 startOrReload apps/server/ecosystem.config.js --env production
+            # Restart first instance
+            pm2 restart harmony-api --env production || pm2 start apps/server/ecosystem.config.js --env production
+
+            # Wait for server to start
+            sleep 5
+
+            # Restart second instance
+            pm2 restart harmony-api2 --env production || pm2 start apps/server/ecosystem.config.js --env production
 
             echo "Deployment Success"

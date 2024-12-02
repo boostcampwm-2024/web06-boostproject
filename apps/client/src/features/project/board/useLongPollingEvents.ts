@@ -16,6 +16,7 @@ export const useLongPollingEvents = (projectId: number, onEvent: (event: TaskEve
     let timeoutId: number;
     let isPolling = false;
     let retryCount = 0;
+    let canceled = false;
 
     const pollEvent = async (version: number = Date.now()) => {
       if (isPolling) {
@@ -43,15 +44,17 @@ export const useLongPollingEvents = (projectId: number, onEvent: (event: TaskEve
       } catch (error) {
         retryCount += 1;
         if ((error as AxiosError).status === 404) {
+          // 정상 동작
           retryCount = 0;
         }
         if (retryCount >= MAX_RETRY_COUNT) {
           toast.error('Failed to poll event. Please refresh the page.', 5000);
+          canceled = true;
           return;
         }
       } finally {
         isPolling = false;
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && !canceled) {
           timeoutId = setTimeout(() => pollEvent(newVersion), POLLING_INTERVAL);
         }
       }

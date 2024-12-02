@@ -5,7 +5,7 @@ import { SlashIcon } from '@radix-ui/react-icons';
 import { ChangeEvent, useState } from 'react';
 import axios from 'axios';
 import { Harmony } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar';
+import Header from '@/components/Header';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -220,43 +220,41 @@ function AuthLayout() {
 
   return (
     <div>
-      <Topbar
-        leftContent={
-          <>
-            <Link to={params.project === undefined ? '/account' : '/$project'}>
-              <Harmony />
-            </Link>
-            <SlashIcon className="h-5 text-gray-300" />
-            <div className="flex items-center gap-2">
-              <h2>{(params.project && currentProject?.title) ?? 'My Account'}</h2>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="h-8">
-                  <ChevronsUpDownIcon className="h-4 w-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-white">
+      <Header>
+        <Header.Left>
+          <Link to={params.project === undefined ? '/account' : '/$project'}>
+            <Harmony />
+          </Link>
+          <SlashIcon className="h-5 text-gray-300" />
+          <div className="flex items-center gap-2">
+            <h2>{(params.project && currentProject?.title) ?? 'My Account'}</h2>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="h-8">
+                <ChevronsUpDownIcon className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-white">
+                <DropdownMenuItem
+                  asChild
+                  className="hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
+                >
+                  <Link to="/account">My Account</Link>
+                </DropdownMenuItem>
+                {projects.map((project) => (
                   <DropdownMenuItem
+                    key={project.id}
                     asChild
                     className="hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
                   >
-                    <Link to="/account">My Account</Link>
+                    <Link to="/$project/board" params={{ project: String(project.id) }}>
+                      {project.title}
+                    </Link>
                   </DropdownMenuItem>
-                  {projects.map((project) => (
-                    <DropdownMenuItem
-                      key={project.id}
-                      asChild
-                      className="hover:cursor-pointer focus:bg-[#f2f2f2] focus:text-black"
-                    >
-                      <Link to="/$project/board" params={{ project: String(project.id) }}>
-                        {project.title}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </>
-        }
-        rightContent={
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </Header.Left>
+        <Header.Right>
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Avatar className="h-8 w-8 border">
@@ -283,8 +281,8 @@ function AuthLayout() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        }
-      />
+        </Header.Right>
+      </Header>
       <Dialog
         open={isProfileOpen}
         onOpenChange={(isProfileOpen) => {

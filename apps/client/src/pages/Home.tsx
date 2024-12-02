@@ -1,28 +1,26 @@
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Github, HarmonyWithText } from '@/components/logo';
-import { Topbar } from '@/components/navigation/topbar';
+import Header from '@/components/Header';
 
 function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <Topbar
-        leftContent={
+      <Header>
+        <Header.Left>
           <Link to="/">
             <HarmonyWithText />
           </Link>
-        }
-        rightContent={
-          <>
-            <Button variant="ghost" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/signup">Register</Link>
-            </Button>
-          </>
-        }
-      />
+        </Header.Left>
+        <Header.Right>
+          <Button variant="ghost" className="hover:text-primary hover:bg-white" asChild>
+            <Link to="/login">Login</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/signup">Register</Link>
+          </Button>
+        </Header.Right>
+      </Header>
 
       <main className="mt-16 flex-grow bg-white text-black dark:bg-black dark:text-white">
         <section className="container mx-auto max-w-6xl from-pink-500 via-red-500 to-yellow-500 px-6 py-20 text-center">

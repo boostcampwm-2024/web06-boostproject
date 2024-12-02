@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useLabelsQuery } from '@/features/project/label/useLabelsQuery';
 import { useTaskMutations } from '@/features/task/useTaskMutations';
 import { Label } from '@/features/types.ts';
+import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
 
 interface LabelsProps {
   initialLabels: Label[];
@@ -21,6 +22,8 @@ export default function Labels({ initialLabels }: LabelsProps) {
   });
   const { data: labels = [] } = useLabelsQuery(projectId);
   const { updateLabels } = useTaskMutations(taskId);
+
+  const { updateTaskLabels } = useBoardStore();
 
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(initialLabels);
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +40,14 @@ export default function Labels({ initialLabels }: LabelsProps) {
       : [...selectedLabels, label];
 
     setSelectedLabels(newLabels);
-    updateLabels.mutate(newLabels.map((l) => l.id));
+    updateLabels.mutate(
+      newLabels.map((l) => l.id),
+      {
+        onSuccess: () => {
+          updateTaskLabels(taskId, newLabels);
+        },
+      }
+    );
   };
 
   return (

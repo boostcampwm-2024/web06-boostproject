@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Section as TSection, Task, TaskEvent, TaskEventType } from './types';
 import { findTask } from './utils';
+import { Assignee, Label } from '@/features/types.ts';
 
 export interface BoardState {
   sections: TSection[];
@@ -13,8 +14,8 @@ export interface BoardState {
   restoreState: (sections: TSection[]) => void;
   deleteTask: (taskId: number) => void;
 
-  updateTaskAssignees: (taskId: number, assignees: number[]) => void;
-  updateTaskLabels: (taskId: number, labels: number[]) => void;
+  updateTaskAssignees: (taskId: number, assignees: Assignee[]) => void;
+  updateTaskLabels: (taskId: number, labels: Label[]) => void;
   updateTaskSubtasks: (taskId: number, subtasks: { total: number; completed: number }) => void;
 }
 
@@ -123,7 +124,7 @@ export const useBoardStore = create<BoardState>((set) => ({
 
   restoreState: (sections: TSection[]) => set({ sections }),
 
-  updateTaskAssignees: (taskId: number, assignees: number[]) =>
+  updateTaskAssignees: (taskId: number, assignees: Assignee[]) =>
     set((state) => ({
       sections: state.sections.map((section) => ({
         ...section,
@@ -131,7 +132,7 @@ export const useBoardStore = create<BoardState>((set) => ({
       })),
     })),
 
-  updateTaskLabels: (taskId: number, labels: number[]) =>
+  updateTaskLabels: (taskId: number, labels: Label[]) =>
     set((state) => ({
       sections: state.sections.map((section) => ({
         ...section,

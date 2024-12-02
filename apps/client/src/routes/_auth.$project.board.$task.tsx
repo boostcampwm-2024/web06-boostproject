@@ -13,25 +13,36 @@ class InvalidTaskIdError extends Error {
   }
 }
 
-export const Route = createFileRoute('/_auth/$project/board/$taskId')({
-  beforeLoad: ({ params }) => {
-    const taskId = Number(params.taskId);
+export const Route = createFileRoute('/_auth/$project/board/$task')({
+  beforeLoad: ({ params: { task } }) => {
+    const taskId = Number(task);
     if (Number.isNaN(taskId)) {
-      throw new InvalidTaskIdError(params.taskId);
+      throw new InvalidTaskIdError(task);
     }
   },
-  loader: async ({ params, context: { queryClient } }) => {
-    const projectId = Number(params.project);
-    const taskId = Number(params.taskId);
+  loader: async ({ context: { queryClient }, params: { project, task } }) => {
+    const projectId = Number(project);
+    const taskId = Number(task);
 
     await queryClient.ensureQueryData({
       queryKey: ['task', taskId],
       queryFn: () => taskAPI.getDetail(taskId),
+      staleTime: 5 * 60 * 1000,
     });
 
     return { projectId, taskId };
   },
+
+  onLeave: ({ context: { queryClient }, params: { task } }) => {
+    const taskId = Number(task);
+
+    queryClient.invalidateQueries({
+      queryKey: ['task', taskId],
+    });
+  },
+
   errorComponent: ErrorComponent,
+
   component: () => (
     <Suspense fallback={<div>Loading task details...</div>}>
       <TaskDetail />
@@ -42,7 +53,7 @@ export const Route = createFileRoute('/_auth/$project/board/$taskId')({
 export function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const [isClosing, setIsClosing] = useState(false);
   const navigate = useNavigate({
-    from: '/$project/board/$taskId',
+    from: '/$project/board/$task',
   });
 
   const handleClose = useCallback(() => {

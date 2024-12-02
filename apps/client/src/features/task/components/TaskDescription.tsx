@@ -10,7 +10,7 @@ interface TaskDescriptionProps {
 
 export function TaskDescription({ initialDescription = '' }: TaskDescriptionProps) {
   const { taskId } = useLoaderData({
-    from: '/_auth/$project/board/$taskId',
+    from: '/_auth/$project/board/$task',
   });
   const [isEdit, setIsEdit] = useState(false);
   const [description, setDescription] = useState<string>(initialDescription);

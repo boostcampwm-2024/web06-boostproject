@@ -17,7 +17,7 @@ interface AssigneesProps {
 
 export default function Assignees({ initialAssignees }: AssigneesProps) {
   const { taskId, projectId } = useLoaderData({
-    from: '/_auth/$project/board/$taskId',
+    from: '/_auth/$project/board/$task',
   });
   const { data: members = [] } = useUsersQuery(projectId);
   const { updateAssignees } = useTaskMutations(taskId);

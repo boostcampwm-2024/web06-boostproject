@@ -12,7 +12,7 @@ interface SubtasksProps {
 
 export function Subtasks({ initialSubtasks = [] }: SubtasksProps) {
   const { taskId } = useLoaderData({
-    from: '/_auth/$project/board/$taskId',
+    from: '/_auth/$project/board/$task',
   });
 
   const { updateTaskSubtasks } = useBoardStore();

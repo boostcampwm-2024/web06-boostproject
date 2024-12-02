@@ -15,7 +15,7 @@ interface SprintProps {
 
 export default function Sprint({ initialSprint }: SprintProps) {
   const { taskId, projectId } = useLoaderData({
-    from: '/_auth/$project/board/$taskId',
+    from: '/_auth/$project/board/$task',
   });
   const { data: sprints = [] } = useSprintsQuery(projectId);
   const { updateSprint } = useTaskMutations(taskId);

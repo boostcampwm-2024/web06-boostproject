@@ -13,7 +13,7 @@ interface EstimateProps {
 
 export default function Estimate({ initialEstimate }: EstimateProps) {
   const { taskId } = useLoaderData({
-    from: '/_auth/$project/board/$taskId',
+    from: '/_auth/$project/board/$task',
   });
   const { updateEstimate } = useTaskMutations(taskId);
 

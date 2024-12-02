@@ -18,7 +18,7 @@ interface LabelsProps {
 
 export default function Labels({ initialLabels }: LabelsProps) {
   const { taskId, projectId } = useLoaderData({
-    from: '/_auth/$project/board/$taskId',
+    from: '/_auth/$project/board/$task',
   });
   const { data: labels = [] } = useLabelsQuery(projectId);
   const { updateLabels } = useTaskMutations(taskId);

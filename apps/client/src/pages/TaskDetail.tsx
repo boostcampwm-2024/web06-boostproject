@@ -17,11 +17,12 @@ import Sprint from '@/features/task/components/Sprint.tsx';
 import Estimate from '@/features/task/components/Estimate.tsx';
 import { useTaskMutations } from '@/features/task/useTaskMutations.ts';
 import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
+import { cn } from '@/lib/utils.ts';
 
 export function TaskDetail() {
-  const { taskId } = useLoaderData({ from: '/_auth/$project/board/$taskId' });
+  const { taskId } = useLoaderData({ from: '/_auth/$project/board/$task' });
 
-  const navigate = useNavigate({ from: '/$project/board/$taskId' });
+  const navigate = useNavigate({ from: '/$project/board/$task' });
 
   const [isClosing, setIsClosing] = useState(false);
 
@@ -81,8 +82,13 @@ export function TaskDetail() {
             <Card className="h-full rounded-none border-none">
               <CardHeader className="bg-blue sticky top-0 z-40 h-[100px] backdrop-blur">
                 <div className="flex h-full items-center justify-between">
-                  <h2 className="line-clamp-2 max-w-sm break-words text-3xl font-semibold lg:max-w-xl">
-                    {task.title}
+                  <h2
+                    className={cn(
+                      'line-clamp-2 max-w-sm break-words text-3xl font-semibold lg:max-w-xl',
+                      task.title.length === 0 && 'text-gray-600'
+                    )}
+                  >
+                    {task.title || 'Task Details'}
                   </h2>
                   <Button variant="ghost" size="icon" onClick={handleClose}>
                     <X className="h-4 w-4" />

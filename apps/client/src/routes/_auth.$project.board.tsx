@@ -17,16 +17,27 @@ export const Route = createFileRoute('/_auth/$project/board')({
       throw new InvalidProjectIdError(params.project);
     }
   },
+
   loader: async ({ context: { queryClient }, params: { project } }) => {
     const projectId = Number(project);
 
     await queryClient.prefetchQuery({
       queryKey: ['tasks', projectId],
       queryFn: () => boardAPI.getTasks(projectId),
+      staleTime: 5 * 60 * 1000, // 5분
     });
 
     return { projectId };
   },
+
+  onLeave: ({ context: { queryClient }, params: { project } }) => {
+    const projectId = Number(project);
+
+    queryClient.invalidateQueries({
+      queryKey: ['tasks', projectId],
+    });
+  },
+
   component: () => (
     <Suspense fallback={<LoadingFallback />}>
       <Board />

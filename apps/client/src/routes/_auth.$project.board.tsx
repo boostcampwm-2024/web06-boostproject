@@ -18,10 +18,10 @@ export const Route = createFileRoute('/_auth/$project/board')({
     }
   },
 
-  loader: async ({ context: { queryClient }, params: { project } }) => {
+  loader: ({ context: { queryClient }, params: { project } }) => {
     const projectId = Number(project);
 
-    await queryClient.prefetchQuery({
+    queryClient.prefetchQuery({
       queryKey: ['tasks', projectId],
       queryFn: () => boardAPI.getTasks(projectId),
       staleTime: 5 * 60 * 1000, // 5분

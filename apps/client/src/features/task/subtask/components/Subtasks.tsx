@@ -4,6 +4,7 @@ import { Subtask } from '@/features/task/subtask/types';
 import { SubtaskItem } from '@/features/task/subtask/components/SubtaskItem';
 import { useSubtaskMutations } from '@/features/task/subtask/useSubtaskMutations';
 import { Button } from '@/components/ui/button';
+import { useBoardStore } from '@/features/project/board/useBoardStore.ts';
 
 interface SubtasksProps {
   initialSubtasks?: Subtask[];
@@ -13,33 +14,27 @@ export function Subtasks({ initialSubtasks = [] }: SubtasksProps) {
   const { taskId } = useLoaderData({
     from: '/_auth/$project/board/$taskId',
   });
+
+  const { updateTaskSubtasks } = useBoardStore();
+
   const [subtasks, setSubtasks] = useState<Subtask[]>(initialSubtasks);
   const subtasksRef = useRef<HTMLDivElement>(null);
 
   const { create, update, delete: deleteSubtask } = useSubtaskMutations(taskId);
 
-  const createMutation = create({
-    onSuccess: (newSubtask: Subtask) => {
-      setSubtasks((prev) => [...prev, newSubtask]);
-    },
-  });
-
-  const updateMutation = update({
-    onSuccess: (updatedSubtask) => {
-      setSubtasks((prev) =>
-        prev.map((subtask) => (subtask.id === updatedSubtask.id ? updatedSubtask : subtask))
-      );
-    },
-  });
-
-  const deleteMutation = deleteSubtask({
-    onSuccess: (_, subtaskId) => {
-      setSubtasks((prev) => prev.filter((subtask) => subtask.id !== subtaskId));
-    },
-  });
-
   const handleAddSubtask = () => {
-    createMutation.mutate();
+    create.mutate(undefined, {
+      onSuccess: (newSubtask: Subtask) => {
+        setSubtasks((prev) => {
+          const newSubtasks = [...prev, newSubtask];
+          updateTaskSubtasks(taskId, {
+            total: newSubtasks.length,
+            completed: newSubtasks.filter((subtask) => subtask.completed).length,
+          });
+          return newSubtasks;
+        });
+      },
+    });
   };
 
   const handleToggleSubtask = (id: number) => {
@@ -49,26 +44,80 @@ export function Subtasks({ initialSubtasks = [] }: SubtasksProps) {
       return;
     }
 
-    updateMutation.mutate({
-      subtaskId: id,
-      updateSubtaskDto: { completed: !subtask.completed },
-    });
+    update.mutate(
+      {
+        subtaskId: id,
+        updateSubtaskDto: { completed: !subtask.completed },
+      },
+      {
+        onSuccess: (updatedSubtask) => {
+          setSubtasks((prev) => {
+            const newSubtasks = prev.map((subtask) =>
+              subtask.id === updatedSubtask.id ? updatedSubtask : subtask
+            );
+            updateTaskSubtasks(taskId, {
+              total: newSubtasks.length,
+              completed: newSubtasks.filter((subtask) => subtask.completed).length,
+            });
+            return newSubtasks;
+          });
+        },
+      }
+    );
   };
 
   const handleUpdateSubtask = (id: number, newContent: string) => {
     if (!newContent.trim()) {
-      deleteMutation.mutate(id);
+      deleteSubtask.mutate(id, {
+        onSuccess: () => {
+          setSubtasks((prev) => {
+            const newSubtasks = prev.filter((subtask) => subtask.id !== id);
+            updateTaskSubtasks(taskId, {
+              total: newSubtasks.length,
+              completed: newSubtasks.filter((subtask) => subtask.completed).length,
+            });
+            return newSubtasks;
+          });
+        },
+      });
       return;
     }
 
-    updateMutation.mutate({
-      subtaskId: id,
-      updateSubtaskDto: { content: newContent },
-    });
+    update.mutate(
+      {
+        subtaskId: id,
+        updateSubtaskDto: { content: newContent },
+      },
+      {
+        onSuccess: (updatedSubtask) => {
+          setSubtasks((prev) => {
+            const newSubtasks = prev.map((subtask) =>
+              subtask.id === updatedSubtask.id ? updatedSubtask : subtask
+            );
+            updateTaskSubtasks(taskId, {
+              total: newSubtasks.length,
+              completed: newSubtasks.filter((subtask) => subtask.completed).length,
+            });
+            return newSubtasks;
+          });
+        },
+      }
+    );
   };
 
   const handleDeleteSubtask = (id: number) => {
-    deleteMutation.mutate(id);
+    deleteSubtask.mutate(id, {
+      onSuccess: () => {
+        setSubtasks((prev) => {
+          const newSubtasks = prev.filter((subtask) => subtask.id !== id);
+          updateTaskSubtasks(taskId, {
+            total: newSubtasks.length,
+            completed: newSubtasks.filter((subtask) => subtask.completed).length,
+          });
+          return newSubtasks;
+        });
+      },
+    });
   };
 
   useEffect(() => {

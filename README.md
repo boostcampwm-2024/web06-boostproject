@@ -20,9 +20,9 @@
 
 **Harmony** 는 기존 프로젝트 관리 도구의 불편함을 해결하기 위해 탄생한 실시간 일정관리 서비스입니다.
 
-- **실시간 일정관리 서비스**  
+- **실시간 일정관리**  
   기존 일정관리 서비스(Github Project)의 비동기적인 관리 방식을 개선하기 위해 실시간 편집 및 반영을 지원합니다.
-- **플래닝 포커 통합**  
+- **플래닝 포커**  
   별도의 외부 서비스를 이용하는 불편함을 해소하기 위해 플래닝 포커 기능을 지원합니다.
 
 <br />
@@ -34,7 +34,11 @@
 
 - 프로젝트를 생성하고 다른 사용자를 초대할 수 있습니다.
 
-<img width="1200" alt="프로젝트 관리" src="https://github.com/user-attachments/assets/5f9209f5-a8a3-4918-8af5-9ca9ae3347b2" />
+| <img width="1200" alt="프로젝트 생성 및 초대" src="https://github.com/user-attachments/assets/1355f8b1-a7da-4e2a-8d50-c2a5d6611c0f" /> | <img width="1200" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/50da2258-3b5c-4bc9-9861-f4d8e93c87a2" /> |
+| :------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------: |
+|                                                         프로젝트 생성 및 초대                                                          |                                                         초대 승인 및 거절                                                          |
+
+<br />
 
 ### 실시간 편집 및 반영
 
@@ -85,43 +89,54 @@
 
 ### Long Polling 의 한계
 
-실시간 반영을 위해 두 가지 업데이트 방식을 고려할 수 있었습니다.  
-<img width="600" alt="전체 업데이트" src="https://github.com/user-attachments/assets/9b229309-dc3a-4379-88d0-6b288dbb4819">
-<img width="600" alt="부분 업데이트" src="https://github.com/user-attachments/assets/6e9695b8-da6f-44f5-a250-860822ad8a8b">
+실시간 반영을 위해 두 가지 업데이트 방식을 고려할 수 있었습니다.
+
+| 전체 업데이트<br/>(선택) | <img width="600" alt="전체 업데이트" src="https://github.com/user-attachments/assets/9b229309-dc3a-4379-88d0-6b288dbb4819"> |
+| :----------------------: | :-------------------------------------------------------------------------------------------------------------------------- |
+|      부분 업데이트       | <img width="600" alt="부분 업데이트" src="https://github.com/user-attachments/assets/6e9695b8-da6f-44f5-a250-860822ad8a8b"> |
+
+롱폴링은 재연결 과정에서 이벤트가 누락될 가능성이 있습니다.  
+이를 고려하여 이벤트를 받아오는 것이 아닌 전체 데이터의 스냅샷 형태로 받고자 했습니다.
 
 <br/>
 
-롱폴링은 재연결 과정에서 이벤트가 누락될 가능성이 있습니다.  
-이를 고려하여 이벤트를 받아오는 것이 아닌 전체 데이터의 스냅샷 형태로 받고자 했습니다.  
-<img width="800" alt="동시 편집 불가 사진" src="">
+하지만, 이 방식은 커서를 강탈당하는 문제가 있어 동시 편집이 불가능했습니다.
 
-하지만 이 방식은 동시에 편집하는 것이 불가능했고, 부분 업데이트 방식을 선택해야 했습니다.  
-결국 다른 방식으로 롱폴링의 한계를 개선해야 했습니다.
+<img width="600" alt="동시 편집 불가 사진" src="https://github.com/user-attachments/assets/9ee1eb74-34b7-4854-8d33-7636bf73ad10">
+
+그래서 부분 업데이트 방식으로 변경했습니다.  
+처음에 예상했던 대로 부분 업데이트는 재연결 과정에서의 이벤트 누락이 발생했습니다.
+
+| <img width="1200" alt="위치 이동 이벤트 누락" src="https://github.com/user-attachments/assets/26206d07-c75b-42ae-96a1-e7a7cb68b96d" /> | <img width="1200" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/0676e596-1fd0-4984-a47b-93f53423cacc" /> |
+| :------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------: |
+|                                                         위치 이동 이벤트 누락                                                          |                                                      텍스트 편집 이벤트 누락                                                       |
 
 <br/>
 
 ### Long Polling 개선하기
 
-어떻게 개선할지 고민하던 중 버저닝과 스케줄링을 활용한 개선 방안을 떠올렸습니다.
+우선, 이벤트의 누락이 얼마나 발생하는지 확인했습니다.  
+K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RPS(초당 요청 수)를 조정하며 **응답을 성공적으로 수신하는 비율**을 측정했습니다.  
+테스트 결과, 500ms 보다 좁은 간격으로 이벤트가 발생하면, 누락률이 급격히 증가하는 것을 확인할 수 있었습니다.
 
-<img width="600" alt="버저닝 및 스케줄링" src="https://github.com/user-attachments/assets/da391268-0cdb-4f3d-8966-90d52d9cc067">
+<img width="600" alt="테스트 결과" src="https://github.com/user-attachments/assets/dd0ee87c-c733-4ded-9020-716ba45caddf">
 
-<br/>
-<br/>
+이를 해결하기 위해 **버저닝**과 **스케줄링**을 적용하고자 했습니다.
 
-이 방식을 적용하기 전, 실제 개선 효과가 있을지 검증하기 위해 k6를 활용한 테스트를 진행했습니다.  
-사용자 100명을 기준으로, 0.1초부터 1초까지 요청과 응답을 주고 받는 빈도를 조정하며 **응답을 성공적으로 수신하는 비율**을 측정했습니다.
+| <img width="600" alt="버저닝" src="https://github.com/user-attachments/assets/5be7e1f5-5882-4ad5-8167-3239901d34d9"> | <img width="600" alt="버저닝" src="https://github.com/user-attachments/assets/d63c1ebf-6706-4fc1-9ba2-cd8cbad54799"> |
+| :------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------: |
+|                                                        버저닝                                                        |                                                       스케줄링                                                       |
+
+타임스탬프를 활용한 버저닝을 적용해, 재연결 사이에 발생한 이벤트들을 목록으로 가져오면 누락을 줄일 수 있을 것이라 생각했습니다.  
+추가로 Long Polling 의 재연결 횟수를 줄이기 위해 스케줄링을 적용할 수 있을 것이라 생각했습니다.
+
+이 방식을 적용하기 전, 실제 개선 효과가 있을지 검증하기 위해 테스트를 진행했습니다.  
+위와 같은 조건으로 **응답을 성공적으로 수신하는 비율**을 측정했습니다.
+
 <img width="600" alt="테스트 결과" src="https://github.com/user-attachments/assets/e6237425-41cb-447d-a841-ed38f92775ed">
 
-해당 방식을 사용하면 기존 방식에 비해, RPS에 따라 **0.4%** 부터 최대 **16.8%** 까지 누락률을 줄일 수 있음을 확인했습니다.  
-또한, **500ms** 간격 이후로는 누락률이 약 **1.7%** 이하임을 확인하여, 스케줄링 간격을 500ms로 설정했습니다.
-
-다만, **타임스탬프**를 기준으로 버저닝을 하고 있기 때문에 버전의 충돌로 인한 누락이 여전히 생길 수 있음을 확인했습니다.
-
-<br />
-<br />
-
-### 텍스트 병합 충돌
+해당 방식을 적용하면 기존 방식 대비, RPS에 따라 **0.4%** 부터 최대 **16.8%** 까지 누락률을 줄일 수 있음을 확인했습니다.  
+그래서, **버저닝**과 **스케줄링**을 적용해 실제 사용성을 높일 수 있었습니다.
 
 <br />
 <br />
@@ -135,9 +150,12 @@
 | 분야 | 기술                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 공통 | <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img src="https://img.shields.io/badge/socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white"> |
-| FE | <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/tanstack query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><img src="https://img.shields.io/badge/tanstack%20router-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><br><img src="https://img.shields.io/badge/framer%20motion-0055FF?style=for-the-badge&logo=framer&logoColor=white"><img src="https://img.shields.io/badge/shadcn-4F46E5?style=for-the-badge&logo=tailwindcss&logoColor=white"><img src="https://img.shields.io/badge/tailwind%20css-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"> |
-| BE | <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"><img src="https://img.shields.io/badge/typeorm-FFA500?style=for-the-badge&logo=typeorm&logoColor=white"><img src="https://img.shields.io/badge/sharedb-1D4ED8?style=for-the-badge&logo=databricks&logoColor=white"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> |
+|
+공통 | <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img src="https://img.shields.io/badge/socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white"> |
+|
+FE | <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/tanstack query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><img src="https://img.shields.io/badge/tanstack%20router-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><br><img src="https://img.shields.io/badge/framer%20motion-0055FF?style=for-the-badge&logo=framer&logoColor=white"><img src="https://img.shields.io/badge/shadcn-4F46E5?style=for-the-badge&logo=tailwindcss&logoColor=white"><img src="https://img.shields.io/badge/tailwind%20css-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"> |
+|
+BE | <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"><img src="https://img.shields.io/badge/typeorm-FFA500?style=for-the-badge&logo=typeorm&logoColor=white"><img src="https://img.shields.io/badge/sharedb-1D4ED8?style=for-the-badge&logo=databricks&logoColor=white"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> |
 
 <br />
 <br />

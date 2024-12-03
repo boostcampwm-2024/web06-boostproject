@@ -34,7 +34,7 @@
 
 - 프로젝트를 생성하고 다른 사용자를 초대할 수 있습니다.
 
-| <img width="380" alt="프로젝트 생성 및 초대" src="https://github.com/user-attachments/assets/1355f8b1-a7da-4e2a-8d50-c2a5d6611c0f" /> | <img width="380" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/50da2258-3b5c-4bc9-9861-f4d8e93c87a2" /> |
+| <img width="340" alt="프로젝트 생성 및 초대" src="https://github.com/user-attachments/assets/1355f8b1-a7da-4e2a-8d50-c2a5d6611c0f" /> | <img width="340" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/50da2258-3b5c-4bc9-9861-f4d8e93c87a2" /> |
 |:----------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------:|
 |                                                         프로젝트 생성 및 초대                                                         |                                                         초대 승인 및 거절                                                         |
 
@@ -107,7 +107,7 @@
 그래서 부분 업데이트 방식으로 변경했습니다.  
 처음에 예상했던 대로 부분 업데이트는 재연결 과정에서의 이벤트 누락이 발생했습니다.
 
-| <img width="380" alt="위치 이동 이벤트 누락" src="https://github.com/user-attachments/assets/26206d07-c75b-42ae-96a1-e7a7cb68b96d" /> | <img width="380" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/0676e596-1fd0-4984-a47b-93f53423cacc" /> |
+| <img width="340" alt="위치 이동 이벤트 누락" src="https://github.com/user-attachments/assets/26206d07-c75b-42ae-96a1-e7a7cb68b96d" /> | <img width="340" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/0676e596-1fd0-4984-a47b-93f53423cacc" /> |
 |:----------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------:|
 |                                                         위치 이동 이벤트 누락                                                         |                                                       텍스트 편집 이벤트 누락                                                        |
 

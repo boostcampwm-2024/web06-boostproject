@@ -35,7 +35,7 @@
 - 프로젝트를 생성하고 다른 사용자를 초대할 수 있습니다.
 
 | <img width="380" alt="프로젝트 생성 및 초대" src="https://github.com/user-attachments/assets/1355f8b1-a7da-4e2a-8d50-c2a5d6611c0f" /> | <img width="380" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/50da2258-3b5c-4bc9-9861-f4d8e93c87a2" /> |
-| :-----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------: |
+|:----------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------:|
 |                                                         프로젝트 생성 및 초대                                                         |                                                         초대 승인 및 거절                                                         |
 
 <br />
@@ -92,8 +92,8 @@
 실시간 반영을 위해 두 가지 업데이트 방식을 고려할 수 있었습니다.
 
 | 전체 업데이트<br/>(선택) | <img width="600" alt="전체 업데이트" src="https://github.com/user-attachments/assets/9b229309-dc3a-4379-88d0-6b288dbb4819"> |
-| :----------------------: | :-------------------------------------------------------------------------------------------------------------------------- |
-|      부분 업데이트       | <img width="600" alt="부분 업데이트" src="https://github.com/user-attachments/assets/6e9695b8-da6f-44f5-a250-860822ad8a8b"> |
+|:----------------:|:----------------------------------------------------------------------------------------------------------------------|
+|     부분 업데이트      | <img width="600" alt="부분 업데이트" src="https://github.com/user-attachments/assets/6e9695b8-da6f-44f5-a250-860822ad8a8b"> |
 
 롱폴링은 재연결 과정에서 이벤트가 누락될 가능성이 있습니다.  
 이를 고려하여 이벤트를 받아오는 것이 아닌 전체 데이터의 스냅샷 형태로 받고자 했습니다.
@@ -108,8 +108,8 @@
 처음에 예상했던 대로 부분 업데이트는 재연결 과정에서의 이벤트 누락이 발생했습니다.
 
 | <img width="380" alt="위치 이동 이벤트 누락" src="https://github.com/user-attachments/assets/26206d07-c75b-42ae-96a1-e7a7cb68b96d" /> | <img width="380" alt="초대 승인 및 거절" src="https://github.com/user-attachments/assets/0676e596-1fd0-4984-a47b-93f53423cacc" /> |
-| :-----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------: |
-|                                                         위치 이동 이벤트 누락                                                         |                                                      텍스트 편집 이벤트 누락                                                      |
+|:----------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------:|
+|                                                         위치 이동 이벤트 누락                                                         |                                                       텍스트 편집 이벤트 누락                                                        |
 
 <br/>
 
@@ -124,8 +124,8 @@ K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RP
 이를 해결하기 위해 **버저닝**과 **스케줄링**을 적용하고자 했습니다.
 
 | <img width="600" alt="버저닝" src="https://github.com/user-attachments/assets/5be7e1f5-5882-4ad5-8167-3239901d34d9"> | <img width="600" alt="버저닝" src="https://github.com/user-attachments/assets/d63c1ebf-6706-4fc1-9ba2-cd8cbad54799"> |
-| :------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------: |
-|                                                        버저닝                                                        |                                                       스케줄링                                                       |
+|:-----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------:|
+|                                                        버저닝                                                        |                                                       스케줄링                                                        |
 
 타임스탬프를 활용한 버저닝을 적용해, 재연결 사이에 발생한 이벤트들을 목록으로 가져오면 누락을 줄일 수 있을 것이라 생각했습니다.  
 추가로 Long Polling 의 재연결 횟수를 줄이기 위해 스케줄링을 적용할 수 있을 것이라 생각했습니다.
@@ -150,23 +150,22 @@ K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RP
 
 ## 기술 스택
 
-| 분야 | 기술 |
-| ---- | ---- |
-
+| 분야 | 기술                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+|----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |
-공통 | <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img src="https://img.shields.io/badge/socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white"> |
+ 공통 | <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img src="https://img.shields.io/badge/socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white">                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 |
-FE | <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/tanstack query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><img src="https://img.shields.io/badge/tanstack%20router-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><br><img src="https://img.shields.io/badge/framer%20motion-0055FF?style=for-the-badge&logo=framer&logoColor=white"><img src="https://img.shields.io/badge/shadcn-4F46E5?style=for-the-badge&logo=tailwindcss&logoColor=white"><img src="https://img.shields.io/badge/tailwind%20css-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"> |
+ FE | <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/tanstack query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><img src="https://img.shields.io/badge/tanstack%20router-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><br><img src="https://img.shields.io/badge/framer%20motion-0055FF?style=for-the-badge&logo=framer&logoColor=white"><img src="https://img.shields.io/badge/shadcn-4F46E5?style=for-the-badge&logo=tailwindcss&logoColor=white"><img src="https://img.shields.io/badge/tailwind%20css-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"> |
 |
-BE | <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"><img src="https://img.shields.io/badge/typeorm-FFA500?style=for-the-badge&logo=typeorm&logoColor=white"><img src="https://img.shields.io/badge/sharedb-1D4ED8?style=for-the-badge&logo=databricks&logoColor=white"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> |
+ BE | <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"><img src="https://img.shields.io/badge/typeorm-FFA500?style=for-the-badge&logo=typeorm&logoColor=white"><img src="https://img.shields.io/badge/sharedb-1D4ED8?style=for-the-badge&logo=databricks&logoColor=white"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">                                                                                                                                                                                                                                                                  |
 
 <br />
 <br />
 
 ## 팀원 소개
 
-|                                             김정한                                             |                                           나주엽                                            |                                             서완석                                             |                                             양희철                                              |
-| :--------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------: |
+|                                              김정한                                               |                                             나주엽                                             |                                              서완석                                               |                                               양희철                                               |
+|:----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
 |                                               BE                                               |                                             FE                                              |                                               FE                                               |                                               BE                                                |
 | <img src="https://avatars.githubusercontent.com/u/77607258?v=4" alt="jjeonghak" width="120" /> | <img src="https://avatars.githubusercontent.com/u/101315505?v=4" alt="PMtHk" width="120" /> | <img src="https://avatars.githubusercontent.com/u/81221398?v=4" alt="jjeonghak" width="120" /> | <img src="https://avatars.githubusercontent.com/u/113877384?v=4" alt="jjeonghak" width="120" /> |
 |                            [jjeonhak](https://github.com/jjeonghak)                            |                              [PMtHk](https://github.com/PMtHk)                              |                              [iam454](https://github.com/iam454)                               |                            [yangchef1](https://github.com/yangchef1)                            |

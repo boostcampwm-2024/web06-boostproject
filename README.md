@@ -44,7 +44,7 @@
 - 태스크를 생성하고 상태를 관리할 수 있습니다.
 - 편집한 내용은 다른 사용자에게 실시간으로 반영됩니다.
 
-<img width="1200" alt="실시간 편집 및 반영" src="https://github.com/user-attachments/assets/5f9209f5-a8a3-4918-8af5-9ca9ae3347b2" />
+<img width="800" alt="실시간 편집 및 반영" src="https://github.com/user-attachments/assets/5f9209f5-a8a3-4918-8af5-9ca9ae3347b2" />
 
 <br />
 
@@ -53,7 +53,7 @@
 - 태스크 설명을 작성하고, 하위 태스크를 지정할 수 있습니다.
 - 담당자, 라벨, 우선순위, 스프린트, 예상 작업 시간을 지정할 수 있습니다.
 
-<img width="1200" alt="태스크 관리" src="https://github.com/user-attachments/assets/45ece965-e5af-4249-8ceb-837437fd442a" />
+<img width="800" alt="태스크 관리" src="https://github.com/user-attachments/assets/45ece965-e5af-4249-8ceb-837437fd442a" />
 
 <br />
 
@@ -62,7 +62,7 @@
 - 플래닝 포커에 참여하고 카드를 선택해 제안할 수 있습니다.
 - 다른 사람이 선택한 카드를 확인할 수 있습니다.
 
-<img width="1200" alt="플래닝 포커" src="https://github.com/user-attachments/assets/18d1a7c7-e3d5-438c-9d4f-606fe55a3a9c" />
+<img width="800" alt="플래닝 포커" src="https://github.com/user-attachments/assets/18d1a7c7-e3d5-438c-9d4f-606fe55a3a9c" />
 
 <br />
 
@@ -70,7 +70,7 @@
 
 - 프로젝트의 작업 현황, 담당자별 기여도, 우선순위 통계를 확인할 수 있습니다.
 
-<img width="1200" alt="대시보드" src="https://github.com/user-attachments/assets/8e21bc87-93eb-487c-b664-57a3e3629e59">
+<img width="800" alt="대시보드" src="https://github.com/user-attachments/assets/8e21bc87-93eb-487c-b664-57a3e3629e59">
 
 <br />
 <br />
@@ -101,7 +101,7 @@
 
 하지만, 이 방식은 커서를 강탈당하는 문제가 있어 동시 편집이 불가능했습니다.
 
-<img width="600" alt="동시 편집 불가 사진" src="https://github.com/user-attachments/assets/9ee1eb74-34b7-4854-8d33-7636bf73ad10">
+<img width="800" alt="동시 편집 불가 사진" src="https://github.com/user-attachments/assets/9ee1eb74-34b7-4854-8d33-7636bf73ad10">
 
 그래서 부분 업데이트 방식으로 변경했습니다.  
 처음에 예상했던 대로 부분 업데이트는 재연결 과정에서의 이벤트 누락이 발생했습니다.
@@ -118,11 +118,11 @@
 K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RPS(초당 요청 수)를 조정하며 **응답을 성공적으로 수신하는 비율**을 측정했습니다.  
 테스트 결과, 500ms 보다 좁은 간격으로 이벤트가 발생하면, 누락률이 급격히 증가하는 것을 확인할 수 있었습니다.
 
-<img width="600" alt="테스트 결과" src="https://github.com/user-attachments/assets/dd0ee87c-c733-4ded-9020-716ba45caddf">
+<img width="800" alt="테스트 결과" src="https://github.com/user-attachments/assets/dd0ee87c-c733-4ded-9020-716ba45caddf">
 
 이를 해결하기 위해 **버저닝**과 **스케줄링**을 적용하고자 했습니다.
 
-| <img width="600" alt="버저닝" src="https://github.com/user-attachments/assets/5be7e1f5-5882-4ad5-8167-3239901d34d9"> | <img width="600" alt="버저닝" src="https://github.com/user-attachments/assets/d63c1ebf-6706-4fc1-9ba2-cd8cbad54799"> |
+| <img width="380" alt="버저닝" src="https://github.com/user-attachments/assets/5be7e1f5-5882-4ad5-8167-3239901d34d9"> | <img width="380" alt="버저닝" src="https://github.com/user-attachments/assets/d63c1ebf-6706-4fc1-9ba2-cd8cbad54799"> |
 |:-----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------:|
 |                                                        버저닝                                                        |                                                       스케줄링                                                        |
 
@@ -132,7 +132,7 @@ K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RP
 이 방식을 적용하기 전, 실제 개선 효과가 있을지 검증하기 위해 테스트를 진행했습니다.  
 위와 같은 조건으로 **응답을 성공적으로 수신하는 비율**을 측정했습니다.
 
-<img width="600" alt="테스트 결과" src="https://github.com/user-attachments/assets/e6237425-41cb-447d-a841-ed38f92775ed">
+<img width="800" alt="테스트 결과" src="https://github.com/user-attachments/assets/e6237425-41cb-447d-a841-ed38f92775ed">
 
 해당 방식을 적용하면 기존 방식 대비, RPS에 따라 **0.4%** 부터 최대 **16.8%** 까지 누락률을 줄일 수 있음을 확인했습니다.  
 그래서, **버저닝**과 **스케줄링**을 적용해 실제 사용성을 높일 수 있었습니다.
@@ -142,7 +142,7 @@ K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RP
 
 ## 시스템 아키텍처
 
-<img width="1200" alt="시스템 아키텍처" src="https://github.com/user-attachments/assets/41ae31c5-f08c-45ce-94f4-c38b4e3272fe">
+<img width="800" alt="시스템 아키텍처" src="https://github.com/user-attachments/assets/41ae31c5-f08c-45ce-94f4-c38b4e3272fe">
 
 <br />
 <br />

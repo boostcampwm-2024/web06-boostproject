@@ -38,7 +38,6 @@
 |:----------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------:|
 |                                                         프로젝트 생성 및 초대                                                         |                                                         초대 승인 및 거절                                                         |
 
-<br />
 
 ### 실시간 편집 및 반영
 
@@ -150,14 +149,11 @@ K6 를 활용해 100명의 수신자를 기준으로, 0.1초부터 1초까지 RP
 
 ## 기술 스택
 
-| 분야 | 기술                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-|----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|
- 공통 | <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img src="https://img.shields.io/badge/socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white">                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|
- FE | <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/tanstack query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><img src="https://img.shields.io/badge/tanstack%20router-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><br><img src="https://img.shields.io/badge/framer%20motion-0055FF?style=for-the-badge&logo=framer&logoColor=white"><img src="https://img.shields.io/badge/shadcn-4F46E5?style=for-the-badge&logo=tailwindcss&logoColor=white"><img src="https://img.shields.io/badge/tailwind%20css-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"> |
-|
- BE | <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"><img src="https://img.shields.io/badge/typeorm-FFA500?style=for-the-badge&logo=typeorm&logoColor=white"><img src="https://img.shields.io/badge/sharedb-1D4ED8?style=for-the-badge&logo=databricks&logoColor=white"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">                                                                                                                                                                                                                                                                  |
+| 분야 | 기술 |
+| :--- | :--- |
+| 공통 | <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img src="https://img.shields.io/badge/socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white"> |
+| FE | <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/tanstack query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><img src="https://img.shields.io/badge/tanstack%20router-FF4154?style=for-the-badge&logo=react-query&logoColor=white"><br><img src="https://img.shields.io/badge/framer%20motion-0055FF?style=for-the-badge&logo=framer&logoColor=white"><img src="https://img.shields.io/badge/shadcn-4F46E5?style=for-the-badge&logo=tailwindcss&logoColor=white"><img src="https://img.shields.io/badge/tailwind%20css-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"> |
+| BE | <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"><img src="https://img.shields.io/badge/typeorm-FFA500?style=for-the-badge&logo=typeorm&logoColor=white"><img src="https://img.shields.io/badge/sharedb-1D4ED8?style=for-the-badge&logo=databricks&logoColor=white"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">|
 
 <br />
 <br />

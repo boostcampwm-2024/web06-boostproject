@@ -60,6 +60,8 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
   } = useDragAndDrop(onDrop);
 
   const handleTitleChange = (taskId: number, newTitle: string) => {
+    updateTaskTitle(taskId, newTitle);
+
     const task = findTask(sections, taskId);
     if (!task) return;
 
@@ -96,8 +98,6 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     } else if (diff.content.length > 0) {
       updateTitleMutate(insertPayload);
     }
-
-    updateTaskTitle(taskId, newTitle);
   };
 
   return (

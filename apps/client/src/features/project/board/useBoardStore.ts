@@ -213,8 +213,8 @@ const handleTitleInserted = (sections: TSection[], event: TaskEvent): TSection[]
     const task = section.tasks.find((t) => t.id === event.task.id);
 
     const title = task?.title ?? '';
-    const { position, content, length } = event.task.title!;
-    const newTitle = title.slice(0, position) + content + title.slice(position + length);
+    const { position, content } = event.task.title!;
+    const newTitle = title.slice(0, position) + content + title.slice(position);
 
     return {
       ...section,
@@ -223,7 +223,7 @@ const handleTitleInserted = (sections: TSection[], event: TaskEvent): TSection[]
   });
 };
 
-const handleTitleDeleted = (sections: TSection[], event: TaskEvent): TSection[] => {
+export const handleTitleDeleted = (sections: TSection[], event: TaskEvent): TSection[] => {
   return sections.map((section) => {
     const task = section.tasks.find((t) => t.id === event.task.id);
 
